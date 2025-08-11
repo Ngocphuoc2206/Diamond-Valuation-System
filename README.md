@@ -92,14 +92,14 @@ Diamond-Valuation-System/
 │── README.md           # Tài liệu dự án
 ```
 
-⚙️ Cài đặt & Khởi chạy
+## ⚙️ Cài đặt & Khởi chạy
 
-# 1 Clone dự án
+### 1.Clone dự án
 
 git clone https://github.com/yourusername/Diamond-Valuation-System.git
 cd Diamond-Valuation-System
 
-# 2 Frontend
+### 2.Frontend
 
 npm install
 npm run dev
