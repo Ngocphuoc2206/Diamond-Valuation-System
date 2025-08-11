@@ -1,0 +1,225 @@
+/* Custom styles beyond Tailwind will go here */
+
+/* Dashboard and Staff Interface Styles */
+.btn {
+  @apply px-4 py-2 rounded-md font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+}
+
+.btn-primary {
+  @apply bg-luxury-gold text-white hover:bg-yellow-600 focus:ring-yellow-500;
+}
+
+.btn-secondary {
+  @apply bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-gray-500;
+}
+
+.btn-success {
+  @apply bg-green-600 text-white hover:bg-green-700 focus:ring-green-500;
+}
+
+.btn-warning {
+  @apply bg-yellow-500 text-white hover:bg-yellow-600 focus:ring-yellow-400;
+}
+
+.btn-danger {
+  @apply bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
+}
+
+.btn-info {
+  @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500;
+}
+
+/* Status indicators for workflow */
+.status-pending {
+  @apply bg-yellow-100 text-yellow-800 border-yellow-300;
+}
+
+.status-in-progress {
+  @apply bg-blue-100 text-blue-800 border-blue-300;
+}
+
+.status-completed {
+  @apply bg-green-100 text-green-800 border-green-300;
+}
+
+.status-waiting {
+  @apply bg-gray-100 text-gray-800 border-gray-300;
+}
+
+/* Dashboard cards */
+.dashboard-card {
+  @apply bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200;
+}
+
+.dashboard-stat {
+  @apply bg-gradient-to-r from-luxury-gold to-yellow-500 text-white rounded-lg p-6 shadow-lg;
+}
+
+/* Workflow progress bars */
+.progress-bar {
+  @apply w-full bg-gray-200 rounded-full h-2;
+}
+
+.progress-fill {
+  @apply bg-luxury-gold h-2 rounded-full transition-all duration-500 ease-out;
+}
+
+/* Modal animations */
+.modal-backdrop {
+  @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content {
+  @apply bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Custom scrollbar for better UX */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Table styles for admin dashboard */
+.table-responsive {
+  @apply overflow-x-auto shadow-sm border border-gray-200 rounded-lg;
+}
+
+.table-header {
+  @apply bg-gray-50 border-b border-gray-200;
+}
+
+.table-row {
+  @apply border-b border-gray-100 hover:bg-gray-50 transition-colors duration-150;
+}
+
+/* Form enhancements */
+.form-input {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-luxury-gold focus:border-luxury-gold transition-colors;
+}
+
+.form-label {
+  @apply block text-sm font-medium text-gray-700 mb-2;
+}
+
+/* Status badges */
+.badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.badge-yellow {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+.badge-blue {
+  @apply bg-blue-100 text-blue-800;
+}
+
+.badge-green {
+  @apply bg-green-100 text-green-800;
+}
+
+.badge-red {
+  @apply bg-red-100 text-red-800;
+}
+
+.badge-purple {
+  @apply bg-purple-100 text-purple-800;
+}
+
+.badge-gray {
+  @apply bg-gray-100 text-gray-800;
+}
+
+/* Timeline styles */
+.timeline-item {
+  @apply relative pl-8 pb-4;
+}
+
+.timeline-item::before {
+  @apply absolute left-0 top-0 w-2 h-2 bg-luxury-gold rounded-full;
+  content: '';
+}
+
+.timeline-item:not(:last-child)::after {
+  @apply absolute left-1 top-2 w-0.5 h-full bg-gray-300;
+  content: '';
+  transform: translateX(-50%);
+}
+
+/* Loading animations */
+.animate-pulse-slow {
+  animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-bounce-slow {
+  animation: bounce 2s infinite;
+}
+
+/* Notification styles */
+.notification {
+  @apply fixed top-4 right-4 z-50 max-w-sm w-full bg-white border border-gray-200 rounded-lg shadow-lg;
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Responsive design helpers */
+@media (max-width: 768px) {
+  .modal-content {
+    @apply mx-2 max-h-[95vh];
+  }
+  
+  .dashboard-grid {
+    @apply grid-cols-1;
+  }
+}
+
+@media (max-width: 640px) {
+  .btn {
+    @apply text-sm px-3 py-1.5;
+  }
+  
+  .modal-content {
+    @apply mx-1;
+  }
+}
