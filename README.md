@@ -96,7 +96,7 @@ Diamond-Valuation-System/
 
 ### 1.Clone dự án
 
-git clone https://github.com/yourusername/Diamond-Valuation-System.git
+git clone https://github.com/Ngocphuoc2206/Diamond-Valuation-System.git
 cd Diamond-Valuation-System
 
 ### 2.Frontend
