@@ -1,0 +1,11 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\UserService.Application",
+    "\\UserService.Domain",
+    "\\UserService.Infrastructure",
+    "\\UserService.Tests"
+  ],
+  "SelectedNode": "\\DiamondValuationSystem.sln",
+  "PreviewInSolutionExplorer": false
+}
