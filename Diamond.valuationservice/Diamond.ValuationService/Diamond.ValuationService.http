@@ -1,0 +1,6 @@
+@Diamond.ValuationService_HostAddress = http://localhost:5083
+
+GET {{Diamond.ValuationService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
