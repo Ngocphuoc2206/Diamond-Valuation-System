@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "d6KyksHub/c=",
+  "success": true,
+  "projectFilePath": "D:\\XD_OOP\\commerce-core-service\\CommerceCoreService.Api\\CommerceCoreService.Api.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\nguye\\.nuget\\packages\\microsoft.aspnetcore.openapi\\9.0.0\\microsoft.aspnetcore.openapi.9.0.0.nupkg.sha512",
+    "C:\\Users\\nguye\\.nuget\\packages\\microsoft.openapi\\1.6.17\\microsoft.openapi.1.6.17.nupkg.sha512"
+  ],
+  "logs": []
+}
