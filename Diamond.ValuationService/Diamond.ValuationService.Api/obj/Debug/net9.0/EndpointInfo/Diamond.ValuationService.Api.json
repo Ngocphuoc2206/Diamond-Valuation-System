@@ -1,0 +1,162 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "Diamond.ValuationService.Api",
+    "version": "1.0"
+  },
+  "paths": {
+    "/api/Valuations/estimate": {
+      "post": {
+        "tags": [
+          "Valuations"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EstimateRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EstimateRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EstimateRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/EstimateResponseDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EstimateResponseDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EstimateResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "EstimateRequestDto": {
+        "type": "object",
+        "properties": {
+          "certificateNo": {
+            "type": "string",
+            "nullable": true
+          },
+          "origin": {
+            "type": "string",
+            "nullable": true
+          },
+          "shape": {
+            "type": "string",
+            "nullable": true
+          },
+          "carat": {
+            "type": "number",
+            "format": "double"
+          },
+          "color": {
+            "type": "string",
+            "nullable": true
+          },
+          "clarity": {
+            "type": "string",
+            "nullable": true
+          },
+          "cut": {
+            "type": "string",
+            "nullable": true
+          },
+          "polish": {
+            "type": "string",
+            "nullable": true
+          },
+          "symmetry": {
+            "type": "string",
+            "nullable": true
+          },
+          "fluorescence": {
+            "type": "string",
+            "nullable": true
+          },
+          "tablePercent": {
+            "type": "number",
+            "format": "double"
+          },
+          "depthPercent": {
+            "type": "number",
+            "format": "double"
+          },
+          "measurements": {
+            "type": "string",
+            "nullable": true
+          },
+          "externalRequestId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "customerName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EstimateResponseDto": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "resultId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pricePerCarat": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalPrice": {
+            "type": "number",
+            "format": "double"
+          },
+          "currency": {
+            "type": "string",
+            "nullable": true
+          },
+          "algorithmVersion": {
+            "type": "string",
+            "nullable": true
+          },
+          "valuatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

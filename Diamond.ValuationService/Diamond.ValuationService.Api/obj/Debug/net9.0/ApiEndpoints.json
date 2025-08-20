@@ -1,0 +1,28 @@
+[
+  {
+    "ContainingType": "Diamond.ValuationService.Api.Controllers.ValuationsController",
+    "Method": "Estimate",
+    "RelativePath": "api/Valuations/estimate",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "Diamond.ValuationService.Application.DTOs.EstimateRequestDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Diamond.ValuationService.Application.DTOs.EstimateResponseDto",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  }
+]

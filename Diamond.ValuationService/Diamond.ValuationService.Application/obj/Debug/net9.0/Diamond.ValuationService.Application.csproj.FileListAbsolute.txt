@@ -1,0 +1,15 @@
+E:\Diamond-Valuation-System\Diamond.ValuationService\Diamond.ValuationService.Application\obj\Debug\net9.0\Diamond.ValuationService.Application.csproj.AssemblyReference.cache
+E:\Diamond-Valuation-System\Diamond.ValuationService\Diamond.ValuationService.Application\obj\Debug\net9.0\Diamond.ValuationService.Application.GeneratedMSBuildEditorConfig.editorconfig
+E:\Diamond-Valuation-System\Diamond.ValuationService\Diamond.ValuationService.Application\obj\Debug\net9.0\Diamond.ValuationService.Application.AssemblyInfoInputs.cache
+E:\Diamond-Valuation-System\Diamond.ValuationService\Diamond.ValuationService.Application\obj\Debug\net9.0\Diamond.ValuationService.Application.AssemblyInfo.cs
+E:\Diamond-Valuation-System\Diamond.ValuationService\Diamond.ValuationService.Application\obj\Debug\net9.0\Diamond.ValuationService.Application.csproj.CoreCompileInputs.cache
+E:\Diamond-Valuation-System\Diamond.ValuationService\Diamond.ValuationService.Application\bin\Debug\net9.0\Diamond.ValuationService.Application.deps.json
+E:\Diamond-Valuation-System\Diamond.ValuationService\Diamond.ValuationService.Application\bin\Debug\net9.0\Diamond.ValuationService.Application.dll
+E:\Diamond-Valuation-System\Diamond.ValuationService\Diamond.ValuationService.Application\bin\Debug\net9.0\Diamond.ValuationService.Application.pdb
+E:\Diamond-Valuation-System\Diamond.ValuationService\Diamond.ValuationService.Application\bin\Debug\net9.0\Diamond.ValuationService.Domain.dll
+E:\Diamond-Valuation-System\Diamond.ValuationService\Diamond.ValuationService.Application\bin\Debug\net9.0\Diamond.ValuationService.Domain.pdb
+E:\Diamond-Valuation-System\Diamond.ValuationService\Diamond.ValuationService.Application\obj\Debug\net9.0\Diamond..C2083C8E.Up2Date
+E:\Diamond-Valuation-System\Diamond.ValuationService\Diamond.ValuationService.Application\obj\Debug\net9.0\Diamond.ValuationService.Application.dll
+E:\Diamond-Valuation-System\Diamond.ValuationService\Diamond.ValuationService.Application\obj\Debug\net9.0\refint\Diamond.ValuationService.Application.dll
+E:\Diamond-Valuation-System\Diamond.ValuationService\Diamond.ValuationService.Application\obj\Debug\net9.0\Diamond.ValuationService.Application.pdb
+E:\Diamond-Valuation-System\Diamond.ValuationService\Diamond.ValuationService.Application\obj\Debug\net9.0\ref\Diamond.ValuationService.Application.dll
