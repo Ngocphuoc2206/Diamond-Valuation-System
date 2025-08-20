@@ -1,0 +1,31 @@
+services:
+    reportingdb:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        container_name: reportingdb
+        environment:
+            SA_PASSWORD: "Your_password123"
+            ACCEPT_EULA: "Y"
+        ports:
+            - "1433:1433"
+        networks:
+            - reporting-network
+
+    reportingservice:
+        build:
+            context: .
+            dockerfile: Dockerfile   # hoặc Reporting.API/Dockerfile
+        container_name: reportingservice
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+            - ConnectionStrings__DefaultConnection=Server=reportingdb,1433;Database=ReportingDb;User Id=sa;Password=Your_password123;TrustServerCertificate=True;
+        ports:
+            - "5000:8080"
+            - "5001:8081"
+        depends_on:
+            - reportingdb
+        networks:
+            - reporting-network
+
+networks:
+    reporting-network:
+        driver: bridge
