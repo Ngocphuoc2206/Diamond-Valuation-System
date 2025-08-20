@@ -3,8 +3,8 @@
   "WorkspaceRootPath": "D:\\ValuationSystem\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{DF34D81C-7A4E-C00C-9417-419794CE0023}|UserService.Application\\UserService.Application.csproj|d:\\valuationsystem\\userservice.application\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{DF34D81C-7A4E-C00C-9417-419794CE0023}|UserService.Application\\UserService.Application.csproj|solutionrelative:userservice.application\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{04E13BBA-FC1E-7394-4AB5-E46BD1A6170D}|UserService.Api\\UserService.Api.csproj|d:\\valuationsystem\\userservice.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{04E13BBA-FC1E-7394-4AB5-E46BD1A6170D}|UserService.Api\\UserService.Api.csproj|solutionrelative:userservice.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -27,14 +27,14 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "AuthService.cs",
-              "DocumentMoniker": "D:\\ValuationSystem\\UserService.Application\\Services\\AuthService.cs",
-              "RelativeDocumentMoniker": "UserService.Application\\Services\\AuthService.cs",
-              "ToolTip": "D:\\ValuationSystem\\UserService.Application\\Services\\AuthService.cs",
-              "RelativeToolTip": "UserService.Application\\Services\\AuthService.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAABAAAAAlAAAAAAAAAA==",
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\ValuationSystem\\UserService.Api\\Program.cs",
+              "RelativeDocumentMoniker": "UserService.Api\\Program.cs",
+              "ToolTip": "D:\\ValuationSystem\\UserService.Api\\Program.cs",
+              "RelativeToolTip": "UserService.Api\\Program.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAABMAAAAiAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-18T16:55:41.262Z",
+              "WhenOpened": "2025-08-19T16:12:56.322Z",
               "EditorCaption": ""
             }
           ]

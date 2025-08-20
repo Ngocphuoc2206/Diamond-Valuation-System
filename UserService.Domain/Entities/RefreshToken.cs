@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharedKernel.Entites;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,16 +7,14 @@ using System.Threading.Tasks;
 
 namespace UserService.Domain.Entities
 {
-    public class RefreshToken
+    public class RefreshToken: BaseEntity
     {
-        public Guid Id { get; set; } = Guid.NewGuid();
-        public Guid UserId { get; set; }
-        public string TokenHash { get; set; } = default!;
+        public int UserId { get; set; }
+        public string Token { get; set; } = "";
         public DateTime ExpiresAt { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? RevokedAt { get; set; }
-
-        //Kiểm tra token có còn hiệu lực hay không
-        public bool IsActive => RevokedAt == null && DateTime.UtcNow < ExpiresAt;
+        public string? DeviceInfo { get; set; }
+        public string? IpAddress { get; set; }
+        public User User { get; set; } = default!;
     }
 }

@@ -43,6 +43,7 @@ namespace SharedLibrary.Repository
             try
             {
                 await _context.Set<T>().AddAsync(entity);
+                await _context.SaveChangesAsync();
                 return new ApiResponse<T> { Success = true, Data = entity, Message = "Entity created successfully" };
             }
             catch (Exception ex)
@@ -56,6 +57,7 @@ namespace SharedLibrary.Repository
             try
             {
                 _context.Set<T>().Remove(entity);
+                await _context.SaveChangesAsync();
                 return new ApiResponse<bool> { Success = true, Data = true, Message = "Entity deleted successfully" };
             }
             catch (Exception ex)
@@ -69,6 +71,7 @@ namespace SharedLibrary.Repository
             try
             {
                 _context.Set<T>().Update(entity);
+                await _context.SaveChangesAsync();
                 return new ApiResponse<T> { Success = true, Data = entity, Message = "Entity updated successfully" };
             }
             catch (Exception ex)

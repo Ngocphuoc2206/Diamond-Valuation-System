@@ -107,6 +107,7 @@ D:\ValuationSystem\UserService.Tests\obj\Debug\net9.0\UserService.Tests.Generate
 D:\ValuationSystem\UserService.Tests\obj\Debug\net9.0\UserService.Tests.AssemblyInfoInputs.cache
 D:\ValuationSystem\UserService.Tests\obj\Debug\net9.0\UserService.Tests.AssemblyInfo.cs
 D:\ValuationSystem\UserService.Tests\obj\Debug\net9.0\UserService.Tests.csproj.CoreCompileInputs.cache
+D:\ValuationSystem\UserService.Tests\obj\Debug\net9.0\UserService.Tests.sourcelink.json
 D:\ValuationSystem\UserService.Tests\obj\Debug\net9.0\UserServ.B7D46667.Up2Date
 D:\ValuationSystem\UserService.Tests\obj\Debug\net9.0\UserService.Tests.dll
 D:\ValuationSystem\UserService.Tests\obj\Debug\net9.0\refint\UserService.Tests.dll

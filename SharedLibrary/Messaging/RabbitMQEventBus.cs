@@ -1,31 +1,37 @@
-﻿using System.Text;
-using System.Text.Json;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using SharedLibrary.Messaging.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Channels;
+using System.Threading.Tasks;
 
 namespace SharedLibrary.Messaging
 {
     public class RabbitMQEventBus : IEventBus, IDisposable
     {
-        private readonly IConnectionFactory _connectionFactory;
-        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly ConnectionFactory _connectionFactory; // Updated to use RabbitMQ.Client.ConnectionFactory
         private readonly ILogger<RabbitMQEventBus> _logger;
-        private readonly Dictionary<string, List<Type>> _handlers;
         private readonly IConnection _connection;
-        private readonly RabbitMQ.Client.IModel _channel;
+        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly IChannel _channel;
+        private readonly Dictionary<string, List<Type>> _handlers;
+        private readonly List<Type> _eventTypes;
         private readonly JsonSerializerOptions _jsonOptions;
 
-        public RabbitMQEventBus(
-            IConnectionFactory connectionFactory,
-            IServiceScopeFactory scopeFactory,
-            ILogger<RabbitMQEventBus> logger)
+        public RabbitMQEventBus(ConnectionFactory connectionFactory, IServiceScopeFactory scopeFactory,
+                               ILogger<RabbitMQEventBus> logger)
         {
             _connectionFactory = connectionFactory;
-            _scopeFactory = scopeFactory;
             _logger = logger;
+            _scopeFactory = scopeFactory;
             _handlers = new Dictionary<string, List<Type>>();
+            _eventTypes = new List<Type>();
 
             // Configure JSON serialization options for better compatibility
             _jsonOptions = new JsonSerializerOptions
@@ -37,8 +43,8 @@ namespace SharedLibrary.Messaging
 
             try
             {
-                _connection = _connectionFactory.CreateConnection();
-                _channel = _connection.CreateModel();
+                _connection = _connectionFactory.CreateConnectionAsync().GetAwaiter().GetResult();
+                _channel = _connection.CreateChannelAsync().GetAwaiter().GetResult();
 
                 _logger.LogInformation("RabbitMQ connection established");
             }
@@ -49,6 +55,12 @@ namespace SharedLibrary.Messaging
             }
         }
 
+        public void Dispose()
+        {
+            _channel?.CloseAsync();
+            _connection?.CloseAsync();
+        }
+
         public void Publish<T>(T @event) where T : class
         {
             var eventName = @event.GetType().Name;
@@ -56,7 +68,7 @@ namespace SharedLibrary.Messaging
 
             try
             {
-                _channel.QueueDeclare(queue: eventName,
+                _channel.QueueDeclareAsync(queue: eventName,
                                      durable: true,
                                      exclusive: false,
                                      autoDelete: false);
@@ -65,10 +77,18 @@ namespace SharedLibrary.Messaging
                 _logger.LogDebug("Publishing event JSON: {EventJson}", message);
                 var body = Encoding.UTF8.GetBytes(message);
 
-                _channel.BasicPublish(exchange: "",
-                                     routingKey: eventName,
-                                     basicProperties: null,
-                                     body: body);
+                // Fix: Add the 'mandatory' parameter to match the correct overload of BasicPublishAsync
+                var properties = new BasicProperties
+                {
+                    Persistent = true
+                };
+
+                _channel.BasicPublishAsync(
+                    exchange: "",
+                    routingKey: eventName,
+                    mandatory: false, // Added mandatory parameter
+                    basicProperties: properties,
+                    body: body);
 
                 _logger.LogInformation("Event {EventName} published successfully", eventName);
             }
@@ -79,7 +99,9 @@ namespace SharedLibrary.Messaging
             }
         }
 
-        public void Subscribe<T, TH>() where T : class where TH : IEventHandler<T>
+        public void Subscribe<T, TH>()
+            where T : class
+            where TH : IEventHandler<T>
         {
             var eventName = typeof(T).Name;
             var handlerType = typeof(TH);
@@ -88,20 +110,20 @@ namespace SharedLibrary.Messaging
             {
                 _handlers.Add(eventName, new List<Type>());
 
-                _channel.QueueDeclare(queue: eventName,
+                _channel.QueueDeclareAsync(queue: eventName,
                                      durable: true,
                                      exclusive: false,
                                      autoDelete: false);
 
-                var consumer = new EventingBasicConsumer(_channel);
-                consumer.Received += async (model, ea) =>
+                var consumer = new AsyncEventingBasicConsumer(_channel);
+                consumer.ReceivedAsync += async (model, ea) =>
                 {
                     var body = ea.Body.ToArray();
                     var message = Encoding.UTF8.GetString(body);
                     await ProcessEvent(eventName, message);
                 };
 
-                _channel.BasicConsume(queue: eventName,
+                _channel.BasicConsumeAsync(queue: eventName,
                                      autoAck: true,
                                      consumer: consumer);
             }
@@ -160,12 +182,6 @@ namespace SharedLibrary.Messaging
                     _logger.LogError(ex, "Error processing event {EventName}", eventName);
                 }
             }
-        }
-
-        public void Dispose()
-        {
-            _channel?.Close();
-            _connection?.Close();
         }
     }
 }

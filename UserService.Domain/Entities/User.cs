@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharedKernel.Entites;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,26 +7,19 @@ using System.Threading.Tasks;
 
 namespace UserService.Domain.Entities
 {
-    public class BaseEntity
-    {
-        public int Id { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime? UpdatedAt { get; set; }
-        public bool IsDeleted { get; set; } = false;
-        public string? CreatedBy { get; set; }
-        public string? UpdatedBy { get; set; }
-    }
     public class User : BaseEntity
     {
-        public string? UserName { get; set; }
-        public string? FullName { get; set; }
+        public string UserName { get; set; } = "";
+        public string FullName { get; set; } = "";
         public string? Email { get; set; }
-        public string? PasswordHash { get; set; }
-        public byte Gender { get; set; }
         public string? Phone { get; set; }
-        public bool IsAnonymous { get; set; }
+        public byte Gender { get; set; } // 0:F,1:M,2:Other
         public DateTime? DateOfBirth { get; set; }
-        public int RoleId { get; set; }
-        public Role Role { get; set; }
+        public string PasswordHash { get; set; } = "";
+        public string PasswordSalt { get; set; } = "";
+        public bool IsActive { get; set; } = true;
+
+        public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+        public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
     }
 }

@@ -1,87 +1,37 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using Asp.Versioning;
+﻿    using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
+using UserService.Application.DTOs;
+using UserService.Application.Interfaces;
+using UserService.Application.Services.Interfaces;
 
-namespace UserService.Api.Controllers
+namespace UserService.Api.Controllers;
+
+[ApiController]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/users")]
+public class UsersController : ControllerBase
 {
-    /// <summary>
-    /// Auth endpoints (demo).
-    /// </summary>
-    [ApiController]
-    [ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/auth")]
-    public class AuthController : ControllerBase
+    private readonly IUserService _svc;
+    public UsersController(IUserService svc) => _svc = svc;
+
+    [Authorize(Roles = "Admin,Manager"), HttpGet]
+    public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int size = 20)
+        => Ok(await _svc.GetAllAsync(page, size));
+
+    [Authorize, HttpGet("{id:int}")]
+    public async Task<IActionResult> GetById(int id)
+        => Ok(await _svc.GetByIdAsync(id));
+
+    [Authorize, HttpPut("me")]
+    public async Task<IActionResult> UpdateMe(UpdateProfileDto dto)
     {
-        private readonly IConfiguration _config;
-
-        public AuthController(IConfiguration config)
-        {
-            _config = config;
-        }
-
-        /// <summary>
-        /// Đăng nhập demo (username=admin, password=123).
-        /// </summary>
-        /// <param name="req">Thông tin đăng nhập</param>
-        /// <returns>JWT token</returns>
-        [HttpPost("login")]
-        [AllowAnonymous]
-        public IActionResult Login([FromBody] LoginRequest req)
-        {
-            // DEMO: hardcode check
-            if (req.Username != "admin" || req.Password != "123")
-                return Unauthorized(new { message = "Sai username hoặc password" });
-
-            // Sinh JWT
-            var jwtKey = _config["JWT:Key"] ?? "super_secret_dev_key_123";
-            var jwtIssuer = _config["JWT:Issuer"] ?? "dvs";
-            var jwtAudience = _config["JWT:Audience"] ?? "dvs";
-
-            var claims = new List<Claim>
-            {
-                new Claim(JwtRegisteredClaimNames.Sub, req.Username),
-                new Claim(ClaimTypes.Role, "Admin"), // role giả lập
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            };
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            var token = new JwtSecurityToken(
-                issuer: jwtIssuer,
-                audience: jwtAudience,
-                claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(30),
-                signingCredentials: creds);
-
-            var accessToken = new JwtSecurityTokenHandler().WriteToken(token);
-
-            return Ok(new
-            {
-                success = true,
-                token = accessToken,
-                expiresIn = 1800,
-                tokenType = "Bearer"
-            });
-        }
-
-        /// <summary>
-        /// Endpoint test cần JWT.
-        /// </summary>
-        [HttpGet("me")]
-        [Authorize] // yêu cầu JWT
-        public IActionResult Me()
-        {
-            var userName = User.Identity?.Name ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var role = User.FindFirstValue(ClaimTypes.Role);
-
-            return Ok(new { username = userName, role });
-        }
+        var sub = User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value ?? User.Identity?.Name!;
+        var id = int.Parse(sub);
+        return Ok(await _svc.UpdateProfileAsync(id, dto));
     }
 
-    public record LoginRequest(string Username, string Password);
+    [Authorize(Roles = "Admin,Manager"), HttpPost("assign-role")]
+    public async Task<IActionResult> AssignRole(AssignRoleDto dto)
+        => Ok(await _svc.AssignRoleAsync(dto));
 }

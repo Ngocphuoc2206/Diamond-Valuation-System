@@ -1,0 +1,12 @@
+D:\ValuationSystem\SharedKernel\bin\Debug\net9.0\SharedKernel.deps.json
+D:\ValuationSystem\SharedKernel\bin\Debug\net9.0\SharedKernel.dll
+D:\ValuationSystem\SharedKernel\bin\Debug\net9.0\SharedKernel.pdb
+D:\ValuationSystem\SharedKernel\obj\Debug\net9.0\SharedKernel.GeneratedMSBuildEditorConfig.editorconfig
+D:\ValuationSystem\SharedKernel\obj\Debug\net9.0\SharedKernel.AssemblyInfoInputs.cache
+D:\ValuationSystem\SharedKernel\obj\Debug\net9.0\SharedKernel.AssemblyInfo.cs
+D:\ValuationSystem\SharedKernel\obj\Debug\net9.0\SharedKernel.csproj.CoreCompileInputs.cache
+D:\ValuationSystem\SharedKernel\obj\Debug\net9.0\SharedKernel.sourcelink.json
+D:\ValuationSystem\SharedKernel\obj\Debug\net9.0\SharedKernel.dll
+D:\ValuationSystem\SharedKernel\obj\Debug\net9.0\refint\SharedKernel.dll
+D:\ValuationSystem\SharedKernel\obj\Debug\net9.0\SharedKernel.pdb
+D:\ValuationSystem\SharedKernel\obj\Debug\net9.0\ref\SharedKernel.dll

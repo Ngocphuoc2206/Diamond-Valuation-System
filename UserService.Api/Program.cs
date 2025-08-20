@@ -1,12 +1,28 @@
 ﻿using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
 using Microsoft.OpenApi.Models;
+using SharedLibrary.DependencyInjection;
 using System.IO;
+using UserService.Application.Interfaces;
+using UserService.Application.Services.Interfaces;
+using UserService.Application.Services;
+using UserService.Infrastructure.DependencyInjection;
+using UserService.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+using UserService.Domain.Interfaces;
+using UserService.Infrastructure.Seeding;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+//add services in Infra + SharedLibrary (JWT)
+builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddSharedLibrary(builder.Configuration);
+
+// Application services
+builder.Services.AddScoped<IUserService, UserService.Application.Services.UserService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 //Apiversioning
 builder.Services.AddApiVersioning(options =>
@@ -25,7 +41,7 @@ builder.Services.AddApiVersioning(options =>
 //Add Controller
 builder.Services.AddControllers();
 
-//Swagger 
+//Swagger + Bearer Authentication
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -55,6 +71,16 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<UserDbContext>();
+    await db.Database.MigrateAsync();
+
+    var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
+    // Kiểm tra và tạo dữ liệu mẫu nếu cần
+    await DbSeeder.SeedAsync(db, hasher);
+}
 
 //Tạo swagger cho từng API version
 var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();

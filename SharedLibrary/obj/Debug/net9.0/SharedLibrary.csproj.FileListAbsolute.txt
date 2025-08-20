@@ -6,6 +6,7 @@ D:\ValuationSystem\SharedLibrary\obj\Debug\net9.0\SharedLibrary.GeneratedMSBuild
 D:\ValuationSystem\SharedLibrary\obj\Debug\net9.0\SharedLibrary.AssemblyInfoInputs.cache
 D:\ValuationSystem\SharedLibrary\obj\Debug\net9.0\SharedLibrary.AssemblyInfo.cs
 D:\ValuationSystem\SharedLibrary\obj\Debug\net9.0\SharedLibrary.csproj.CoreCompileInputs.cache
+D:\ValuationSystem\SharedLibrary\obj\Debug\net9.0\SharedLibrary.sourcelink.json
 D:\ValuationSystem\SharedLibrary\obj\Debug\net9.0\SharedLibrary.dll
 D:\ValuationSystem\SharedLibrary\obj\Debug\net9.0\refint\SharedLibrary.dll
 D:\ValuationSystem\SharedLibrary\obj\Debug\net9.0\SharedLibrary.pdb
