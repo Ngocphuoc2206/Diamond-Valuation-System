@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "5DQT3JmkqkQ=",
+  "dgSpecHash": "uLmlPq0K/fM=",
   "success": true,
-  "projectFilePath": "D:\\ValuationSystem\\UserService.Infrastructure\\UserService.Infrastructure.csproj",
+  "projectFilePath": "D:\\UserService\\UserService.Infrastructure\\UserService.Infrastructure.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\automapper\\15.0.1\\automapper.15.0.1.nupkg.sha512",
     "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",

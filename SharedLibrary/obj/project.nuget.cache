@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "orxGyepfWWU=",
+  "dgSpecHash": "ypaMd4obDr0=",
   "success": true,
-  "projectFilePath": "D:\\ValuationSystem\\SharedLibrary\\SharedLibrary.csproj",
+  "projectFilePath": "D:\\UserService\\SharedLibrary\\SharedLibrary.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\9.0.8\\microsoft.aspnetcore.authentication.jwtbearer.9.0.8.nupkg.sha512",
     "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\microsoft.entityframeworkcore\\9.0.8\\microsoft.entityframeworkcore.9.0.8.nupkg.sha512",

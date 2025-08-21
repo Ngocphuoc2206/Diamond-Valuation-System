@@ -47,7 +47,8 @@ namespace UserService.Application.Services
             // Default Role = Customer
             var role = await _uow.RoleRepository.GetByAsync(r => r.Name == "Customer")
                    ?? (await _uow.RoleRepository.CreateAsync(new Role { Name = "Customer" })).Data!;
-
+            // GÁN role Customer cho user mới
+            await _uow.UserRoleRepository.CreateAsync(new UserRole { UserId = user.Id, RoleId = role.Id });
             return await IssueTokensAsync(user, "register");
         }
 
@@ -124,6 +125,52 @@ namespace UserService.Application.Services
 
             var resp = new TokenResponse(access, refresh, DateTime.UtcNow.AddMinutes(20));
             return ApiResponse<TokenResponse>.CreateSuccessResponse(resp, $"Token issued ({reason})");
+        }
+
+        public async Task<ApiResponse<IEnumerable<SessionDto>>> GetSessionsAsync(int userId)
+        {
+            var now = DateTime.UtcNow;
+            var tokens = await _uow.RefreshTokenRepository
+                                   .GetManyAsync(x => x.UserId == userId);
+            var dtos = tokens
+                .OrderByDescending(t => t.CreatedAt)
+                .Select(t => new SessionDto(
+                    t.Id,
+                    t.DeviceInfo,
+                    t.IpAddress,
+                    t.ExpiresAt,
+                    t.RevokedAt != null || t.ExpiresAt <= now,
+                    (DateTime)t.CreatedAt
+                ));
+            return ApiResponse<IEnumerable<SessionDto>>.CreateSuccessResponse(dtos, "Fetched sessions");
+        }
+
+        public async Task<ApiResponse<bool>> RevokeSessionAsync(int userId, int refreshTokenId)
+        {
+            var rt = await _uow.RefreshTokenRepository
+                               .GetByAsync(x => x.Id == refreshTokenId && x.UserId == userId);
+            if (rt is null)
+                return ApiResponse<bool>.Failure("Session not found");
+
+            if (rt.RevokedAt == null)
+            {
+                rt.RevokedAt = DateTime.UtcNow;
+                await _uow.RefreshTokenRepository.UpdateAsync(rt);
+            }
+
+            return ApiResponse<bool>.CreateSuccessResponse(true, "Revoked session");
+        }
+
+        public async Task<ApiResponse<bool>> RevokeAllSessionsAsync(int userId)
+        {
+            var tokens = await _uow.RefreshTokenRepository
+                                   .GetManyAsync(x => x.UserId == userId && x.RevokedAt == null);
+            foreach (var t in tokens)
+            {
+                t.RevokedAt = DateTime.UtcNow;
+                await _uow.RefreshTokenRepository.UpdateAsync(t);
+            }
+            return ApiResponse<bool>.CreateSuccessResponse(true, "Revoked all sessions");
         }
     }
 }

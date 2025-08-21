@@ -1900,11 +1900,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\ValuationSystem\\UserService.Tests\\UserService.Tests.csproj",
+      "projectUniqueName": "D:\\UserService\\UserService.Tests\\UserService.Tests.csproj",
       "projectName": "UserService.Tests",
-      "projectPath": "D:\\ValuationSystem\\UserService.Tests\\UserService.Tests.csproj",
+      "projectPath": "D:\\UserService\\UserService.Tests\\UserService.Tests.csproj",
       "packagesPath": "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\",
-      "outputPath": "D:\\ValuationSystem\\UserService.Tests\\obj\\",
+      "outputPath": "D:\\UserService\\UserService.Tests\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

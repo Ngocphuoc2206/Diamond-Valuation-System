@@ -38,7 +38,7 @@ namespace UserService.Infrastructure.UnitOfWork
 
         public Task<int> SaveChangesAsync()
         {
-            throw new NotImplementedException();
+            return _context.SaveChangesAsync();
         }
     }
 }

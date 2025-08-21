@@ -4610,11 +4610,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\ValuationSystem\\UserService.Application\\UserService.Application.csproj",
+      "projectUniqueName": "D:\\UserService\\UserService.Application\\UserService.Application.csproj",
       "projectName": "UserService.Application",
-      "projectPath": "D:\\ValuationSystem\\UserService.Application\\UserService.Application.csproj",
+      "projectPath": "D:\\UserService\\UserService.Application\\UserService.Application.csproj",
       "packagesPath": "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\",
-      "outputPath": "D:\\ValuationSystem\\UserService.Application\\obj\\",
+      "outputPath": "D:\\UserService\\UserService.Application\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -4636,11 +4636,11 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "D:\\ValuationSystem\\SharedLibrary\\SharedLibrary.csproj": {
-              "projectPath": "D:\\ValuationSystem\\SharedLibrary\\SharedLibrary.csproj"
+            "D:\\UserService\\SharedLibrary\\SharedLibrary.csproj": {
+              "projectPath": "D:\\UserService\\SharedLibrary\\SharedLibrary.csproj"
             },
-            "D:\\ValuationSystem\\UserService.Domain\\UserService.Domain.csproj": {
-              "projectPath": "D:\\ValuationSystem\\UserService.Domain\\UserService.Domain.csproj"
+            "D:\\UserService\\UserService.Domain\\UserService.Domain.csproj": {
+              "projectPath": "D:\\UserService\\UserService.Domain\\UserService.Domain.csproj"
             }
           }
         }

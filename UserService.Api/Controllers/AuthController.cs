@@ -37,4 +37,29 @@ public class AuthController : ControllerBase
     [Authorize, HttpPost("logout")]
     public async Task<IActionResult> Logout(LogoutDto dto)
         => Ok(await _svc.LogoutAsync(dto));
+
+
+    [Authorize, HttpGet("sessions")]
+    public async Task<IActionResult> GetSessions()
+    {
+        var sub = User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value ?? User.Identity?.Name!;
+        var userId = int.Parse(sub);
+        return Ok(await _svc.GetSessionsAsync(userId));
+    }
+
+    [Authorize, HttpPost("revoke")]
+    public async Task<IActionResult> Revoke([FromBody] RevokeSessionDto dto)
+    {
+        var sub = User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value ?? User.Identity?.Name!;
+        var userId = int.Parse(sub);
+        return Ok(await _svc.RevokeSessionAsync(userId, dto.RefreshTokenId));
+    }
+
+    [Authorize, HttpPost("revoke-all")]
+    public async Task<IActionResult> RevokeAll()
+    {
+        var sub = User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value ?? User.Identity?.Name!;
+        var userId = int.Parse(sub);
+        return Ok(await _svc.RevokeAllSessionsAsync(userId));
+    }
 }

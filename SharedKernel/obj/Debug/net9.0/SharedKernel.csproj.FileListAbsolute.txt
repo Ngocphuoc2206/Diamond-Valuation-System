@@ -10,3 +10,15 @@ D:\ValuationSystem\SharedKernel\obj\Debug\net9.0\SharedKernel.dll
 D:\ValuationSystem\SharedKernel\obj\Debug\net9.0\refint\SharedKernel.dll
 D:\ValuationSystem\SharedKernel\obj\Debug\net9.0\SharedKernel.pdb
 D:\ValuationSystem\SharedKernel\obj\Debug\net9.0\ref\SharedKernel.dll
+D:\UserService\SharedKernel\bin\Debug\net9.0\SharedKernel.deps.json
+D:\UserService\SharedKernel\bin\Debug\net9.0\SharedKernel.dll
+D:\UserService\SharedKernel\bin\Debug\net9.0\SharedKernel.pdb
+D:\UserService\SharedKernel\obj\Debug\net9.0\SharedKernel.GeneratedMSBuildEditorConfig.editorconfig
+D:\UserService\SharedKernel\obj\Debug\net9.0\SharedKernel.AssemblyInfoInputs.cache
+D:\UserService\SharedKernel\obj\Debug\net9.0\SharedKernel.AssemblyInfo.cs
+D:\UserService\SharedKernel\obj\Debug\net9.0\SharedKernel.csproj.CoreCompileInputs.cache
+D:\UserService\SharedKernel\obj\Debug\net9.0\SharedKernel.sourcelink.json
+D:\UserService\SharedKernel\obj\Debug\net9.0\SharedKernel.dll
+D:\UserService\SharedKernel\obj\Debug\net9.0\refint\SharedKernel.dll
+D:\UserService\SharedKernel\obj\Debug\net9.0\SharedKernel.pdb
+D:\UserService\SharedKernel\obj\Debug\net9.0\ref\SharedKernel.dll
