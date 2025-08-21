@@ -1,61 +1,22 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { useForm, Controller, FormProvider, useFormContext } from 'react-hook-form';
+import { useForm, FormProvider, useFormContext } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-
-// Define the diamond valuation form schema
-const diamondFormSchema = z.object({
-  // Step 1: Diamond Identity
-  certificateNumber: z.string().optional(),
-  certificateType: z.string().optional(),
-  origin: z.string().optional(),
-  
-  // Step 2: Basic Characteristics
-  shape: z.string().min(1, { message: 'Shape is required' }),
-  caratWeight: z.string().min(1, { message: 'Carat weight is required' }),
-  
-  // Step 3: Color and Clarity
-  color: z.string().min(1, { message: 'Color is required' }),
-  clarity: z.string().min(1, { message: 'Clarity is required' }),
-  
-  // Step 4: Cut Characteristics
-  cut: z.string().min(1, { message: 'Cut is required' }),
-  polish: z.string().min(1, { message: 'Polish is required' }),
-  symmetry: z.string().min(1, { message: 'Symmetry is required' }),
-  fluorescence: z.string().min(1, { message: 'Fluorescence is required' }),
-  
-  // Step 5: Measurements
-  length: z.string().optional(),
-  width: z.string().optional(),
-  depth: z.string().optional(),
-  
-  // Step 6: Additional Info
-  hasInclusions: z.boolean().optional(),
-  hasSettings: z.boolean().optional(),
-  settingMaterial: z.string().optional(),
-  additionalNotes: z.string().optional(),
-  
-  // Step 7: Contact Information
-  fullName: z.string().min(1, { message: 'Full name is required' }),
-  email: z.string().email({ message: 'Invalid email address' }),
-  phone: z.string().min(10, { message: 'Valid phone number is required' }),
-  preferredContact: z.string().min(1, { message: 'Preferred contact method is required' }),
-});
-
-type DiamondFormValues = z.infer<typeof diamondFormSchema>;
+import { useLanguage } from '../context/LanguageContext';
+import { createDiamondFormSchema, type DiamondFormValues } from '../utils/validation';
 
 // Form Steps Components
 const Step1Certificate: React.FC = () => {
   const { control, register, formState: { errors } } = useFormContext<DiamondFormValues>();
+  const { t } = useLanguage();
   const [hasCertificate, setHasCertificate] = useState(false);
   
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-serif font-bold">Diamond Identity</h2>
+      <h2 className="text-2xl font-serif font-bold">{t('step1.title')}</h2>
       <p className="text-gray-600">
-        Enter your diamond's certificate information if available, or proceed without it.
+        {t('step1.description')}
       </p>
       
       <div className="mb-6">
@@ -68,7 +29,7 @@ const Step1Certificate: React.FC = () => {
             checked={hasCertificate}
           />
           <label htmlFor="hasCertificate" className="font-medium">
-            I have a diamond certificate/grading report
+            {t('step1.hasCertificate')}
           </label>
         </div>
       </div>
@@ -78,14 +39,14 @@ const Step1Certificate: React.FC = () => {
           <div className="grid md:grid-cols-2 gap-6">
             <div>
               <label htmlFor="certificateNumber" className="block mb-1 font-medium">
-                Certificate Number
+                {t('step1.certificateNumber')}
               </label>
               <input
                 id="certificateNumber"
                 type="text"
                 {...register('certificateNumber')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
-                placeholder="E.g. GIA 1234567890"
+                placeholder={t('placeholder.certificateNumber')}
               />
               {errors.certificateNumber && (
                 <p className="text-red-600 text-sm mt-1">{errors.certificateNumber.message}</p>
@@ -94,42 +55,41 @@ const Step1Certificate: React.FC = () => {
             
             <div>
               <label htmlFor="certificateType" className="block mb-1 font-medium">
-                Certificate Type
+                {t('step1.certificateType')}
               </label>
               <select
                 id="certificateType"
                 {...register('certificateType')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
               >
-                <option value="">Select laboratory</option>
+                <option value="">{t('common.select')} laboratory</option>
                 <option value="GIA">GIA (Gemological Institute of America)</option>
                 <option value="IGI">IGI (International Gemological Institute)</option>
                 <option value="AGS">AGS (American Gem Society)</option>
                 <option value="HRD">HRD (Hoge Raad voor Diamant)</option>
                 <option value="GSI">GSI (Gemological Science International)</option>
                 <option value="EGL">EGL (European Gemological Laboratory)</option>
-                <option value="Other">Other</option>
+                <option value="Other">{t('common.other')}</option>
               </select>
             </div>
           </div>
           
           <p className="text-sm text-gray-600 mt-4">
-            Note: By providing a certificate number, we may be able to retrieve some information
-            automatically, which will help in the valuation process.
+            {t('step1.note')}
           </p>
         </>
       )}
       
       <div>
         <label htmlFor="origin" className="block mb-1 font-medium">
-          Origin (if known)
+          {t('step1.origin')}
         </label>
         <select
           id="origin"
           {...register('origin')}
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
         >
-          <option value="">Unknown/Not sure</option>
+          <option value="">{t('common.unknown')}/Not sure</option>
           <option value="South Africa">South Africa</option>
           <option value="Botswana">Botswana</option>
           <option value="Russia">Russia</option>
@@ -137,7 +97,7 @@ const Step1Certificate: React.FC = () => {
           <option value="Australia">Australia</option>
           <option value="Angola">Angola</option>
           <option value="Namibia">Namibia</option>
-          <option value="Other">Other</option>
+          <option value="Other">{t('common.other')}</option>
         </select>
       </div>
     </div>
@@ -146,25 +106,26 @@ const Step1Certificate: React.FC = () => {
 
 const Step2Basics: React.FC = () => {
   const { register, formState: { errors } } = useFormContext<DiamondFormValues>();
+  const { t } = useLanguage();
   
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-serif font-bold">Basic Characteristics</h2>
+      <h2 className="text-2xl font-serif font-bold">{t('step2.title')}</h2>
       <p className="text-gray-600">
-        Tell us about your diamond's fundamental properties.
+        {t('step2.description')}
       </p>
       
       <div className="grid md:grid-cols-2 gap-6">
         <div>
           <label htmlFor="shape" className="block mb-1 font-medium">
-            Shape <span className="text-red-600">*</span>
+            {t('step2.shape')} <span className="text-red-600">{t('common.required')}</span>
           </label>
           <select
             id="shape"
             {...register('shape')}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
           >
-            <option value="">Select shape</option>
+            <option value="">{t('common.select')} shape</option>
             <option value="Round">Round</option>
             <option value="Princess">Princess</option>
             <option value="Cushion">Cushion</option>
@@ -175,7 +136,7 @@ const Step2Basics: React.FC = () => {
             <option value="Radiant">Radiant</option>
             <option value="Asscher">Asscher</option>
             <option value="Heart">Heart</option>
-            <option value="Other">Other</option>
+            <option value="Other">{t('common.other')}</option>
           </select>
           {errors.shape && (
             <p className="text-red-600 text-sm mt-1">{errors.shape.message}</p>
@@ -184,14 +145,14 @@ const Step2Basics: React.FC = () => {
         
         <div>
           <label htmlFor="caratWeight" className="block mb-1 font-medium">
-            Carat Weight <span className="text-red-600">*</span>
+            {t('step2.caratWeight')} <span className="text-red-600">{t('common.required')}</span>
           </label>
           <input
             id="caratWeight"
             type="text"
             {...register('caratWeight')}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
-            placeholder="E.g. 1.25"
+            placeholder={t('placeholder.carat')}
           />
           {errors.caratWeight && (
             <p className="text-red-600 text-sm mt-1">{errors.caratWeight.message}</p>
@@ -200,7 +161,7 @@ const Step2Basics: React.FC = () => {
       </div>
       
       <div className="rounded-lg bg-gray-50 p-4">
-        <h3 className="text-sm font-medium text-gray-700 mb-2">Diamond Shape Guide</h3>
+        <h3 className="text-sm font-medium text-gray-700 mb-2">{t('step2.shapeGuide')}</h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2">
           {['Round', 'Princess', 'Cushion', 'Emerald', 'Oval', 'Pear'].map((shape) => (
             <div key={shape} className="text-center">
@@ -235,25 +196,26 @@ const Step2Basics: React.FC = () => {
 
 const Step3ColorClarity: React.FC = () => {
   const { register, formState: { errors } } = useFormContext<DiamondFormValues>();
+  const { t } = useLanguage();
   
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-serif font-bold">Color and Clarity</h2>
+      <h2 className="text-2xl font-serif font-bold">{t('step3.title')}</h2>
       <p className="text-gray-600">
-        These important characteristics significantly impact your diamond's value.
+        {t('step3.description')}
       </p>
       
       <div className="grid md:grid-cols-2 gap-6">
         <div>
           <label htmlFor="color" className="block mb-1 font-medium">
-            Color Grade <span className="text-red-600">*</span>
+            {t('step3.colorGrade')} <span className="text-red-600">{t('common.required')}</span>
           </label>
           <select
             id="color"
             {...register('color')}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
           >
-            <option value="">Select color grade</option>
+            <option value="">{t('common.select')} color grade</option>
             <option value="D">D (Colorless)</option>
             <option value="E">E (Colorless)</option>
             <option value="F">F (Colorless)</option>
@@ -266,7 +228,7 @@ const Step3ColorClarity: React.FC = () => {
             <option value="M">M (Faint)</option>
             <option value="N-Z">N-Z (Very Light to Light)</option>
             <option value="Fancy">Fancy Color</option>
-            <option value="Unknown">Unknown</option>
+            <option value="Unknown">{t('common.unknown')}</option>
           </select>
           {errors.color && (
             <p className="text-red-600 text-sm mt-1">{errors.color.message}</p>
@@ -283,14 +245,14 @@ const Step3ColorClarity: React.FC = () => {
         
         <div>
           <label htmlFor="clarity" className="block mb-1 font-medium">
-            Clarity Grade <span className="text-red-600">*</span>
+            {t('step3.clarityGrade')} <span className="text-red-600">{t('common.required')}</span>
           </label>
           <select
             id="clarity"
             {...register('clarity')}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
           >
-            <option value="">Select clarity grade</option>
+            <option value="">{t('common.select')} clarity grade</option>
             <option value="FL">FL (Flawless)</option>
             <option value="IF">IF (Internally Flawless)</option>
             <option value="VVS1">VVS1 (Very Very Slightly Included 1)</option>
@@ -302,7 +264,7 @@ const Step3ColorClarity: React.FC = () => {
             <option value="I1">I1 (Included 1)</option>
             <option value="I2">I2 (Included 2)</option>
             <option value="I3">I3 (Included 3)</option>
-            <option value="Unknown">Unknown</option>
+            <option value="Unknown">{t('common.unknown')}</option>
           </select>
           {errors.clarity && (
             <p className="text-red-600 text-sm mt-1">{errors.clarity.message}</p>
@@ -324,9 +286,9 @@ const Step3ColorClarity: React.FC = () => {
       </div>
       
       <div className="bg-luxury-gold bg-opacity-10 p-4 rounded-md mt-4">
-        <h3 className="text-luxury-gold font-medium mb-2">Did you know?</h3>
+        <h3 className="text-luxury-gold font-medium mb-2">{t('step3.didYouKnow')}</h3>
         <p className="text-sm">
-          Color and clarity are two of the "4 Cs" that determine a diamond's value. The color scale ranges from D (colorless) to Z (light yellow or brown), while clarity measures the absence of inclusions and blemishes, ranging from Flawless (FL) to Included (I3).
+          {t('step3.didYouKnowText')}
         </p>
       </div>
     </div>
@@ -335,130 +297,78 @@ const Step3ColorClarity: React.FC = () => {
 
 const Step4Cut: React.FC = () => {
   const { register, formState: { errors } } = useFormContext<DiamondFormValues>();
+  const { t } = useLanguage();
   
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-serif font-bold">Cut Characteristics</h2>
-      <p className="text-gray-600">
-        The cut quality significantly affects how light interacts with your diamond.
-      </p>
+      <h2 className="text-2xl font-serif font-bold">{t('step4.title')}</h2>
+      <p className="text-gray-600">{t('step4.description')}</p>
       
       <div className="grid md:grid-cols-2 gap-6">
         <div>
           <label htmlFor="cut" className="block mb-1 font-medium">
-            Cut Grade <span className="text-red-600">*</span>
+            {t('step4.cutGrade')} <span className="text-red-600">{t('common.required')}</span>
           </label>
-          <select
-            id="cut"
-            {...register('cut')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
-          >
-            <option value="">Select cut grade</option>
+          <select id="cut" {...register('cut')} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold">
+            <option value="">{t('common.select')} cut grade</option>
             <option value="Excellent">Excellent</option>
             <option value="Very Good">Very Good</option>
             <option value="Good">Good</option>
             <option value="Fair">Fair</option>
             <option value="Poor">Poor</option>
-            <option value="Unknown">Unknown</option>
+            <option value="Unknown">{t('common.unknown')}</option>
           </select>
-          {errors.cut && (
-            <p className="text-red-600 text-sm mt-1">{errors.cut.message}</p>
-          )}
+          {errors.cut && <p className="text-red-600 text-sm mt-1">{errors.cut.message}</p>}
         </div>
         
         <div>
           <label htmlFor="polish" className="block mb-1 font-medium">
-            Polish <span className="text-red-600">*</span>
+            {t('step4.polish')} <span className="text-red-600">{t('common.required')}</span>
           </label>
-          <select
-            id="polish"
-            {...register('polish')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
-          >
-            <option value="">Select polish grade</option>
+          <select id="polish" {...register('polish')} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold">
+            <option value="">{t('common.select')} polish grade</option>
             <option value="Excellent">Excellent</option>
             <option value="Very Good">Very Good</option>
             <option value="Good">Good</option>
             <option value="Fair">Fair</option>
             <option value="Poor">Poor</option>
-            <option value="Unknown">Unknown</option>
+            <option value="Unknown">{t('common.unknown')}</option>
           </select>
-          {errors.polish && (
-            <p className="text-red-600 text-sm mt-1">{errors.polish.message}</p>
-          )}
+          {errors.polish && <p className="text-red-600 text-sm mt-1">{errors.polish.message}</p>}
         </div>
       </div>
       
       <div className="grid md:grid-cols-2 gap-6">
         <div>
           <label htmlFor="symmetry" className="block mb-1 font-medium">
-            Symmetry <span className="text-red-600">*</span>
+            {t('step4.symmetry')} <span className="text-red-600">{t('common.required')}</span>
           </label>
-          <select
-            id="symmetry"
-            {...register('symmetry')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
-          >
-            <option value="">Select symmetry grade</option>
+          <select id="symmetry" {...register('symmetry')} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold">
+            <option value="">{t('common.select')} symmetry grade</option>
             <option value="Excellent">Excellent</option>
             <option value="Very Good">Very Good</option>
             <option value="Good">Good</option>
             <option value="Fair">Fair</option>
             <option value="Poor">Poor</option>
-            <option value="Unknown">Unknown</option>
+            <option value="Unknown">{t('common.unknown')}</option>
           </select>
-          {errors.symmetry && (
-            <p className="text-red-600 text-sm mt-1">{errors.symmetry.message}</p>
-          )}
+          {errors.symmetry && <p className="text-red-600 text-sm mt-1">{errors.symmetry.message}</p>}
         </div>
         
         <div>
           <label htmlFor="fluorescence" className="block mb-1 font-medium">
-            Fluorescence <span className="text-red-600">*</span>
+            {t('step4.fluorescence')} <span className="text-red-600">{t('common.required')}</span>
           </label>
-          <select
-            id="fluorescence"
-            {...register('fluorescence')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
-          >
-            <option value="">Select fluorescence</option>
+          <select id="fluorescence" {...register('fluorescence')} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold">
+            <option value="">{t('common.select')} fluorescence</option>
             <option value="None">None</option>
             <option value="Faint">Faint</option>
             <option value="Medium">Medium</option>
             <option value="Strong">Strong</option>
             <option value="Very Strong">Very Strong</option>
-            <option value="Unknown">Unknown</option>
+            <option value="Unknown">{t('common.unknown')}</option>
           </select>
-          {errors.fluorescence && (
-            <p className="text-red-600 text-sm mt-1">{errors.fluorescence.message}</p>
-          )}
-        </div>
-      </div>
-      
-      <div className="bg-gray-50 p-4 rounded-md">
-        <h3 className="font-medium mb-2">Cut Quality Impacts</h3>
-        <div className="grid grid-cols-3 gap-4 text-center">
-          <div>
-            <div className="bg-white rounded-full h-20 w-20 mx-auto flex items-center justify-center shadow-md">
-              <div className="bg-luxury-gold h-12 w-12 rounded-full opacity-90"></div>
-            </div>
-            <p className="text-sm mt-2">Excellent Cut</p>
-            <p className="text-xs text-gray-500">Maximum Brilliance</p>
-          </div>
-          <div>
-            <div className="bg-white rounded-full h-20 w-20 mx-auto flex items-center justify-center shadow-md">
-              <div className="bg-luxury-gold h-12 w-12 rounded-full opacity-60"></div>
-            </div>
-            <p className="text-sm mt-2">Good Cut</p>
-            <p className="text-xs text-gray-500">Good Brilliance</p>
-          </div>
-          <div>
-            <div className="bg-white rounded-full h-20 w-20 mx-auto flex items-center justify-center shadow-md">
-              <div className="bg-luxury-gold h-12 w-12 rounded-full opacity-30"></div>
-            </div>
-            <p className="text-sm mt-2">Poor Cut</p>
-            <p className="text-xs text-gray-500">Limited Brilliance</p>
-          </div>
+          {errors.fluorescence && <p className="text-red-600 text-sm mt-1">{errors.fluorescence.message}</p>}
         </div>
       </div>
     </div>
@@ -467,82 +377,26 @@ const Step4Cut: React.FC = () => {
 
 const Step5Measurements: React.FC = () => {
   const { register } = useFormContext<DiamondFormValues>();
+  const { t } = useLanguage();
   
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-serif font-bold">Measurements (Optional)</h2>
-      <p className="text-gray-600">
-        If known, please provide the physical dimensions of your diamond.
-      </p>
+      <h2 className="text-2xl font-serif font-bold">{t('step5.title')}</h2>
+      <p className="text-gray-600">{t('step5.description')}</p>
       
       <div className="grid md:grid-cols-3 gap-6">
         <div>
-          <label htmlFor="length" className="block mb-1 font-medium">
-            Length (mm)
-          </label>
-          <input
-            id="length"
-            type="text"
-            {...register('length')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
-            placeholder="E.g. 7.25"
-          />
+          <label htmlFor="length" className="block mb-1 font-medium">{t('step5.length')}</label>
+          <input id="length" type="text" {...register('length')} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold" placeholder={t('placeholder.length')} />
         </div>
-        
         <div>
-          <label htmlFor="width" className="block mb-1 font-medium">
-            Width (mm)
-          </label>
-          <input
-            id="width"
-            type="text"
-            {...register('width')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
-            placeholder="E.g. 7.20"
-          />
+          <label htmlFor="width" className="block mb-1 font-medium">{t('step5.width')}</label>
+          <input id="width" type="text" {...register('width')} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold" placeholder={t('placeholder.width')} />
         </div>
-        
         <div>
-          <label htmlFor="depth" className="block mb-1 font-medium">
-            Depth (mm)
-          </label>
-          <input
-            id="depth"
-            type="text"
-            {...register('depth')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
-            placeholder="E.g. 4.35"
-          />
+          <label htmlFor="depth" className="block mb-1 font-medium">{t('step5.depth')}</label>
+          <input id="depth" type="text" {...register('depth')} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold" placeholder={t('placeholder.depth')} />
         </div>
-      </div>
-      
-      <div className="bg-gray-50 p-6 rounded-lg">
-        <h3 className="font-medium mb-4">Diamond Dimensions Guide</h3>
-        <div className="flex justify-center">
-          <div className="relative">
-            <svg width="200" height="150" viewBox="0 0 200 150" className="mx-auto">
-              {/* Diamond outline */}
-              <path d="M100,20 L160,80 L100,140 L40,80 Z" fill="none" stroke="#666" strokeWidth="2" />
-              
-              {/* Width dimension */}
-              <line x1="40" y1="80" x2="160" y2="80" stroke="#D4AF37" strokeWidth="2" strokeDasharray="5,3" />
-              <text x="100" y="95" textAnchor="middle" fontSize="12" fill="#D4AF37">Width</text>
-              
-              {/* Length dimension */}
-              <line x1="100" y1="20" x2="100" y2="140" stroke="#D4AF37" strokeWidth="2" strokeDasharray="5,3" />
-              <text x="115" y="80" textAnchor="middle" fontSize="12" fill="#D4AF37">Length</text>
-              
-              {/* Depth dimension */}
-              <ellipse cx="180" cy="80" rx="8" ry="40" stroke="#666" strokeWidth="1" fill="none" />
-              <line x1="172" y1="80" x2="188" y2="80" stroke="#D4AF37" strokeWidth="2" strokeDasharray="5,3" />
-              <text x="180" y="60" textAnchor="middle" fontSize="12" fill="#D4AF37">Depth</text>
-            </svg>
-          </div>
-        </div>
-        <p className="text-sm text-center text-gray-600 mt-4">
-          Accurate measurements help provide a more precise valuation, 
-          especially when combined with weight and other characteristics.
-        </p>
       </div>
     </div>
   );
@@ -550,53 +404,30 @@ const Step5Measurements: React.FC = () => {
 
 const Step6Additional: React.FC = () => {
   const { register } = useFormContext<DiamondFormValues>();
+  const { t } = useLanguage();
   const [hasSettings, setHasSettings] = useState(false);
   
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-serif font-bold">Additional Information</h2>
-      <p className="text-gray-600">
-        Any other details that might affect your diamond's valuation.
-      </p>
+      <h2 className="text-2xl font-serif font-bold">{t('step6.title')}</h2>
+      <p className="text-gray-600">{t('step6.description')}</p>
       
       <div className="space-y-4">
         <div className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            id="hasInclusions"
-            className="h-4 w-4 text-luxury-gold focus:ring-luxury-gold"
-            {...register('hasInclusions')}
-          />
-          <label htmlFor="hasInclusions" className="font-medium">
-            There are visible inclusions or blemishes
-          </label>
+          <input type="checkbox" id="hasInclusions" className="h-4 w-4 text-luxury-gold focus:ring-luxury-gold" {...register('hasInclusions')} />
+          <label htmlFor="hasInclusions" className="font-medium">{t('step6.hasInclusions')}</label>
         </div>
         
         <div className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            id="hasSettings"
-            className="h-4 w-4 text-luxury-gold focus:ring-luxury-gold"
-            {...register('hasSettings')}
-            onChange={(e) => setHasSettings(e.target.checked)}
-            checked={hasSettings}
-          />
-          <label htmlFor="hasSettings" className="font-medium">
-            Diamond is in a setting/jewelry piece
-          </label>
+          <input type="checkbox" id="hasSettings" className="h-4 w-4 text-luxury-gold focus:ring-luxury-gold" {...register('hasSettings')} onChange={(e) => setHasSettings(e.target.checked)} checked={hasSettings} />
+          <label htmlFor="hasSettings" className="font-medium">{t('step6.hasSettings')}</label>
         </div>
         
         {hasSettings && (
           <div className="pl-6 mt-3">
-            <label htmlFor="settingMaterial" className="block mb-1 font-medium">
-              Setting Material
-            </label>
-            <select
-              id="settingMaterial"
-              {...register('settingMaterial')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
-            >
-              <option value="">Select material</option>
+            <label htmlFor="settingMaterial" className="block mb-1 font-medium">{t('step6.settingMaterial')}</label>
+            <select id="settingMaterial" {...register('settingMaterial')} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold">
+              <option value="">{t('common.select')} material</option>
               <option value="Platinum">Platinum</option>
               <option value="18K White Gold">18K White Gold</option>
               <option value="18K Yellow Gold">18K Yellow Gold</option>
@@ -605,31 +436,15 @@ const Step6Additional: React.FC = () => {
               <option value="14K Yellow Gold">14K Yellow Gold</option>
               <option value="14K Rose Gold">14K Rose Gold</option>
               <option value="Silver">Silver</option>
-              <option value="Other">Other</option>
+              <option value="Other">{t('common.other')}</option>
             </select>
           </div>
         )}
         
         <div className="mt-4">
-          <label htmlFor="additionalNotes" className="block mb-1 font-medium">
-            Additional Notes
-          </label>
-          <textarea
-            id="additionalNotes"
-            rows={4}
-            {...register('additionalNotes')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
-            placeholder="Any other details about your diamond that might be relevant for valuation..."
-          ></textarea>
+          <label htmlFor="additionalNotes" className="block mb-1 font-medium">{t('step6.additionalNotes')}</label>
+          <textarea id="additionalNotes" rows={4} {...register('additionalNotes')} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold" placeholder={t('step6.notesPlaceholder')}></textarea>
         </div>
-      </div>
-      
-      <div className="bg-luxury-gold bg-opacity-10 p-4 rounded-md">
-        <h3 className="text-luxury-gold font-medium mb-2">Helpful Tip</h3>
-        <p className="text-sm">
-          If your diamond is in a setting, please note that we provide separate valuations for the diamond and the setting. 
-          If you're interested in a valuation of the entire piece of jewelry, please specify this in your additional notes.
-        </p>
       </div>
     </div>
   );
@@ -637,95 +452,50 @@ const Step6Additional: React.FC = () => {
 
 const Step7Contact: React.FC = () => {
   const { register, formState: { errors } } = useFormContext<DiamondFormValues>();
+  const { t } = useLanguage();
   
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-serif font-bold">Contact Information</h2>
-      <p className="text-gray-600">
-        Please provide your contact details so we can deliver your valuation results.
-      </p>
+      <h2 className="text-2xl font-serif font-bold">{t('step7.title')}</h2>
+      <p className="text-gray-600">{t('step7.description')}</p>
       
       <div className="grid md:grid-cols-2 gap-6">
         <div>
-          <label htmlFor="fullName" className="block mb-1 font-medium">
-            Full Name <span className="text-red-600">*</span>
-          </label>
-          <input
-            id="fullName"
-            type="text"
-            {...register('fullName')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
-            placeholder="Your full name"
-          />
-          {errors.fullName && (
-            <p className="text-red-600 text-sm mt-1">{errors.fullName.message}</p>
-          )}
+          <label htmlFor="fullName" className="block mb-1 font-medium">{t('step7.fullName')} <span className="text-red-600">{t('common.required')}</span></label>
+          <input id="fullName" type="text" {...register('fullName')} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold" placeholder={t('placeholder.fullName')} />
+          {errors.fullName && <p className="text-red-600 text-sm mt-1">{errors.fullName.message}</p>}
         </div>
         
         <div>
-          <label htmlFor="email" className="block mb-1 font-medium">
-            Email Address <span className="text-red-600">*</span>
-          </label>
-          <input
-            id="email"
-            type="email"
-            {...register('email')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
-            placeholder="Your email address"
-          />
-          {errors.email && (
-            <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>
-          )}
+          <label htmlFor="email" className="block mb-1 font-medium">{t('step7.email')} <span className="text-red-600">{t('common.required')}</span></label>
+          <input id="email" type="email" {...register('email')} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold" placeholder={t('placeholder.emailFormat')} />
+          {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>}
         </div>
       </div>
       
       <div className="grid md:grid-cols-2 gap-6">
         <div>
-          <label htmlFor="phone" className="block mb-1 font-medium">
-            Phone Number <span className="text-red-600">*</span>
-          </label>
-          <input
-            id="phone"
-            type="tel"
-            {...register('phone')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
-            placeholder="Your phone number"
-          />
-          {errors.phone && (
-            <p className="text-red-600 text-sm mt-1">{errors.phone.message}</p>
-          )}
+          <label htmlFor="phone" className="block mb-1 font-medium">{t('step7.phone')} <span className="text-red-600">{t('common.required')}</span></label>
+          <input id="phone" type="tel" {...register('phone')} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold" placeholder={t('placeholder.phoneFormat')} />
+          {errors.phone && <p className="text-red-600 text-sm mt-1">{errors.phone.message}</p>}
         </div>
         
         <div>
-          <label htmlFor="preferredContact" className="block mb-1 font-medium">
-            Preferred Contact Method <span className="text-red-600">*</span>
-          </label>
-          <select
-            id="preferredContact"
-            {...register('preferredContact')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
-          >
-            <option value="">Select contact method</option>
+          <label htmlFor="preferredContact" className="block mb-1 font-medium">{t('step7.preferredContact')} <span className="text-red-600">{t('common.required')}</span></label>
+          <select id="preferredContact" {...register('preferredContact')} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold">
+            <option value="">{t('common.select')} contact method</option>
             <option value="Email">Email</option>
             <option value="Phone">Phone</option>
             <option value="Either">Either</option>
           </select>
-          {errors.preferredContact && (
-            <p className="text-red-600 text-sm mt-1">{errors.preferredContact.message}</p>
-          )}
+          {errors.preferredContact && <p className="text-red-600 text-sm mt-1">{errors.preferredContact.message}</p>}
         </div>
       </div>
       
       <div className="mt-4">
         <div className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            id="agreement"
-            className="h-4 w-4 text-luxury-gold focus:ring-luxury-gold"
-          />
-          <label htmlFor="agreement" className="text-sm">
-            I agree to the <a href="/terms" className="text-luxury-gold hover:underline">Terms & Conditions</a> and <a href="/privacy" className="text-luxury-gold hover:underline">Privacy Policy</a>
-          </label>
+          <input type="checkbox" id="agreement" className="h-4 w-4 text-luxury-gold focus:ring-luxury-gold" />
+          <label htmlFor="agreement" className="text-sm">{t('step7.agreement')} <a href="/terms" className="text-luxury-gold hover:underline">{t('step7.terms')}</a> and <a href="/privacy" className="text-luxury-gold hover:underline">{t('step7.privacy')}</a></label>
         </div>
       </div>
     </div>
@@ -734,6 +504,7 @@ const Step7Contact: React.FC = () => {
 
 const ValuationTool: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<DiamondFormValues>();
   const [estimatedValue, setEstimatedValue] = useState<number | null>(null);
@@ -744,7 +515,7 @@ const ValuationTool: React.FC = () => {
   
   // Initialize form methods
   const methods = useForm<DiamondFormValues>({
-    resolver: zodResolver(diamondFormSchema),
+    resolver: zodResolver(createDiamondFormSchema(t)),
     mode: 'onChange',
   });
   
@@ -956,11 +727,10 @@ const ValuationTool: React.FC = () => {
           {/* Header */}
           <div className="text-center mb-10">
             <h1 className="text-4xl md:text-5xl font-serif font-bold mb-4">
-              Diamond <span className="text-luxury-gold">Valuation</span> Tool
+              {t('valuation.title')} <span className="text-luxury-gold">{t('valuation.titleHighlight')}</span> {t('valuation.tool')}
             </h1>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Get an estimated value for your diamond by providing its characteristics.
-              Complete the form below for a professional valuation.
+              {t('valuation.description')}
             </p>
           </div>
           
@@ -968,9 +738,9 @@ const ValuationTool: React.FC = () => {
           {!showEstimate && (
             <div className="mb-10">
               <div className="flex items-center justify-between mb-2">
-                <div className="text-sm font-medium text-gray-500">Step {currentStep} of {totalSteps}</div>
+                <div className="text-sm font-medium text-gray-500">{t('valuation.step')} {currentStep} {t('valuation.of')} {totalSteps}</div>
                 <div className="text-sm font-medium text-gray-500">
-                  {Math.round((currentStep / totalSteps) * 100)}% Complete
+                  {Math.round((currentStep / totalSteps) * 100)}{t('valuation.complete')}
                 </div>
               </div>
               <div className="h-2 bg-gray-200 rounded-full">
@@ -1001,14 +771,14 @@ const ValuationTool: React.FC = () => {
                         onClick={prevStep}
                         className={`btn btn-secondary ${currentStep === 1 ? 'opacity-0 pointer-events-none' : ''}`}
                       >
-                        Previous
+                        {t('valuation.previous')}
                       </button>
                       <button
                         type="button"
                         onClick={nextStep}
                         className="btn btn-primary"
                       >
-                        {currentStep < totalSteps ? 'Continue' : 'Get Estimate'}
+                        {currentStep < totalSteps ? t('valuation.continue') : t('valuation.getEstimate')}
                       </button>
                     </div>
                   </div>
@@ -1025,7 +795,7 @@ const ValuationTool: React.FC = () => {
               {isSubmitting ? (
                 <div className="text-center py-12">
                   <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-luxury-gold mx-auto"></div>
-                  <p className="mt-4 text-lg">Calculating your estimate...</p>
+                  <p className="mt-4 text-lg">{t('results.calculating')}</p>
                 </div>
               ) : (
                 <div className="text-center">
@@ -1037,21 +807,20 @@ const ValuationTool: React.FC = () => {
                     </div>
                   </div>
                   
-                  <h2 className="text-3xl font-serif font-bold mb-2">Estimated Diamond Value</h2>
-                  <p className="text-gray-600 mb-6">Based on the information you provided</p>
+                  <h2 className="text-3xl font-serif font-bold mb-2">{t('results.estimatedValue')}</h2>
+                  <p className="text-gray-600 mb-6">{t('results.basedOn')}</p>
                   
                   <div className="py-4 px-8 bg-gray-50 rounded-lg inline-block mb-8">
                     <span className="block text-5xl font-bold text-luxury-gold">
                       ${estimatedValue?.toLocaleString()}
                     </span>
-                    <span className="text-gray-500 text-sm">Estimated market value</span>
+                    <span className="text-gray-500 text-sm">{t('results.marketValue')}</span>
                   </div>
                   
                   <div className="max-w-lg mx-auto text-left mb-8">
                     <div className="bg-luxury-gold bg-opacity-10 p-4 rounded-md">
                       <p className="text-sm">
-                        <strong>Important Note:</strong> This is an automated estimate based on the information provided.
-                        For a precise valuation, we recommend scheduling a professional in-person assessment with our expert gemologists.
+                        <strong>{t('results.importantNote')}</strong> {t('results.noteText')}
                       </p>
                     </div>
                   </div>
@@ -1132,7 +901,7 @@ const ValuationTool: React.FC = () => {
           {!showEstimate && (
             <div className="mt-8 text-center text-sm text-gray-500">
               <p>
-                Need help with the valuation form? <button onClick={() => navigate('/contact')} className="text-luxury-gold hover:underline bg-transparent border-none cursor-pointer">Contact our experts</button>.
+                {t('valuation.help')} <button onClick={() => navigate('/contact')} className="text-luxury-gold hover:underline bg-transparent border-none cursor-pointer">{t('valuation.contactExperts')}</button>.
               </p>
             </div>
           )}

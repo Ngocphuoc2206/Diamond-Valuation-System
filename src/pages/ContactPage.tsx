@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useLanguage } from '../context/LanguageContext';
 
 const ContactPage: React.FC = () => {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -46,10 +48,10 @@ const ContactPage: React.FC = () => {
           <div className="bg-white rounded-lg shadow-md p-8">
             <div className="text-6xl mb-6">✉️</div>
             <h1 className="text-3xl font-serif font-bold text-luxury-navy mb-4">
-              Message Sent!
+              {t('contact.messageSent')}
             </h1>
             <p className="text-gray-600 mb-6">
-              Thank you for contacting us. We'll get back to you within 24 hours.
+              {t('contact.messageReceived')}
             </p>
             <button
               onClick={() => {
@@ -60,7 +62,7 @@ const ContactPage: React.FC = () => {
               }}
               className="btn btn-primary"
             >
-              Send Another Message
+              {t('contact.sendAnother')}
             </button>
           </div>
         </motion.div>
@@ -80,11 +82,10 @@ const ContactPage: React.FC = () => {
             className="max-w-4xl mx-auto text-center"
           >
             <h1 className="text-4xl md:text-6xl font-serif font-bold mb-6">
-              Contact Our <span className="text-luxury-gold">Experts</span>
+              {t('contact.title')} <span className="text-luxury-gold">{t('contact.titleHighlight')}</span>
             </h1>
             <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto">
-              Have questions about diamond valuation, certification, or our services? 
-              Our expert team is here to help you make informed decisions.
+              {t('contact.description')}
             </p>
           </motion.div>
         </div>
@@ -110,9 +111,9 @@ const ContactPage: React.FC = () => {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="font-bold text-luxury-navy mb-1">Phone</h3>
+                    <h3 className="font-bold text-luxury-navy mb-1">{t('contact.phoneNumber')}</h3>
                     <p className="text-gray-600">+1 (555) 123-4567</p>
-                    <p className="text-sm text-gray-500">Mon-Fri 9AM-6PM EST</p>
+                    <p className="text-sm text-gray-500">{t('contact.mondayFriday')}</p>
                   </div>
                 </div>
 
@@ -123,7 +124,7 @@ const ContactPage: React.FC = () => {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="font-bold text-luxury-navy mb-1">Email</h3>
+                    <h3 className="font-bold text-luxury-navy mb-1">{t('contact.emailAddress')}</h3>
                     <p className="text-gray-600">info@diamondvalley.com</p>
                     <p className="text-sm text-gray-500">We respond within 24 hours</p>
                   </div>
@@ -137,10 +138,9 @@ const ContactPage: React.FC = () => {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="font-bold text-luxury-navy mb-1">Location</h3>
+                    <h3 className="font-bold text-luxury-navy mb-1">{t('contact.address')}</h3>
                     <p className="text-gray-600">
-                      123 Diamond District<br />
-                      New York, NY 10036
+                      {t('contact.officeAddress')}
                     </p>
                     <p className="text-sm text-gray-500">By appointment only</p>
                   </div>
@@ -153,11 +153,11 @@ const ContactPage: React.FC = () => {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="font-bold text-luxury-navy mb-1">Business Hours</h3>
+                    <h3 className="font-bold text-luxury-navy mb-1">{t('contact.officeHours')}</h3>
                     <p className="text-gray-600">
-                      Monday - Friday: 9:00 AM - 6:00 PM<br />
-                      Saturday: 10:00 AM - 4:00 PM<br />
-                      Sunday: Closed
+                      {t('contact.mondayFriday')}<br />
+                      {t('contact.saturday')}<br />
+                      {t('contact.sunday')}
                     </p>
                   </div>
                 </div>
@@ -189,7 +189,7 @@ const ContactPage: React.FC = () => {
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Full Name *
+                      {t('contact.name')} *
                     </label>
                     <input
                       type="text"
@@ -198,12 +198,12 @@ const ContactPage: React.FC = () => {
                       onChange={handleInputChange}
                       required
                       className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
-                      placeholder="Your full name"
+                      placeholder={t('contact.name')}
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email Address *
+                      {t('contact.email')} *
                     </label>
                     <input
                       type="email"
@@ -212,7 +212,7 @@ const ContactPage: React.FC = () => {
                       onChange={handleInputChange}
                       required
                       className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
-                      placeholder="your.email@example.com"
+                      placeholder={t('placeholder.emailFormat')}
                     />
                   </div>
                 </div>
@@ -220,7 +220,7 @@ const ContactPage: React.FC = () => {
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Phone Number
+                      {t('contact.phone')}
                     </label>
                     <input
                       type="tel"
@@ -228,12 +228,12 @@ const ContactPage: React.FC = () => {
                       value={formData.phone}
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
-                      placeholder="(555) 123-4567"
+                      placeholder={t('placeholder.phoneFormat')}
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Preferred Contact Method
+                      {t('contact.contactMethod')}
                     </label>
                     <select
                       name="contactMethod"
@@ -241,16 +241,16 @@ const ContactPage: React.FC = () => {
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
                     >
-                      <option value="email">Email</option>
-                      <option value="phone">Phone</option>
-                      <option value="text">Text Message</option>
+                      <option value="email">{t('contact.email')}</option>
+                      <option value="phone">{t('contact.phone')}</option>
+                      <option value="text">{t('contact.either')}</option>
                     </select>
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Subject *
+                    {t('contact.subject')} *
                   </label>
                   <select
                     name="subject"
@@ -271,7 +271,7 @@ const ContactPage: React.FC = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Message *
+                    {t('contact.message')} *
                   </label>
                   <textarea
                     name="message"
@@ -280,7 +280,7 @@ const ContactPage: React.FC = () => {
                     required
                     rows={6}
                     className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
-                    placeholder="Please provide details about your inquiry, including any relevant information about your diamond or jewelry piece..."
+                    placeholder={t('contact.message')}
                   />
                 </div>
 
@@ -307,10 +307,10 @@ const ContactPage: React.FC = () => {
                   {isSubmitting ? (
                     <div className="flex items-center justify-center space-x-2">
                       <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
-                      <span>Sending...</span>
+                      <span>{t('contact.sending')}</span>
                     </div>
                   ) : (
-                    'Send Message'
+                    t('contact.sendMessage')
                   )}
                 </button>
               </form>
@@ -327,34 +327,34 @@ const ContactPage: React.FC = () => {
         >
           <div className="bg-gray-100 rounded-lg p-8">
             <h3 className="text-2xl font-serif font-bold text-center mb-8">
-              Frequently Asked Questions
+              {t('contact.faqsTitle')}
             </h3>
             <div className="grid md:grid-cols-3 gap-6">
               <div className="bg-white p-6 rounded-lg">
-                <h4 className="font-bold mb-3">How long does a valuation take?</h4>
+                <h4 className="font-bold mb-3">{t('contact.howLongValuation')}</h4>
                 <p className="text-gray-600 text-sm mb-4">
-                  Most valuations are completed within 3-5 business days from receipt.
+                  {t('contact.howLongAnswer')}
                 </p>
                 <a href="/knowledge" className="text-luxury-gold hover:text-luxury-navy text-sm font-medium">
                   Learn more →
                 </a>
               </div>
               <div className="bg-white p-6 rounded-lg">
-                <h4 className="font-bold mb-3">What do I need for a valuation?</h4>
+                <h4 className="font-bold mb-3">{t('contact.whatInfoNeeded')}</h4>
                 <p className="text-gray-600 text-sm mb-4">
-                  Photos, any existing certificates, and basic measurements if available.
+                  {t('contact.whatInfoAnswer')}
                 </p>
                 <a href="/valuation" className="text-luxury-gold hover:text-luxury-navy text-sm font-medium">
                   Start valuation →
                 </a>
               </div>
               <div className="bg-white p-6 rounded-lg">
-                <h4 className="font-bold mb-3">Are your valuations certified?</h4>
+                <h4 className="font-bold mb-3">{t('contact.insuranceAccepted')}</h4>
                 <p className="text-gray-600 text-sm mb-4">
-                  Yes, we provide certified appraisals accepted by insurance companies.
+                  {t('contact.insuranceAnswer')}
                 </p>
                 <a href="/knowledge" className="text-luxury-gold hover:text-luxury-navy text-sm font-medium">
-                  View credentials →
+                  {t('contact.viewCredentials')}
                 </a>
               </div>
             </div>

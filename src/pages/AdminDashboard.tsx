@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { Link } from 'react-router-dom';
 import { users as initialUsers } from '../data/mockData';
 
@@ -129,6 +130,7 @@ const recentActivities = [
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('overview');
   
   // State management for all data
@@ -517,10 +519,10 @@ const AdminDashboard: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-red-600 mb-4">Access Denied</h1>
-          <p className="text-gray-600 mb-6">You don't have permission to access this page.</p>
+          <h1 className="text-3xl font-bold text-red-600 mb-4">{t('admin.accessDenied')}</h1>
+          <p className="text-gray-600 mb-6">{t('admin.noPermission')}</p>
           <Link to="/dashboard" className="btn btn-primary">
-            Go to Dashboard
+            {t('admin.backToDashboard')}
           </Link>
         </div>
       </div>
@@ -528,14 +530,14 @@ const AdminDashboard: React.FC = () => {
   }
 
   const tabs = [
-    { id: 'overview', label: 'Overview', icon: '📊' },
-    { id: 'users', label: 'User Management', icon: '👥' },
-    { id: 'valuations', label: 'Valuations', icon: '💎' },
-    { id: 'orders', label: 'Orders', icon: '📦' },
-    { id: 'products', label: 'Products', icon: '🛍️' },
-    { id: 'staff', label: 'Staff Management', icon: '👨‍💼' },
-    { id: 'analytics', label: 'Analytics', icon: '📈' },
-    { id: 'settings', label: 'System Settings', icon: '⚙️' },
+    { id: 'overview', label: t('admin.overview'), icon: '📊' },
+    { id: 'users', label: t('admin.userManagement'), icon: '👥' },
+    { id: 'valuations', label: t('admin.valuations'), icon: '💎' },
+    { id: 'orders', label: t('admin.orders'), icon: '📦' },
+    { id: 'products', label: t('admin.products'), icon: '🛍️' },
+    { id: 'staff', label: t('admin.staffManagement'), icon: '👨‍💼' },
+    { id: 'analytics', label: t('admin.analytics'), icon: '📈' },
+    { id: 'settings', label: t('admin.systemConfig'), icon: '⚙️' },
   ];
 
   return (
@@ -558,10 +560,10 @@ const AdminDashboard: React.FC = () => {
           >
             <div>
               <h1 className="text-3xl font-serif font-bold text-luxury-navy">
-                Admin <span className="text-luxury-gold">Dashboard</span>
+                {t('admin.title')} <span className="text-luxury-gold">{t('admin.titleHighlight')}</span>
               </h1>
               <p className="text-gray-600 mt-1">
-                Complete system administration and management
+                {t('admin.description')}
               </p>
             </div>
             <div className="flex items-center space-x-4">
@@ -622,7 +624,7 @@ const AdminDashboard: React.FC = () => {
                   <div className="bg-white rounded-lg shadow-md p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-gray-600">Total Users</p>
+                        <p className="text-sm font-medium text-gray-600">{t('admin.totalUsers')}</p>
                         <p className="text-3xl font-bold text-luxury-navy">{dashboardStats.totalUsers.toLocaleString()}</p>
                       </div>
                       <div className="p-3 bg-blue-100 rounded-full">
@@ -630,14 +632,14 @@ const AdminDashboard: React.FC = () => {
                       </div>
                     </div>
                     <div className="mt-4">
-                      <span className="text-green-600 text-sm font-medium">↗ +12% from last month</span>
+                      <span className="text-green-600 text-sm font-medium">↗ +12% {t('admin.fromLastMonth')}</span>
                     </div>
                   </div>
 
                   <div className="bg-white rounded-lg shadow-md p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-gray-600">Total Valuations</p>
+                        <p className="text-sm font-medium text-gray-600">{t('admin.totalValuations')}</p>
                         <p className="text-3xl font-bold text-luxury-navy">{dashboardStats.totalValuations.toLocaleString()}</p>
                       </div>
                       <div className="p-3 bg-purple-100 rounded-full">
@@ -645,14 +647,14 @@ const AdminDashboard: React.FC = () => {
                       </div>
                     </div>
                     <div className="mt-4">
-                      <span className="text-green-600 text-sm font-medium">↗ +8% from last month</span>
+                      <span className="text-green-600 text-sm font-medium">↗ +8% {t('admin.fromLastMonth')}</span>
                     </div>
                   </div>
 
                   <div className="bg-white rounded-lg shadow-md p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-gray-600">Monthly Revenue</p>
+                        <p className="text-sm font-medium text-gray-600">{t('admin.monthlyRevenue')}</p>
                         <p className="text-3xl font-bold text-luxury-navy">${dashboardStats.monthlyRevenue.toLocaleString()}</p>
                       </div>
                       <div className="p-3 bg-green-100 rounded-full">
@@ -660,14 +662,14 @@ const AdminDashboard: React.FC = () => {
                       </div>
                     </div>
                     <div className="mt-4">
-                      <span className="text-green-600 text-sm font-medium">↗ +15% from last month</span>
+                      <span className="text-green-600 text-sm font-medium">↗ +15% {t('admin.fromLastMonth')}</span>
                     </div>
                   </div>
 
                   <div className="bg-white rounded-lg shadow-md p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-gray-600">Customer Rating</p>
+                        <p className="text-sm font-medium text-gray-600">{t('admin.customerRating')}</p>
                         <p className="text-3xl font-bold text-luxury-navy">{dashboardStats.customerRating}/5</p>
                       </div>
                       <div className="p-3 bg-yellow-100 rounded-full">
@@ -675,14 +677,14 @@ const AdminDashboard: React.FC = () => {
                       </div>
                     </div>
                     <div className="mt-4">
-                      <span className="text-green-600 text-sm font-medium">↗ +0.2 from last month</span>
+                      <span className="text-green-600 text-sm font-medium">↗ +0.2 {t('admin.fromLastMonth')}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Quick Actions */}
                 <div className="bg-white rounded-lg shadow-md p-6">
-                  <h3 className="text-xl font-serif font-bold mb-6">Quick Actions</h3>
+                  <h3 className="text-xl font-serif font-bold mb-6">{t('admin.quickActions')}</h3>
                   <div className="grid md:grid-cols-3 gap-4">
                     <button
                       onClick={() => setActiveTab('users')}
@@ -690,8 +692,8 @@ const AdminDashboard: React.FC = () => {
                     >
                       <span className="text-2xl">👥</span>
                       <div className="text-left">
-                        <p className="font-medium">Manage Users</p>
-                        <p className="text-sm opacity-75">View and edit user accounts</p>
+                        <p className="font-medium">{t('admin.manageUsers')}</p>
+                        <p className="text-sm opacity-75">{t('admin.viewEditAccounts')}</p>
                       </div>
                     </button>
                     <button
@@ -700,8 +702,8 @@ const AdminDashboard: React.FC = () => {
                     >
                       <span className="text-2xl">💎</span>
                       <div className="text-left">
-                        <p className="font-medium">Valuation Queue</p>
-                        <p className="text-sm opacity-75">Monitor pending requests</p>
+                        <p className="font-medium">{t('admin.valuationQueue')}</p>
+                        <p className="text-sm opacity-75">{t('admin.monitorPending')}</p>
                       </div>
                     </button>
                     <button
@@ -710,8 +712,8 @@ const AdminDashboard: React.FC = () => {
                     >
                       <span className="text-2xl">📈</span>
                       <div className="text-left">
-                        <p className="font-medium">View Analytics</p>
-                        <p className="text-sm opacity-75">Business insights</p>
+                        <p className="font-medium">{t('admin.viewAnalytics')}</p>
+                        <p className="text-sm opacity-75">{t('admin.businessInsights')}</p>
                       </div>
                     </button>
                   </div>
@@ -719,7 +721,7 @@ const AdminDashboard: React.FC = () => {
 
                 {/* Recent Activities */}
                 <div className="bg-white rounded-lg shadow-md p-6">
-                  <h3 className="text-xl font-serif font-bold mb-6">Recent System Activities</h3>
+                  <h3 className="text-xl font-serif font-bold mb-6">{t('admin.systemActivities')}</h3>
                   <div className="space-y-4">
                     {recentActivities.map((activity) => (
                       <div key={activity.id} className="flex items-center justify-between py-3 border-b last:border-b-0">
@@ -767,26 +769,26 @@ const AdminDashboard: React.FC = () => {
                 className="bg-white rounded-lg shadow-md p-6"
               >
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-serif font-bold">User Management</h3>
-                  <button className="btn btn-primary">Add New User</button>
+                  <h3 className="text-xl font-serif font-bold">{t('admin.userManagement')}</h3>
+                  <button className="btn btn-primary">{t('admin.addNewUser')}</button>
                 </div>
                 
                 {/* User Statistics */}
                 <div className="grid md:grid-cols-4 gap-4 mb-6">
                   <div className="bg-blue-50 p-4 rounded-lg">
-                    <h4 className="font-medium text-blue-800">Total Customers</h4>
+                    <h4 className="font-medium text-blue-800">{t('admin.totalCustomers')}</h4>
                     <p className="text-2xl font-bold text-blue-900">{userStats.customers}</p>
                   </div>
                   <div className="bg-green-50 p-4 rounded-lg">
-                    <h4 className="font-medium text-green-800">Consulting Staff</h4>
+                    <h4 className="font-medium text-green-800">{t('admin.consultingStaff')}</h4>
                     <p className="text-2xl font-bold text-green-900">{userStats.consultingStaff}</p>
                   </div>
                   <div className="bg-purple-50 p-4 rounded-lg">
-                    <h4 className="font-medium text-purple-800">Valuation Staff</h4>
+                    <h4 className="font-medium text-purple-800">{t('admin.valuationStaff')}</h4>
                     <p className="text-2xl font-bold text-purple-900">{userStats.valuationStaff}</p>
                   </div>
                   <div className="bg-yellow-50 p-4 rounded-lg">
-                    <h4 className="font-medium text-yellow-800">Managers</h4>
+                    <h4 className="font-medium text-yellow-800">{t('admin.managers')}</h4>
                     <p className="text-2xl font-bold text-yellow-900">{userStats.managers}</p>
                   </div>
                 </div>
@@ -799,14 +801,14 @@ const AdminDashboard: React.FC = () => {
                       onChange={(e) => setUserFilter(e.target.value)}
                       className="px-3 py-2 border rounded-md"
                     >
-                      <option value="all">All Users</option>
-                      <option value="customer">Customers</option>
-                      <option value="staff">Staff</option>
-                      <option value="admin">Admins</option>
+                      <option value="all">{t('admin.allUsers')}</option>
+                      <option value="customer">{t('admin.customers')}</option>
+                      <option value="staff">{t('admin.staff')}</option>
+                      <option value="admin">{t('admin.admins')}</option>
                     </select>
                     <input
                       type="search"
-                      placeholder="Search users..."
+                      placeholder={t('placeholder.searchUsers')}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="px-3 py-2 border rounded-md"
@@ -818,13 +820,13 @@ const AdminDashboard: React.FC = () => {
                       className="btn btn-secondary text-sm"
                       disabled={selectedUsers.length === 0}
                     >
-                      Bulk Actions ({selectedUsers.length})
+                      {t('admin.bulkActions')} ({selectedUsers.length})
                     </button>
                     <button 
                       onClick={() => handleUserAction('add')}
                       className="btn btn-primary text-sm"
                     >
-                      Add New User
+                      {t('admin.addNewUser')}
                     </button>
                   </div>
                 </div>
@@ -847,11 +849,11 @@ const AdminDashboard: React.FC = () => {
                             className="rounded"
                           />
                         </th>
-                        <th className="px-4 py-3 text-left font-medium text-gray-700">User</th>
-                        <th className="px-4 py-3 text-left font-medium text-gray-700">Role</th>
-                        <th className="px-4 py-3 text-left font-medium text-gray-700">Status</th>
-                        <th className="px-4 py-3 text-left font-medium text-gray-700">Last Active</th>
-                        <th className="px-4 py-3 text-left font-medium text-gray-700">Actions</th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-700">{t('admin.user')}</th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-700">{t('admin.role')}</th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-700">{t('admin.status')}</th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-700">{t('admin.lastActive')}</th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-700">{t('admin.actions')}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
@@ -904,21 +906,21 @@ const AdminDashboard: React.FC = () => {
                                 onClick={() => handleUserAction('edit', user.id)}
                                 className="text-blue-600 hover:text-blue-800 font-medium"
                               >
-                                Edit
+                                {t('admin.edit')}
                               </button>
                               {(user as any).status === 'suspended' ? (
                                 <button 
                                   onClick={() => handleUserAction('activate', user.id)}
                                   className="text-green-600 hover:text-green-800 font-medium"
                                 >
-                                  Activate
+                                  {t('admin.activate')}
                                 </button>
                               ) : (
                                 <button 
                                   onClick={() => handleUserAction('suspend', user.id)}
                                   className="text-yellow-600 hover:text-yellow-800 font-medium"
                                 >
-                                  Suspend
+                                  {t('admin.suspend')}
                                 </button>
                               )}
                               {user.role !== 'admin' && (
@@ -926,7 +928,7 @@ const AdminDashboard: React.FC = () => {
                                   onClick={() => handleUserAction('delete', user.id)}
                                   className="text-red-600 hover:text-red-800 font-medium"
                                 >
-                                  Delete
+                                  {t('admin.delete')}
                                 </button>
                               )}
                             </div>
@@ -948,55 +950,55 @@ const AdminDashboard: React.FC = () => {
                 className="space-y-6"
               >
                 <div className="bg-white rounded-lg shadow-md p-6">
-                  <h3 className="text-xl font-serif font-bold mb-6">System Configuration</h3>
+                  <h3 className="text-xl font-serif font-bold mb-6">{t('admin.systemConfig')}</h3>
                   
                   <div className="space-y-6">
                     <div>
-                      <h4 className="font-medium mb-3">Pricing Management</h4>
+                      <h4 className="font-medium mb-3">{t('admin.pricingManagement')}</h4>
                       <div className="grid md:grid-cols-2 gap-4">
                         <div className="p-4 border rounded-lg">
-                          <h5 className="font-medium mb-2">Base Valuation Fee</h5>
+                          <h5 className="font-medium mb-2">{t('admin.baseValuationFee')}</h5>
                           <input type="number" defaultValue="150" className="w-full px-3 py-2 border rounded-md" />
                         </div>
                         <div className="p-4 border rounded-lg">
-                          <h5 className="font-medium mb-2">Insurance Appraisal Fee</h5>
+                          <h5 className="font-medium mb-2">{t('admin.insuranceAppraisalFee')}</h5>
                           <input type="number" defaultValue="400" className="w-full px-3 py-2 border rounded-md" />
                         </div>
                       </div>
                     </div>
 
                     <div>
-                      <h4 className="font-medium mb-3">Turnaround Time Settings</h4>
+                      <h4 className="font-medium mb-3">{t('admin.turnaroundSettings')}</h4>
                       <div className="grid md:grid-cols-3 gap-4">
                         <div className="p-4 border rounded-lg">
-                          <h5 className="font-medium mb-2">Standard (Business Days)</h5>
+                          <h5 className="font-medium mb-2">{t('admin.standardDays')}</h5>
                           <input type="number" defaultValue="5" className="w-full px-3 py-2 border rounded-md" />
                         </div>
                         <div className="p-4 border rounded-lg">
-                          <h5 className="font-medium mb-2">Express (Business Days)</h5>
+                          <h5 className="font-medium mb-2">{t('admin.expressDays')}</h5>
                           <input type="number" defaultValue="2" className="w-full px-3 py-2 border rounded-md" />
                         </div>
                         <div className="p-4 border rounded-lg">
-                          <h5 className="font-medium mb-2">Emergency (Hours)</h5>
+                          <h5 className="font-medium mb-2">{t('admin.emergencyHours')}</h5>
                           <input type="number" defaultValue="24" className="w-full px-3 py-2 border rounded-md" />
                         </div>
                       </div>
                     </div>
 
                     <div>
-                      <h4 className="font-medium mb-3">Email Notifications</h4>
+                      <h4 className="font-medium mb-3">{t('admin.emailNotifications')}</h4>
                       <div className="space-y-3">
                         <label className="flex items-center">
                           <input type="checkbox" defaultChecked className="text-luxury-gold focus:ring-luxury-gold" />
-                          <span className="ml-2">Send order confirmations</span>
+                          <span className="ml-2">{t('admin.sendOrderConfirmations')}</span>
                         </label>
                         <label className="flex items-center">
                           <input type="checkbox" defaultChecked className="text-luxury-gold focus:ring-luxury-gold" />
-                          <span className="ml-2">Send valuation status updates</span>
+                          <span className="ml-2">{t('admin.sendValuationUpdates')}</span>
                         </label>
                         <label className="flex items-center">
                           <input type="checkbox" defaultChecked className="text-luxury-gold focus:ring-luxury-gold" />
-                          <span className="ml-2">Send marketing emails</span>
+                          <span className="ml-2">{t('admin.sendMarketingEmails')}</span>
                         </label>
                       </div>
                     </div>
@@ -1010,7 +1012,7 @@ const AdminDashboard: React.FC = () => {
                         })}
                         className="btn btn-primary"
                       >
-                        Save Settings
+                        {t('admin.saveSettings')}
                       </button>
                     </div>
                   </div>
@@ -1288,7 +1290,7 @@ const AdminDashboard: React.FC = () => {
                       <option>Draft</option>
                       <option>Archived</option>
                     </select>
-                    <input type="search" placeholder="Search products..." className="px-3 py-2 border rounded-md" />
+                    <input type="search" placeholder={t('placeholder.searchProducts')} className="px-3 py-2 border rounded-md" />
                   </div>
 
                   {/* Products Table */}
@@ -1564,13 +1566,13 @@ const AdminDashboard: React.FC = () => {
                     <div className="p-4 border rounded-lg">
                       <h4 className="font-medium mb-4">Revenue Trend (Last 6 Months)</h4>
                       <div className="h-48 bg-gray-100 rounded flex items-center justify-center">
-                        <p className="text-gray-500">[Revenue Chart Placeholder]</p>
+                        <p className="text-gray-500">{t('placeholder.revenueChart')}</p>
                       </div>
                     </div>
                     <div className="p-4 border rounded-lg">
                       <h4 className="font-medium mb-4">Customer Acquisition</h4>
                       <div className="h-48 bg-gray-100 rounded flex items-center justify-center">
-                        <p className="text-gray-500">[Customer Chart Placeholder]</p>
+                        <p className="text-gray-500">{t('placeholder.customerChart')}</p>
                       </div>
                     </div>
                     <div className="p-4 border rounded-lg">

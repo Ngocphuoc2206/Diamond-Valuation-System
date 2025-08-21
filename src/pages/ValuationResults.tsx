@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 interface ValuationResult {
   id: string;
@@ -42,7 +43,9 @@ interface ValuationResult {
 }
 
 const ValuationResults: React.FC = () => {
+  const { t } = useLanguage();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [selectedResult, setSelectedResult] = useState<ValuationResult | null>(null);
   const [viewMode, setViewMode] = useState<'summary' | 'detailed' | 'certificate'>('summary');
   

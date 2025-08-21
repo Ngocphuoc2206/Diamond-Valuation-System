@@ -39,6 +39,22 @@ const CartPage: React.FC = () => {
       </div>
     );
   }
+          <h1 className="text-3xl font-serif font-bold text-luxury-navy mb-4">
+            Your Cart is Empty
+          </h1>
+          <p className="text-gray-600 mb-8">
+            Discover our beautiful collection of diamonds and jewelry pieces.
+          </p>
+          <Link
+            to="/shop"
+            className="btn btn-primary inline-block"
+          >
+            Continue Shopping
+          </Link>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -52,10 +68,10 @@ const CartPage: React.FC = () => {
             className="text-center"
           >
             <h1 className="text-3xl md:text-5xl font-serif font-bold mb-4">
-              {t('cart.title')} <span className="text-luxury-gold">{t('cart.titleHighlight')}</span>
+              Shopping <span className="text-luxury-gold">Cart</span>
             </h1>
             <p className="text-lg text-gray-300">
-              {t('cart.description')}
+              Review your selected items and proceed to checkout
             </p>
           </motion.div>
         </div>
@@ -120,7 +136,7 @@ const CartPage: React.FC = () => {
                         onClick={() => removeFromCart(item.id)}
                         className="text-red-600 hover:text-red-800 text-sm mt-1"
                       >
-                        {t('cart.remove')}
+                        Remove
                       </button>
                     </div>
                   </div>
@@ -136,7 +152,7 @@ const CartPage: React.FC = () => {
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-              {t('cart.continueShopping')}
+              Continue Shopping
             </Link>
           </motion.div>
 
@@ -148,24 +164,24 @@ const CartPage: React.FC = () => {
             className="lg:col-span-1"
           >
             <div className="bg-white rounded-lg shadow-md p-6 sticky top-6">
-              <h3 className="text-xl font-serif font-bold mb-6">{t('cart.orderSummary')}</h3>
+              <h3 className="text-xl font-serif font-bold mb-6">Order Summary</h3>
               
               <div className="space-y-4 mb-6">
                 <div className="flex justify-between">
-                  <span>{t('cart.subtotal')}</span>
+                  <span>Subtotal</span>
                   <span>${getTotalPrice().toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>{t('cart.shipping')}</span>
-                  <span className="text-green-600">{t('cart.free')}</span>
+                  <span>Shipping</span>
+                  <span className="text-green-600">Free</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>{t('cart.tax')}</span>
+                  <span>Tax (estimated)</span>
                   <span>${(getTotalPrice() * 0.08).toLocaleString()}</span>
                 </div>
                 <hr />
                 <div className="flex justify-between font-bold text-lg">
-                  <span>{t('cart.total')}</span>
+                  <span>Total</span>
                   <span className="text-luxury-gold">
                     ${(getTotalPrice() * 1.08).toLocaleString()}
                   </span>
@@ -177,16 +193,16 @@ const CartPage: React.FC = () => {
                   to="/checkout"
                   className="btn btn-primary w-full text-center block"
                 >
-                  {t('cart.proceedCheckout')}
+                  Proceed to Checkout
                 </Link>
                 <button className="btn btn-secondary w-full">
-                  {t('cart.requestQuote')}
+                  Request Quote
                 </button>
               </div>
 
               {/* Trust Badges */}
               <div className="mt-8 pt-6 border-t">
-                <h4 className="font-medium mb-4">{t('cart.whyChoose')}</h4>
+                <h4 className="font-medium mb-4">Why Choose Us?</h4>
                 <div className="space-y-3 text-sm text-gray-600">
                   <div className="flex items-center space-x-2">
                     <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
@@ -210,7 +226,7 @@ const CartPage: React.FC = () => {
                     <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
-                    <span>{t('cart.lifetimeWarranty')}</span>
+                    <span>Lifetime Warranty</span>
                   </div>
                 </div>
               </div>
@@ -218,19 +234,48 @@ const CartPage: React.FC = () => {
               {/* Support */}
               <div className="mt-6 pt-6 border-t text-center">
                 <p className="text-sm text-gray-600 mb-3">
-                  {t('cart.needHelp')}
+                  Need help with your order?
                 </p>
                 <Link
                   to="/contact"
                   className="text-luxury-gold hover:text-luxury-navy text-sm font-medium"
                 >
-                  {t('cart.contactExperts')}
+                  Contact Our Experts
                 </Link>
               </div>
             </div>
           </motion.div>
         </div>
       </div>
+
+      {/* Newsletter Section */}
+      <section className="py-16 bg-gray-100">
+        <div className="container-custom">
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={fadeInUp}
+            className="max-w-2xl mx-auto text-center"
+          >
+            <h2 className="text-3xl font-serif font-bold mb-4">
+              Stay Updated
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Get exclusive offers and diamond insights delivered to your inbox.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+              <input
+                type="email"
+                placeholder="Enter your email"
+                className="flex-1 px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
+              />
+              <button className="btn btn-gold">
+                Subscribe
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      </section>
     </div>
   );
 };

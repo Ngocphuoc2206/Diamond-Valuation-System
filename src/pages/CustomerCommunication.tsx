@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 interface CustomerMessage {
   id: string;
@@ -16,6 +17,7 @@ interface CustomerMessage {
 
 const CustomerCommunication: React.FC = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('messages');
   const [selectedMessage, setSelectedMessage] = useState<CustomerMessage | null>(null);
   const [isComposing, setIsComposing] = useState(false);
@@ -101,15 +103,15 @@ const CustomerCommunication: React.FC = () => {
           <div className="py-6">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-serif font-bold text-gray-900">Communication Center</h1>
-                <p className="text-gray-600">Stay connected with our team</p>
+                <h1 className="text-2xl font-serif font-bold text-gray-900">{t('communication.title')}</h1>
+                <p className="text-gray-600">{t('communication.subtitle')}</p>
               </div>
               <div className="flex items-center space-x-4">
                 <button 
                   onClick={() => setIsComposing(true)}
                   className="btn btn-primary"
                 >
-                  ✉️ New Message
+                  ✉️ {t('communication.newMessage')}
                 </button>
                 <div className="relative">
                   <span className="text-2xl">🔔</span>
@@ -131,8 +133,8 @@ const CustomerCommunication: React.FC = () => {
           <div className="border-b border-gray-200">
             <nav className="-mb-px flex space-x-8">
               {[
-                { id: 'messages', label: `Messages ${unreadCount > 0 ? `(${unreadCount})` : ''}`, icon: '💬' },
-                { id: 'history', label: 'Communication History', icon: '📋' }
+                { id: 'messages', label: `${t('communication.messages')} ${unreadCount > 0 ? `(${unreadCount})` : ''}`, icon: '💬' },
+                { id: 'history', label: t('communication.history'), icon: '📋' }
               ].map((tab) => (
                 <button
                   key={tab.id}

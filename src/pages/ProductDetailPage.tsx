@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useCart } from '../context/CartContext';
+import { useLanguage } from '../context/LanguageContext';
 import { products } from '../data/mockData';
 
 const ProductDetailPage: React.FC = () => {
+  const { t } = useLanguage();
   const { id } = useParams<{ id: string }>();
   const { addToCart } = useCart();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -16,10 +18,10 @@ const ProductDetailPage: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Product Not Found</h1>
-          <p className="text-gray-600 mb-8">The product you're looking for doesn't exist.</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">{t('product.notFound')}</h1>
+          <p className="text-gray-600 mb-8">{t('product.notFoundDesc')}</p>
           <Link to="/shop" className="btn btn-primary">
-            Back to Shop
+            {t('product.backToShop')}
           </Link>
         </div>
       </div>
@@ -47,9 +49,9 @@ const ProductDetailPage: React.FC = () => {
       <div className="bg-white border-b">
         <div className="container-custom py-4">
           <nav className="flex items-center space-x-2 text-sm">
-            <Link to="/" className="text-gray-500 hover:text-luxury-navy">Home</Link>
+            <Link to="/" className="text-gray-500 hover:text-luxury-navy">{t('product.breadcrumbHome')}</Link>
             <span className="text-gray-400">/</span>
-            <Link to="/shop" className="text-gray-500 hover:text-luxury-navy">Shop</Link>
+            <Link to="/shop" className="text-gray-500 hover:text-luxury-navy">{t('product.breadcrumbShop')}</Link>
             <span className="text-gray-400">/</span>
             <span className="text-luxury-navy font-medium">{product.name}</span>
           </nav>
@@ -188,10 +190,10 @@ const ProductDetailPage: React.FC = () => {
                     disabled={!product.inStock}
                     className="btn btn-primary w-full text-lg py-4 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {product.inStock ? 'Add to Cart' : 'Out of Stock'}
+                    {product.inStock ? t('product.addToCart') : 'Out of Stock'}
                   </button>
                   <button className="btn btn-secondary w-full text-lg py-4">
-                    Request Quote
+                    {t('product.buyNow')}
                   </button>
                 </div>
               </div>
@@ -199,14 +201,14 @@ const ProductDetailPage: React.FC = () => {
 
             {/* Trust Badges */}
             <div className="bg-gray-100 p-6 rounded-lg">
-              <h4 className="font-bold mb-4">Our Guarantees</h4>
+              <h4 className="font-bold mb-4">{t('product.guarantees')}</h4>
               <div className="space-y-3">
                 {[
-                  { icon: '🔒', text: 'Secure Payment Processing' },
-                  { icon: '🚚', text: 'Free Insured Shipping' },
-                  { icon: '↩️', text: '30-Day Return Policy' },
-                  { icon: '🛡️', text: 'Lifetime Warranty' },
-                  { icon: '📋', text: 'Certificate of Authenticity' },
+                  { icon: '🔒', text: t('product.certifiedAuthentic') },
+                  { icon: '🚚', text: t('product.freeShipping') },
+                  { icon: '↩️', text: t('product.thirtyDayReturn') },
+                  { icon: '🛡️', text: t('product.lifetimeWarranty') },
+                  { icon: '📋', text: t('product.certifiedAuthentic') },
                 ].map((guarantee, index) => (
                   <div key={index} className="flex items-center space-x-3">
                     <span className="text-lg">{guarantee.icon}</span>
@@ -219,20 +221,20 @@ const ProductDetailPage: React.FC = () => {
             {/* Contact */}
             <div className="border-t pt-6">
               <p className="text-sm text-gray-600 mb-3">
-                Need help or have questions about this product?
+                {t('product.needHelp')}
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link
                   to="/contact"
                   className="btn btn-secondary text-sm px-6 py-2"
                 >
-                  Contact Expert
+                  {t('product.contactExpert')}
                 </Link>
                 <Link
                   to="/valuation"
                   className="btn btn-gold text-sm px-6 py-2"
                 >
-                  Get Valuation
+                  {t('product.getValuation')}
                 </Link>
               </div>
             </div>

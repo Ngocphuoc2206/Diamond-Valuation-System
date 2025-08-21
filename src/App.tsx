@@ -4,6 +4,7 @@ import './App.css';
 import MainLayout from './layouts/MainLayout';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { LanguageProvider } from './context/LanguageContext';
 
 // Lazy-loaded components
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -30,117 +31,119 @@ const Loading = () => (
 
 function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <BrowserRouter>
-          <Suspense fallback={<Loading />}>
-            <Routes>
-              {/* Auth routes without main layout */}
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
+    <LanguageProvider>
+      <AuthProvider>
+        <CartProvider>
+          <BrowserRouter>
+            <Suspense fallback={<Loading />}>
+              <Routes>
+                {/* Auth routes without main layout */}
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
 
-              {/* Main routes with layout */}
-              <Route 
-                path="/" 
-                element={
-                  <MainLayout>
-                    <HomePage />
-                  </MainLayout>
-                } 
-              />
-              <Route 
-                path="/shop" 
-                element={
-                  <MainLayout>
-                    <ShopPage />
-                  </MainLayout>
-                } 
-              />
-              <Route 
-                path="/shop/product/:id" 
-                element={
-                  <MainLayout>
-                    <ProductDetailPage />
-                  </MainLayout>
-                } 
-              />
-              <Route 
-                path="/cart" 
-                element={
-                  <MainLayout>
-                    <CartPage />
-                  </MainLayout>
-                } 
-              />
-              <Route 
-                path="/checkout" 
-                element={
-                  <MainLayout>
-                    <CheckoutPage />
-                  </MainLayout>
-                } 
-              />
-              <Route 
-                path="/valuation" 
-                element={
-                  <MainLayout>
-                    <ValuationTool />
-                  </MainLayout>
-                } 
-              />
-              <Route 
-                path="/knowledge" 
-                element={
-                  <MainLayout>
-                    <KnowledgePage />
-                  </MainLayout>
-                } 
-              />
-              <Route 
-                path="/dashboard" 
-                element={
-                  <MainLayout>
-                    <RoleBasedDashboard />
-                  </MainLayout>
-                } 
-              />
-              <Route 
-                path="/contact" 
-                element={
-                  <MainLayout>
-                    <ContactPage />
-                  </MainLayout>
-                } 
-              />
-              <Route 
-                path="/faq" 
-                element={
-                  <MainLayout>
-                    <FAQPage />
-                  </MainLayout>
-                } 
-              />
-              <Route 
-                path="/valuation-results" 
-                element={
-                  <MainLayout>
-                    <ValuationResults />
-                  </MainLayout>
-                } 
-              />
-              <Route 
-                path="/communication" 
-                element={
-                  <MainLayout>
-                    <CustomerCommunication />
-                  </MainLayout>
-                } 
-              />
-            </Routes>
-          </Suspense>
-        </BrowserRouter>
-      </CartProvider>
-    </AuthProvider>
+                {/* Main routes with layout */}
+                <Route 
+                  path="/" 
+                  element={
+                    <MainLayout>
+                      <HomePage />
+                    </MainLayout>
+                  } 
+                />
+                <Route 
+                  path="/shop" 
+                  element={
+                    <MainLayout>
+                      <ShopPage />
+                    </MainLayout>
+                  } 
+                />
+                <Route 
+                  path="/shop/product/:id" 
+                  element={
+                    <MainLayout>
+                      <ProductDetailPage />
+                    </MainLayout>
+                  } 
+                />
+                <Route 
+                  path="/cart" 
+                  element={
+                    <MainLayout>
+                      <CartPage />
+                    </MainLayout>
+                  } 
+                />
+                <Route 
+                  path="/checkout" 
+                  element={
+                    <MainLayout>
+                      <CheckoutPage />
+                    </MainLayout>
+                  } 
+                />
+                <Route 
+                  path="/valuation" 
+                  element={
+                    <MainLayout>
+                      <ValuationTool />
+                    </MainLayout>
+                  } 
+                />
+                <Route 
+                  path="/knowledge" 
+                  element={
+                    <MainLayout>
+                      <KnowledgePage />
+                    </MainLayout>
+                  } 
+                />
+                <Route 
+                  path="/dashboard" 
+                  element={
+                    <MainLayout>
+                      <RoleBasedDashboard />
+                    </MainLayout>
+                  } 
+                />
+                <Route 
+                  path="/contact" 
+                  element={
+                    <MainLayout>
+                      <ContactPage />
+                    </MainLayout>
+                  } 
+                />
+                <Route 
+                  path="/faq" 
+                  element={
+                    <MainLayout>
+                      <FAQPage />
+                    </MainLayout>
+                  } 
+                />
+                <Route 
+                  path="/valuation-results" 
+                  element={
+                    <MainLayout>
+                      <ValuationResults />
+                    </MainLayout>
+                  } 
+                />
+                <Route 
+                  path="/communication" 
+                  element={
+                    <MainLayout>
+                      <CustomerCommunication />
+                    </MainLayout>
+                  } 
+                />
+              </Routes>
+            </Suspense>
+          </BrowserRouter>
+        </CartProvider>
+      </AuthProvider>
+    </LanguageProvider>
   );
 }
 

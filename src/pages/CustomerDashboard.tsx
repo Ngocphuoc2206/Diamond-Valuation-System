@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 interface CustomerValuationRequest {
   id: string;
@@ -37,6 +38,7 @@ interface CustomerNotification {
 }
 
 const CustomerDashboard: React.FC = () => {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
@@ -191,10 +193,10 @@ const CustomerDashboard: React.FC = () => {
   const unreadCount = notifications.filter(n => !n.read).length;
 
   const tabs = [
-    { id: 'overview', label: 'Overview', icon: '📊' },
-    { id: 'valuations', label: 'My Valuations', icon: '💎' },
-    { id: 'notifications', label: `Notifications ${unreadCount > 0 ? `(${unreadCount})` : ''}`, icon: '🔔' },
-    { id: 'profile', label: 'Profile', icon: '👤' }
+    { id: 'overview', label: t('customer.overview'), icon: '📊' },
+    { id: 'valuations', label: t('customer.valuations'), icon: '💎' },
+    { id: 'notifications', label: `${t('dashboard.notifications')} ${unreadCount > 0 ? `(${unreadCount})` : ''}`, icon: '🔔' },
+    { id: 'profile', label: t('customer.profile'), icon: '👤' }
   ];
 
   const notify = (message: string) => {
@@ -217,21 +219,21 @@ const CustomerDashboard: React.FC = () => {
           <div className="py-6">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-serif font-bold text-gray-900">Customer Dashboard</h1>
-                <p className="text-gray-600">Welcome back, {user?.name}!</p>
+                <h1 className="text-2xl font-serif font-bold text-gray-900">{t('customer.dashboard')}</h1>
+                <p className="text-gray-600">{t('customer.welcomeBack')}, {user?.name}!</p>
               </div>
               <div className="flex items-center space-x-4">
                 <button 
                   onClick={() => navigate('/valuation')}
                   className="btn btn-primary"
                 >
-                  New Valuation Request
+                  {t('customer.requestValuation')}
                 </button>
                 <button 
                   onClick={() => navigate('/communication')}
                   className="btn btn-secondary"
                 >
-                  Messages
+                  {t('communication.messages')}
                 </button>
                 <div className="relative">
                   <span className="text-2xl">🔔</span>

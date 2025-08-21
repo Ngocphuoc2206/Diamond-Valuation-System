@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 const LoginPage: React.FC = () => {
+  const { t } = useLanguage();
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -47,7 +49,7 @@ const LoginPage: React.FC = () => {
         // Redirect to dashboard on successful login
         navigate('/dashboard', { replace: true });
       } else {
-        setError('Invalid email or password');
+        setError(t('auth.invalidCredentials'));
       }
     } catch (err) {
       setError('An error occurred. Please try again.');
@@ -72,15 +74,18 @@ const LoginPage: React.FC = () => {
             </h1>
           </Link>
           <h2 className="mt-6 text-3xl font-bold text-gray-900">
-            Sign in to your account
+            {t('auth.welcomeBack')}
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            Or{' '}
+            {t('auth.loginDescription')}
+          </p>
+          <p className="mt-2 text-sm text-gray-600">
+            {t('auth.or')}{' '}
             <Link
               to="/register"
               className="font-medium text-luxury-gold hover:text-luxury-navy"
             >
-              create a new account
+              {t('auth.dontHaveAccount')}
             </Link>
           </p>
         </div>
@@ -97,7 +102,7 @@ const LoginPage: React.FC = () => {
             <div className="space-y-6">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                  Email address
+                  {t('auth.email')}
                 </label>
                 <input
                   id="email"
@@ -107,13 +112,13 @@ const LoginPage: React.FC = () => {
                   onChange={handleInputChange}
                   required
                   className="mt-1 w-full px-3 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-luxury-gold focus:border-transparent"
-                  placeholder="Enter your email"
+                  placeholder={t('placeholder.email')}
                 />
               </div>
 
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                  Password
+                  {t('auth.password')}
                 </label>
                 <input
                   id="password"
@@ -123,7 +128,7 @@ const LoginPage: React.FC = () => {
                   onChange={handleInputChange}
                   required
                   className="mt-1 w-full px-3 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-luxury-gold focus:border-transparent"
-                  placeholder="Enter your password"
+                  placeholder={t('placeholder.password')}
                 />
               </div>
 
@@ -138,7 +143,7 @@ const LoginPage: React.FC = () => {
                     className="h-4 w-4 text-luxury-gold focus:ring-luxury-gold border-gray-300 rounded"
                   />
                   <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-700">
-                    Remember me
+                    {t('auth.rememberMe')}
                   </label>
                 </div>
 
@@ -147,7 +152,7 @@ const LoginPage: React.FC = () => {
                     to="/forgot-password"
                     className="font-medium text-luxury-gold hover:text-luxury-navy"
                   >
-                    Forgot your password?
+                    {t('auth.forgotPassword')}
                   </Link>
                 </div>
               </div>
@@ -160,10 +165,10 @@ const LoginPage: React.FC = () => {
                 {isLoading ? (
                   <div className="flex items-center justify-center space-x-2">
                     <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
-                    <span>Signing in...</span>
+                    <span>{t('auth.signingIn')}</span>
                   </div>
                 ) : (
-                  'Sign in'
+                  t('auth.signIn')
                 )}
               </button>
             </div>

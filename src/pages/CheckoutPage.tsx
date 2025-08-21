@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useCart } from '../context/CartContext';
+import { useLanguage } from '../context/LanguageContext';
 
 const CheckoutPage: React.FC = () => {
+  const { t } = useLanguage();
   const { cartItems, getTotalPrice } = useCart();
   const [formData, setFormData] = useState({
     // Shipping Information
@@ -103,10 +105,10 @@ const CheckoutPage: React.FC = () => {
             className="text-center"
           >
             <h1 className="text-3xl md:text-5xl font-serif font-bold mb-4">
-              Secure <span className="text-luxury-gold">Checkout</span>
+              {t('checkout.title')}
             </h1>
             <p className="text-lg text-gray-300">
-              Complete your purchase securely
+              {t('checkout.description')}
             </p>
           </motion.div>
         </div>
@@ -125,8 +127,8 @@ const CheckoutPage: React.FC = () => {
             >
               <div className="flex items-center justify-between">
                 {[
-                  { step: 1, title: 'Shipping' },
-                  { step: 2, title: 'Payment' },
+                  { step: 1, title: t('checkout.shippingInfo') },
+                  { step: 2, title: t('checkout.paymentInfo') },
                   { step: 3, title: 'Review' },
                 ].map((item) => (
                   <div key={item.step} className="flex items-center">
@@ -160,10 +162,10 @@ const CheckoutPage: React.FC = () => {
                 variants={fadeInUp}
                 className="bg-white rounded-lg shadow-md p-6"
               >
-                <h2 className="text-2xl font-serif font-bold mb-6">Shipping Information</h2>
+                <h2 className="text-2xl font-serif font-bold mb-6">{t('checkout.shippingInfo')}</h2>
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium mb-2">First Name *</label>
+                    <label className="block text-sm font-medium mb-2">{t('checkout.firstName')} *</label>
                     <input
                       type="text"
                       name="firstName"
@@ -174,7 +176,7 @@ const CheckoutPage: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2">Last Name *</label>
+                    <label className="block text-sm font-medium mb-2">{t('checkout.lastName')} *</label>
                     <input
                       type="text"
                       name="lastName"
@@ -185,7 +187,7 @@ const CheckoutPage: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2">Email *</label>
+                    <label className="block text-sm font-medium mb-2">{t('contact.email')} *</label>
                     <input
                       type="email"
                       name="email"
@@ -272,7 +274,7 @@ const CheckoutPage: React.FC = () => {
                     onClick={() => setCurrentStep(2)}
                     className="btn btn-primary"
                   >
-                    Continue to Payment
+                    {t('checkout.continue')}
                   </button>
                 </div>
               </motion.div>
@@ -286,7 +288,7 @@ const CheckoutPage: React.FC = () => {
                 variants={fadeInUp}
                 className="bg-white rounded-lg shadow-md p-6"
               >
-                <h2 className="text-2xl font-serif font-bold mb-6">Payment Information</h2>
+                <h2 className="text-2xl font-serif font-bold mb-6">{t('checkout.paymentInfo')}</h2>
                 <div className="space-y-6">
                   <div>
                     <label className="block text-sm font-medium mb-2">Card Number *</label>
@@ -295,7 +297,7 @@ const CheckoutPage: React.FC = () => {
                       name="cardNumber"
                       value={formData.cardNumber}
                       onChange={handleInputChange}
-                      placeholder="1234 5678 9012 3456"
+                      placeholder={t('placeholder.cardNumber')}
                       required
                       className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
                     />
@@ -308,7 +310,7 @@ const CheckoutPage: React.FC = () => {
                         name="expiryDate"
                         value={formData.expiryDate}
                         onChange={handleInputChange}
-                        placeholder="MM/YY"
+                        placeholder={t('placeholder.expiryDate')}
                         required
                         className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
                       />
@@ -320,7 +322,7 @@ const CheckoutPage: React.FC = () => {
                         name="cvv"
                         value={formData.cvv}
                         onChange={handleInputChange}
-                        placeholder="123"
+                        placeholder={t('placeholder.cvv')}
                         required
                         className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
                       />
@@ -344,14 +346,14 @@ const CheckoutPage: React.FC = () => {
                     onClick={() => setCurrentStep(1)}
                     className="btn btn-secondary"
                   >
-                    Back to Shipping
+                    {t('checkout.backToShipping')}
                   </button>
                   <button
                     type="button"
                     onClick={() => setCurrentStep(3)}
                     className="btn btn-primary"
                   >
-                    Review Order
+                    {t('checkout.continue')}
                   </button>
                 </div>
               </motion.div>
@@ -375,7 +377,7 @@ const CheckoutPage: React.FC = () => {
                     value={formData.notes}
                     onChange={handleInputChange}
                     rows={4}
-                    placeholder="Any special delivery instructions or gift message..."
+                    placeholder={t('placeholder.orderNotes')}
                     className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
                   />
                 </div>
@@ -424,11 +426,11 @@ const CheckoutPage: React.FC = () => {
                     {isProcessing ? (
                       <>
                         <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
-                        <span>Processing...</span>
+                        <span>{t('checkout.processing')}</span>
                       </>
                     ) : (
                       <>
-                        <span>Place Order</span>
+                        <span>{t('checkout.placeOrder')}</span>
                         <span>${total.toLocaleString()}</span>
                       </>
                     )}
@@ -512,7 +514,7 @@ const CheckoutPage: React.FC = () => {
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
-                    <span>30-Day Money Back Guarantee</span>
+                    <span>{t('checkout.moneyBackGuarantee')}</span>
                   </div>
                 </div>
               </div>

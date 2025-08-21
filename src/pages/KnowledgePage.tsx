@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useLanguage } from '../context/LanguageContext';
 import { articles } from '../data/mockData';
 import type { Article } from '../types';
 
 const KnowledgePage: React.FC = () => {
+  const { t } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
@@ -46,11 +48,10 @@ const KnowledgePage: React.FC = () => {
             className="max-w-4xl mx-auto text-center"
           >
             <h1 className="text-4xl md:text-6xl font-serif font-bold mb-6">
-              Diamond <span className="text-luxury-gold">Knowledge</span> Center
+              {t('knowledge.title')} <span className="text-luxury-gold">{t('knowledge.titleHighlight')}</span> Center
             </h1>
             <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto">
-              Everything you need to know about diamonds, from the basics of the 4 Cs to 
-              advanced gemological insights and market trends.
+              {t('knowledge.description')}
             </p>
           </motion.div>
         </div>
@@ -72,7 +73,7 @@ const KnowledgePage: React.FC = () => {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search articles, guides, and insights..."
+                  placeholder={t('knowledge.searchPlaceholder')}
                   className="w-full px-6 py-4 pl-12 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-luxury-gold focus:border-transparent"
                 />
                 <svg
@@ -105,7 +106,7 @@ const KnowledgePage: React.FC = () => {
                         : 'bg-white text-gray-700 border border-gray-300 hover:border-luxury-gold hover:text-luxury-gold'
                     }`}
                   >
-                    {category === 'all' ? 'All Articles' : category.charAt(0).toUpperCase() + category.slice(1)}
+                    {category === 'all' ? t('knowledge.allArticles') : t(`knowledge.category.${category}`)}
                   </button>
                 ))}
               </div>

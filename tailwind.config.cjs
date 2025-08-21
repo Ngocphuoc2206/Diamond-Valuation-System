@@ -20,11 +20,9 @@ module.exports = {
           900: '#111827',
           950: '#030712',
         },
-        luxury: {
-          gold: '#D4AF37',
-          silver: '#C0C0C0',
-          navy: '#000080',
-        },
+        'luxury-gold': '#D4AF37',
+        'luxury-silver': '#C0C0C0',
+        'luxury-navy': '#000080',
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],

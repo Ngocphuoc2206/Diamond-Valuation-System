@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useLanguage } from '../context/LanguageContext';
 
 const RegisterPage: React.FC = () => {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -37,13 +39,13 @@ const RegisterPage: React.FC = () => {
 
     // Validation
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      setError(t('auth.passwordsDontMatch'));
       setIsLoading(false);
       return;
     }
 
     if (!formData.acceptTerms) {
-      setError('Please accept the terms and conditions');
+      setError(t('auth.acceptTerms'));
       setIsLoading(false);
       return;
     }
@@ -104,15 +106,15 @@ const RegisterPage: React.FC = () => {
             </h1>
           </Link>
           <h2 className="mt-6 text-3xl font-bold text-gray-900">
-            Create your account
+            {t('auth.createAccount')}
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            Already have an account?{' '}
+            {t('auth.alreadyHaveAccount')}{' '}
             <Link
               to="/login"
               className="font-medium text-luxury-gold hover:text-luxury-navy"
             >
-              Sign in here
+              {t('auth.signIn')}
             </Link>
           </p>
         </div>
@@ -130,7 +132,7 @@ const RegisterPage: React.FC = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
-                    First Name
+                    {t('auth.firstName')}
                   </label>
                   <input
                     id="firstName"
@@ -140,13 +142,13 @@ const RegisterPage: React.FC = () => {
                     onChange={handleInputChange}
                     required
                     className="mt-1 w-full px-3 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-luxury-gold focus:border-transparent"
-                    placeholder="First name"
+                    placeholder={t('placeholder.firstName')}
                   />
                 </div>
 
                 <div>
                   <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
-                    Last Name
+                    {t('auth.lastName')}
                   </label>
                   <input
                     id="lastName"
@@ -156,14 +158,14 @@ const RegisterPage: React.FC = () => {
                     onChange={handleInputChange}
                     required
                     className="mt-1 w-full px-3 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-luxury-gold focus:border-transparent"
-                    placeholder="Last name"
+                    placeholder={t('placeholder.lastName')}
                   />
                 </div>
               </div>
 
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                  Email address
+                  {t('auth.email')}
                 </label>
                 <input
                   id="email"
@@ -173,7 +175,7 @@ const RegisterPage: React.FC = () => {
                   onChange={handleInputChange}
                   required
                   className="mt-1 w-full px-3 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-luxury-gold focus:border-transparent"
-                  placeholder="Enter your email"
+                  placeholder={t('placeholder.email')}
                 />
               </div>
 
@@ -188,13 +190,13 @@ const RegisterPage: React.FC = () => {
                   value={formData.phone}
                   onChange={handleInputChange}
                   className="mt-1 w-full px-3 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-luxury-gold focus:border-transparent"
-                  placeholder="Your phone number"
+                  placeholder={t('placeholder.phone')}
                 />
               </div>
 
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                  Password
+                  {t('auth.password')}
                 </label>
                 <input
                   id="password"
@@ -204,7 +206,7 @@ const RegisterPage: React.FC = () => {
                   onChange={handleInputChange}
                   required
                   className="mt-1 w-full px-3 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-luxury-gold focus:border-transparent"
-                  placeholder="Create a password"
+                  placeholder={t('placeholder.createPassword')}
                 />
                 <p className="mt-1 text-sm text-gray-500">
                   Must be at least 8 characters with letters and numbers
@@ -213,7 +215,7 @@ const RegisterPage: React.FC = () => {
 
               <div>
                 <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                  Confirm Password
+                  {t('auth.confirmPassword')}
                 </label>
                 <input
                   id="confirmPassword"
@@ -223,7 +225,7 @@ const RegisterPage: React.FC = () => {
                   onChange={handleInputChange}
                   required
                   className="mt-1 w-full px-3 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-luxury-gold focus:border-transparent"
-                  placeholder="Confirm your password"
+                  placeholder={t('placeholder.confirmPassword')}
                 />
               </div>
 
@@ -272,10 +274,10 @@ const RegisterPage: React.FC = () => {
                 {isLoading ? (
                   <div className="flex items-center justify-center space-x-2">
                     <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
-                    <span>Creating account...</span>
+                    <span>{t('auth.signingUp')}</span>
                   </div>
                 ) : (
-                  'Create Account'
+                  t('auth.signUp')
                 )}
               </button>
             </div>

@@ -2,19 +2,21 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { useLanguage } from '../context/LanguageContext';
 import { Bars3Icon, XMarkIcon, ShoppingBagIcon, UserIcon } from '@heroicons/react/24/outline';
 
 const navigation = [
-  { name: 'Home', href: '/' },
-  { name: 'Shop', href: '/shop' },
-  { name: 'Valuation Tool', href: '/valuation' },
-  { name: 'Diamond Knowledge', href: '/knowledge' },
-  { name: 'Contact', href: '/contact' },
+  { name: 'nav.home', href: '/' },
+  { name: 'nav.shop', href: '/shop' },
+  { name: 'nav.valuationTool', href: '/valuation' },
+  { name: 'nav.diamondKnowledge', href: '/knowledge' },
+  { name: 'nav.contact', href: '/contact' },
 ];
 
 const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, user, logout } = useAuth();
   const { getTotalItems } = useCart();
+  const { language, setLanguage, t } = useLanguage();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -41,15 +43,25 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         <div className="bg-luxury-navy text-white py-2">
           <div className="container-custom flex items-center justify-between">
             <div className="text-sm">
-              <span>Free shipping on orders over $1000</span>
+              <span>{t('topbar.freeShipping')}</span>
             </div>
             <div className="flex gap-4 text-sm">
-              <a href="#" className="hover:text-luxury-gold transition">FAQ</a>
-              <a href="#" className="hover:text-luxury-gold transition">Contact</a>
+              <a href="#" className="hover:text-luxury-gold transition">{t('topbar.faq')}</a>
+              <a href="#" className="hover:text-luxury-gold transition">{t('topbar.contact')}</a>
               <div className="flex gap-2">
-                <a href="#" className="hover:text-luxury-gold transition">EN</a>
+                <button 
+                  onClick={() => setLanguage('en')}
+                  className={`hover:text-luxury-gold transition ${language === 'en' ? 'text-luxury-gold' : ''}`}
+                >
+                  EN
+                </button>
                 <span>|</span>
-                <a href="#" className="hover:text-luxury-gold transition">VI</a>
+                <button 
+                  onClick={() => setLanguage('vi')}
+                  className={`hover:text-luxury-gold transition ${language === 'vi' ? 'text-luxury-gold' : ''}`}
+                >
+                  VI
+                </button>
               </div>
             </div>
           </div>
@@ -66,7 +78,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                   className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
                   onClick={() => setMobileMenuOpen(true)}
                 >
-                  <span className="sr-only">Open main menu</span>
+                  <span className="sr-only">{t('common.openMenu')}</span>
                   <Bars3Icon className="h-6 w-6" aria-hidden="true" />
                 </button>
               </div>
@@ -75,7 +87,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               <div className="lg:flex lg:items-center lg:gap-12">
                 <Link to="/" className="flex">
                   <span className="font-serif text-2xl font-bold text-luxury-navy">
-                    Diamond <span className="text-luxury-gold">Valuation</span>
+                    {t('valuation.title')} <span className="text-luxury-gold">{t('valuation.titleHighlight')}</span>
                   </span>
                 </Link>
                 
@@ -93,7 +105,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                         isActive(item.href) ? 'border-luxury-gold' : 'border-transparent'
                       }`}
                     >
-                      {item.name}
+                      {t(item.name)}
                     </Link>
                   ))}
                 </nav>
@@ -105,14 +117,14 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                   className="p-2 text-gray-500 hover:text-luxury-gold transition-colors"
                   onClick={() => setSearchOpen(!searchOpen)}
                 >
-                  <span className="sr-only">Search</span>
+                  <span className="sr-only">{t('common.search')}</span>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                     <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                   </svg>
                 </button>
                 
                 <Link to="/cart" className="relative p-2 text-gray-500 hover:text-luxury-gold transition-colors">
-                  <span className="sr-only">Cart</span>
+                  <span className="sr-only">{t('nav.cart')}</span>
                   <ShoppingBagIcon className="h-6 w-6" aria-hidden="true" />
                   {getTotalItems() > 0 && (
                     <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-luxury-gold text-[10px] font-medium text-white">
@@ -129,25 +141,25 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                     </button>
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right z-50">
                       <div className="py-1">
-                        <Link to="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Dashboard</Link>
-                        <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</Link>
+                        <Link to="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{t('nav.dashboard')}</Link>
+                        <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{t('nav.profile')}</Link>
                         <button
                           onClick={logout}
                           className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         >
-                          Sign out
+                          {t('nav.signout')}
                         </button>
                       </div>
                     </div>
                   </div>
                 ) : (
                   <Link to="/login" className="text-sm font-medium text-gray-700 hover:text-luxury-gold">
-                    Sign in
+                    {t('nav.signin')}
                   </Link>
                 )}
                 
                 <Link to="/valuation" className="hidden md:block btn btn-primary">
-                  Get Valuation
+                  {t('nav.getValuation')}
                 </Link>
               </div>
             </div>
@@ -161,14 +173,14 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             <div className="fixed inset-y-0 left-0 w-full bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
               <div className="flex items-center justify-between">
                 <span className="font-serif text-xl font-bold text-luxury-navy">
-                  Diamond <span className="text-luxury-gold">Valuation</span>
+                  {t('valuation.title')} <span className="text-luxury-gold">{t('valuation.titleHighlight')}</span>
                 </span>
                 <button
                   type="button"
                   className="-m-2.5 rounded-md p-2.5 text-gray-700"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <span className="sr-only">Close menu</span>
+                  <span className="sr-only">{t('common.close')}</span>
                   <XMarkIcon className="h-6 w-6" aria-hidden="true" />
                 </button>
               </div>
@@ -182,7 +194,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                         className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
                         onClick={() => setMobileMenuOpen(false)}
                       >
-                        {item.name}
+                        {t(item.name)}
                       </Link>
                     ))}
                   </div>
@@ -194,7 +206,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                           className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
                           onClick={() => setMobileMenuOpen(false)}
                         >
-                          Dashboard
+                          {t('nav.dashboard')}
                         </Link>
                         <button
                           onClick={() => {
@@ -203,7 +215,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                           }}
                           className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50 w-full text-left"
                         >
-                          Sign out
+                          {t('nav.signout')}
                         </button>
                       </>
                     ) : (
@@ -212,7 +224,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                         className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
                         onClick={() => setMobileMenuOpen(false)}
                       >
-                        Sign in
+                        {t('nav.signin')}
                       </Link>
                     )}
                   </div>
@@ -239,7 +251,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search for diamonds, valuations, or articles..."
+                  placeholder={t('search.placeholder')}
                   className="w-full py-3 px-4 border-b-2 border-luxury-navy focus:border-luxury-gold bg-transparent focus:outline-none text-lg"
                   autoFocus
                 />
@@ -253,31 +265,31 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 </button>
               </form>
               <div className="mt-8">
-                <h3 className="text-sm font-medium text-gray-500 mb-3">Popular Searches</h3>
+                <h3 className="text-sm font-medium text-gray-500 mb-3">{t('search.popularSearches')}</h3>
                 <div className="flex flex-wrap gap-2">
                   <button 
                     className="bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full text-sm"
-                    onClick={() => setSearchQuery("Diamond certification")}
+                    onClick={() => setSearchQuery(t('search.certification'))}
                   >
-                    Diamond certification
+                    {t('search.certification')}
                   </button>
                   <button 
                     className="bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full text-sm"
-                    onClick={() => setSearchQuery("4C's of diamonds")}
+                    onClick={() => setSearchQuery(t('search.4cs'))}
                   >
-                    4C's of diamonds
+                    {t('search.4cs')}
                   </button>
                   <button 
                     className="bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full text-sm"
-                    onClick={() => setSearchQuery("Valuation process")}
+                    onClick={() => setSearchQuery(t('search.process'))}
                   >
-                    Valuation process
+                    {t('search.process')}
                   </button>
                   <button 
                     className="bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full text-sm"
-                    onClick={() => setSearchQuery("Diamond care")}
+                    onClick={() => setSearchQuery(t('search.care'))}
                   >
-                    Diamond care
+                    {t('search.care')}
                   </button>
                 </div>
               </div>
@@ -297,10 +309,10 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div>
               <h3 className="font-serif text-xl font-bold mb-4">
-                Diamond <span className="text-luxury-gold">Valuation</span>
+                {t('valuation.title')} <span className="text-luxury-gold">{t('valuation.titleHighlight')}</span>
               </h3>
               <p className="text-gray-400 mb-4">
-                Your trusted partner for diamond valuation, certification, and expertise in the world of luxury gemstones.
+                {t('footer.description')}
               </p>
               <div className="flex space-x-4">
                 <a href="#" className="text-gray-400 hover:text-luxury-gold transition">
@@ -330,38 +342,38 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               </div>
             </div>
             <div>
-              <h4 className="font-medium text-lg mb-4">Quick Links</h4>
+              <h4 className="font-medium text-lg mb-4">{t('footer.quickLinks')}</h4>
               <ul className="space-y-2">
-                <li><Link to="/" className="text-gray-400 hover:text-luxury-gold transition">Home</Link></li>
-                <li><Link to="/knowledge" className="text-gray-400 hover:text-luxury-gold transition">Diamond Knowledge</Link></li>
-                <li><Link to="/valuation" className="text-gray-400 hover:text-luxury-gold transition">Valuation Tool</Link></li>
-                <li><Link to="/shop" className="text-gray-400 hover:text-luxury-gold transition">Shop</Link></li>
-                <li><Link to="/blog" className="text-gray-400 hover:text-luxury-gold transition">Blog</Link></li>
+                <li><Link to="/" className="text-gray-400 hover:text-luxury-gold transition">{t('footer.home')}</Link></li>
+                <li><Link to="/knowledge" className="text-gray-400 hover:text-luxury-gold transition">{t('footer.knowledge')}</Link></li>
+                <li><Link to="/valuation" className="text-gray-400 hover:text-luxury-gold transition">{t('footer.valuationTool')}</Link></li>
+                <li><Link to="/shop" className="text-gray-400 hover:text-luxury-gold transition">{t('footer.shop')}</Link></li>
+                <li><Link to="/blog" className="text-gray-400 hover:text-luxury-gold transition">{t('footer.blog')}</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-medium text-lg mb-4">Support</h4>
+              <h4 className="font-medium text-lg mb-4">{t('footer.support')}</h4>
               <ul className="space-y-2">
-                <li><Link to="/faq" className="text-gray-400 hover:text-luxury-gold transition">FAQ</Link></li>
-                <li><Link to="/contact" className="text-gray-400 hover:text-luxury-gold transition">Contact Us</Link></li>
-                <li><Link to="/terms" className="text-gray-400 hover:text-luxury-gold transition">Terms & Conditions</Link></li>
-                <li><Link to="/privacy" className="text-gray-400 hover:text-luxury-gold transition">Privacy Policy</Link></li>
+                <li><Link to="/faq" className="text-gray-400 hover:text-luxury-gold transition">{t('footer.faq')}</Link></li>
+                <li><Link to="/contact" className="text-gray-400 hover:text-luxury-gold transition">{t('footer.contact')}</Link></li>
+                <li><Link to="/terms" className="text-gray-400 hover:text-luxury-gold transition">{t('footer.terms')}</Link></li>
+                <li><Link to="/privacy" className="text-gray-400 hover:text-luxury-gold transition">{t('footer.privacy')}</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-medium text-lg mb-4">Newsletter</h4>
-              <p className="text-gray-400 mb-4">Subscribe to our newsletter for the latest diamond trends and valuation insights.</p>
+              <h4 className="font-medium text-lg mb-4">{t('footer.newsletter')}</h4>
+              <p className="text-gray-400 mb-4">{t('footer.newsletterDescription')}</p>
               <form className="flex">
                 <input 
                   type="email" 
-                  placeholder="Your email" 
+                  placeholder={t('footer.email')}
                   className="py-2 px-3 bg-gray-800 border border-gray-700 text-white rounded-l-md focus:outline-none focus:ring-1 focus:ring-luxury-gold flex-grow"
                 />
                 <button 
                   type="submit"
                   className="bg-luxury-gold text-white py-2 px-4 rounded-r-md hover:bg-opacity-90 transition"
                 >
-                  Subscribe
+                  {t('footer.subscribe')}
                 </button>
               </form>
             </div>
@@ -369,7 +381,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         </div>
         <div className="bg-black py-4 text-center text-gray-400 text-sm">
           <div className="container-custom">
-            <p>© {new Date().getFullYear()} Diamond Valuation System. All rights reserved.</p>
+            <p>{t('footer.copyright').replace('{year}', new Date().getFullYear().toString())}</p>
           </div>
         </div>
       </footer>

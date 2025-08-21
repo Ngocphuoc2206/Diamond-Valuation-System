@@ -2,11 +2,13 @@ import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useCart } from '../context/CartContext';
+import { useLanguage } from '../context/LanguageContext';
 import { products } from '../data/mockData';
 import type { Product } from '../types';
 
 const ShopPage: React.FC = () => {
   const { addToCart } = useCart();
+  const { t } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('featured');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000]);
@@ -80,11 +82,10 @@ const ShopPage: React.FC = () => {
             className="max-w-4xl mx-auto text-center"
           >
             <h1 className="text-4xl md:text-6xl font-serif font-bold mb-6">
-              Diamond <span className="text-luxury-gold">Collection</span>
+              {t('shop.title')} <span className="text-luxury-gold">{t('shop.titleHighlight')}</span>
             </h1>
             <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto">
-              Discover our exquisite collection of certified diamonds and luxury jewelry pieces, 
-              each one carefully selected for its exceptional quality and beauty.
+              {t('shop.description')}
             </p>
           </motion.div>
         </div>
@@ -100,11 +101,11 @@ const ShopPage: React.FC = () => {
             className="lg:w-1/4"
           >
             <div className="bg-white rounded-lg shadow-md p-6 sticky top-6">
-              <h3 className="text-lg font-bold mb-6">Filters</h3>
+              <h3 className="text-lg font-bold mb-6">{t('shop.filters')}</h3>
               
               {/* Category Filter */}
               <div className="mb-6">
-                <h4 className="font-medium mb-3">Category</h4>
+                <h4 className="font-medium mb-3">{t('shop.category')}</h4>
                 <div className="space-y-2">
                   {categories.map((category) => (
                     <label key={category} className="flex items-center">
@@ -117,7 +118,7 @@ const ShopPage: React.FC = () => {
                         className="text-luxury-gold focus:ring-luxury-gold"
                       />
                       <span className="ml-2 text-sm">
-                        {category === 'all' ? 'All Products' : category}
+                        {category === 'all' ? t('shop.allProducts') : category}
                       </span>
                     </label>
                   ))}
@@ -126,7 +127,7 @@ const ShopPage: React.FC = () => {
 
               {/* Price Range */}
               <div className="mb-6">
-                <h4 className="font-medium mb-3">Price Range</h4>
+                <h4 className="font-medium mb-3">{t('shop.priceRange')}</h4>
                 <div className="space-y-3">
                   <div className="flex items-center space-x-2">
                     <input
@@ -153,13 +154,13 @@ const ShopPage: React.FC = () => {
 
               {/* Quick Price Filters */}
               <div className="mb-6">
-                <h4 className="font-medium mb-3">Quick Filters</h4>
+                <h4 className="font-medium mb-3">{t('shop.quickFilters')}</h4>
                 <div className="space-y-2">
                   {[
-                    { label: 'Under $5,000', range: [0, 5000] },
-                    { label: '$5,000 - $10,000', range: [5000, 10000] },
-                    { label: '$10,000 - $20,000', range: [10000, 20000] },
-                    { label: 'Over $20,000', range: [20000, 50000] },
+                    { label: t('shop.under5k'), range: [0, 5000] },
+                    { label: t('shop.5to10k'), range: [5000, 10000] },
+                    { label: t('shop.10to20k'), range: [10000, 20000] },
+                    { label: t('shop.over20k'), range: [20000, 50000] },
                   ].map((filter) => (
                     <button
                       key={filter.label}
@@ -185,7 +186,7 @@ const ShopPage: React.FC = () => {
             >
               <div>
                 <h2 className="text-2xl font-serif font-bold mb-2">
-                  {selectedCategory === 'all' ? 'All Products' : selectedCategory}
+                  {selectedCategory === 'all' ? t('shop.allProducts') : selectedCategory}
                 </h2>
                 <p className="text-gray-600">
                   {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''} found
@@ -197,10 +198,10 @@ const ShopPage: React.FC = () => {
                   onChange={(e) => setSortBy(e.target.value)}
                   className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
                 >
-                  <option value="featured">Featured</option>
-                  <option value="price-low">Price: Low to High</option>
-                  <option value="price-high">Price: High to Low</option>
-                  <option value="name">Name: A to Z</option>
+                  <option value="featured">{t('shop.featured')}</option>
+                  <option value="price-low">{t('shop.priceLowHigh')}</option>
+                  <option value="price-high">{t('shop.priceHighLow')}</option>
+                  <option value="name">{t('shop.nameAZ')}</option>
                 </select>
               </div>
             </motion.div>
@@ -226,7 +227,7 @@ const ShopPage: React.FC = () => {
                     />
                     {product.featured && (
                       <span className="absolute top-4 left-4 bg-luxury-gold text-white px-3 py-1 rounded-full text-sm font-medium">
-                        Featured
+                        {t('shop.featured')}
                       </span>
                     )}
                   </div>
@@ -242,10 +243,10 @@ const ShopPage: React.FC = () => {
                     {product.diamondDetails && (
                       <div className="mb-4 text-xs text-gray-600">
                         <div className="grid grid-cols-2 gap-1">
-                          <span>Shape: {product.diamondDetails.shape}</span>
-                          <span>Carat: {product.diamondDetails.caratWeight}</span>
-                          <span>Color: {product.diamondDetails.color}</span>
-                          <span>Clarity: {product.diamondDetails.clarity}</span>
+                          <span>{t('shop.shape')}: {product.diamondDetails.shape}</span>
+                          <span>{t('shop.carat')}: {product.diamondDetails.caratWeight}</span>
+                          <span>{t('shop.color')}: {product.diamondDetails.color}</span>
+                          <span>{t('shop.clarity')}: {product.diamondDetails.clarity}</span>
                         </div>
                       </div>
                     )}
@@ -259,13 +260,13 @@ const ShopPage: React.FC = () => {
                           to={`/shop/product/${product.id}`}
                           className="px-4 py-2 border border-luxury-navy text-luxury-navy rounded-md hover:bg-luxury-navy hover:text-white transition-colors text-sm"
                         >
-                          View
+                          {t('shop.view')}
                         </Link>
                         <button
                           onClick={() => handleAddToCart(product)}
                           className="px-4 py-2 bg-luxury-gold text-white rounded-md hover:bg-opacity-90 transition-colors text-sm"
                         >
-                          Add to Cart
+                          {t('shop.addToCart')}
                         </button>
                       </div>
                     </div>
@@ -283,9 +284,9 @@ const ShopPage: React.FC = () => {
                 className="text-center py-12"
               >
                 <div className="text-6xl mb-4">💎</div>
-                <h3 className="text-xl font-bold mb-2">No products found</h3>
+                <h3 className="text-xl font-bold mb-2">{t('shop.noProducts')}</h3>
                 <p className="text-gray-600 mb-6">
-                  Try adjusting your filters or search criteria.
+                  {t('shop.noProductsDesc')}
                 </p>
                 <button
                   onClick={() => {
@@ -295,7 +296,7 @@ const ShopPage: React.FC = () => {
                   }}
                   className="btn btn-primary"
                 >
-                  Reset Filters
+                  {t('shop.resetFilters')}
                 </button>
               </motion.div>
             )}
@@ -313,18 +314,17 @@ const ShopPage: React.FC = () => {
             className="max-w-4xl mx-auto text-center"
           >
             <h2 className="text-3xl md:text-4xl font-serif font-bold mb-6">
-              Need Help Choosing?
+              {t('shop.needHelp')}
             </h2>
             <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-              Our diamond experts are here to help you find the perfect piece. 
-              Get personalized recommendations and professional guidance.
+              {t('shop.needHelpDesc')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/valuation" className="btn btn-gold text-lg px-8 py-4">
-                Get Valuation
+                {t('shop.getValuation')}
               </Link>
               <Link to="/contact" className="btn btn-secondary text-lg px-8 py-4">
-                Contact Expert
+                {t('shop.contactExpert')}
               </Link>
             </div>
           </motion.div>

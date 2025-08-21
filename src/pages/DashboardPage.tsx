@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { valuationRequests, products } from '../data/mockData';
 
 const DashboardPage: React.FC = () => {
   const { user, logout } = useAuth();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('overview');
 
   const fadeInUp = {
@@ -35,11 +37,11 @@ const DashboardPage: React.FC = () => {
   const userFavorites = products.slice(0, 4);
 
   const tabs = [
-    { id: 'overview', label: 'Overview', icon: '📊' },
-    { id: 'orders', label: 'Orders', icon: '📦' },
-    { id: 'valuations', label: 'Valuations', icon: '💎' },
-    { id: 'favorites', label: 'Favorites', icon: '❤️' },
-    { id: 'profile', label: 'Profile', icon: '👤' },
+    { id: 'overview', label: t('dashboard.overview'), icon: '📊' },
+    { id: 'orders', label: t('dashboard.orders'), icon: '📦' },
+    { id: 'valuations', label: t('dashboard.valuations'), icon: '💎' },
+    { id: 'favorites', label: t('dashboard.favorites'), icon: '❤️' },
+    { id: 'profile', label: t('dashboard.profile'), icon: '👤' },
   ];
 
   return (
@@ -55,10 +57,10 @@ const DashboardPage: React.FC = () => {
           >
             <div>
               <h1 className="text-3xl md:text-4xl font-serif font-bold mb-2">
-                Welcome back, <span className="text-luxury-gold">{user?.name}</span>
+                {t('dashboard.welcome')}, <span className="text-luxury-gold">{user?.name}</span>
               </h1>
               <p className="text-lg text-gray-300">
-                Manage your account, orders, and valuations
+                {t('dashboard.subtitle')}
               </p>
             </div>
             <div className="hidden md:block">
@@ -103,7 +105,7 @@ const DashboardPage: React.FC = () => {
                   className="w-full text-left px-4 py-3 rounded-md text-red-600 hover:bg-red-50 flex items-center space-x-3"
                 >
                   <span className="text-lg">🚪</span>
-                  <span className="font-medium">Logout</span>
+                  <span className="font-medium">{t('auth.logout')}</span>
                 </button>
               </nav>
             </div>
@@ -127,7 +129,7 @@ const DashboardPage: React.FC = () => {
                         <span className="text-2xl">📦</span>
                       </div>
                       <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-600">Total Orders</p>
+                        <p className="text-sm font-medium text-gray-600">{t('dashboard.totalOrders')}</p>
                         <p className="text-2xl font-bold text-luxury-navy">{userOrders.length}</p>
                       </div>
                     </div>
@@ -139,7 +141,7 @@ const DashboardPage: React.FC = () => {
                         <span className="text-2xl">💎</span>
                       </div>
                       <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-600">Valuations</p>
+                        <p className="text-sm font-medium text-gray-600">{t('dashboard.valuations')}</p>
                         <p className="text-2xl font-bold text-luxury-navy">{userValuations.length}</p>
                       </div>
                     </div>
@@ -151,7 +153,7 @@ const DashboardPage: React.FC = () => {
                         <span className="text-2xl">❤️</span>
                       </div>
                       <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-600">Favorites</p>
+                        <p className="text-sm font-medium text-gray-600">{t('dashboard.favorites')}</p>
                         <p className="text-2xl font-bold text-luxury-navy">{userFavorites.length}</p>
                       </div>
                     </div>
@@ -160,7 +162,7 @@ const DashboardPage: React.FC = () => {
 
                 {/* Recent Activity */}
                 <div className="bg-white rounded-lg shadow-md p-6">
-                  <h3 className="text-xl font-serif font-bold mb-6">Recent Activity</h3>
+                  <h3 className="text-xl font-serif font-bold mb-6">{t('dashboard.recentActivity')}</h3>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between py-3 border-b">
                       <div className="flex items-center space-x-3">
@@ -232,7 +234,7 @@ const DashboardPage: React.FC = () => {
                 variants={fadeInUp}
                 className="bg-white rounded-lg shadow-md p-6"
               >
-                <h3 className="text-xl font-serif font-bold mb-6">Order History</h3>
+                <h3 className="text-xl font-serif font-bold mb-6">{t('dashboard.orderHistory')}</h3>
                 <div className="space-y-4">
                   {userOrders.map((order) => (
                     <div key={order.id} className="border rounded-lg p-4">
@@ -251,7 +253,7 @@ const DashboardPage: React.FC = () => {
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-gray-600">
-                          {order.items} item{order.items > 1 ? 's' : ''}
+                          {order.items} {order.items > 1 ? t('dashboard.items') : t('dashboard.item')}
                         </span>
                         <span className="font-bold text-luxury-gold">
                           ${order.total.toLocaleString()}
@@ -272,9 +274,9 @@ const DashboardPage: React.FC = () => {
                 className="bg-white rounded-lg shadow-md p-6"
               >
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-serif font-bold">Valuation Requests</h3>
+                  <h3 className="text-xl font-serif font-bold">{t('dashboard.valuationRequests')}</h3>
                   <Link to="/valuation" className="btn btn-primary">
-                    New Valuation
+                    {t('dashboard.newValuation')}
                   </Link>
                 </div>
                 <div className="space-y-4">
@@ -348,7 +350,7 @@ const DashboardPage: React.FC = () => {
                 variants={fadeInUp}
                 className="bg-white rounded-lg shadow-md p-6"
               >
-                <h3 className="text-xl font-serif font-bold mb-6">Profile Settings</h3>
+                <h3 className="text-xl font-serif font-bold mb-6">{t('dashboard.profileSettings')}</h3>
                 <form className="space-y-6">
                   <div className="flex items-center space-x-6">
                     <img
@@ -357,9 +359,9 @@ const DashboardPage: React.FC = () => {
                       className="w-20 h-20 rounded-full"
                     />
                     <div>
-                      <button className="btn btn-secondary">Change Photo</button>
+                      <button className="btn btn-secondary">{t('dashboard.changePhoto')}</button>
                       <p className="text-sm text-gray-600 mt-2">
-                        JPG, PNG or GIF. Max size 2MB.
+                        {t('dashboard.photoRequirements')}
                       </p>
                     </div>
                   </div>
@@ -367,7 +369,7 @@ const DashboardPage: React.FC = () => {
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Full Name
+                        {t('auth.fullName')}
                       </label>
                       <input
                         type="text"
@@ -377,7 +379,7 @@ const DashboardPage: React.FC = () => {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Email
+                        {t('auth.email')}
                       </label>
                       <input
                         type="email"
@@ -387,21 +389,21 @@ const DashboardPage: React.FC = () => {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Phone
+                        {t('contact.phone')}
                       </label>
                       <input
                         type="tel"
-                        placeholder="Add phone number"
+                        placeholder={t('dashboard.addPhone')}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Location
+                        {t('dashboard.location')}
                       </label>
                       <input
                         type="text"
-                        placeholder="City, Country"
+                        placeholder={t('dashboard.cityCountry')}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
                       />
                     </div>
@@ -409,7 +411,7 @@ const DashboardPage: React.FC = () => {
 
                   <div className="pt-6 border-t">
                     <button className="btn btn-primary">
-                      Save Changes
+                      {t('dashboard.saveChanges')}
                     </button>
                   </div>
                 </form>

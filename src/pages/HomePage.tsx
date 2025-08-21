@@ -1,9 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useLanguage } from '../context/LanguageContext';
 import { diamonds, articles } from '../data/mockData';
 
 const HomePage: React.FC = () => {
+  const { t } = useLanguage();
+  
   // Take first 3 featured articles for the homepage
   const featuredArticles = articles.filter(article => article.featured).slice(0, 3);
   
@@ -46,7 +49,7 @@ const HomePage: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            Diamond Valuation <span className="text-luxury-gold">Excellence</span>
+            {t('hero.title')} <span className="text-luxury-gold">{t('hero.titleHighlight')}</span>
           </motion.h1>
           <motion.p 
             className="text-xl md:text-2xl max-w-3xl mx-auto mb-10"
@@ -54,8 +57,7 @@ const HomePage: React.FC = () => {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.3 }}
           >
-            Expert diamond appraisal services with unmatched precision and trust.
-            Discover the true value of your precious gemstones.
+            {t('hero.subtitle')}
           </motion.p>
           <motion.div 
             className="flex flex-col sm:flex-row gap-4 justify-center"
@@ -64,10 +66,10 @@ const HomePage: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.6 }}
           >
             <Link to="/valuation" className="btn bg-luxury-gold text-white hover:bg-opacity-90 px-8 py-3 rounded-md font-medium text-lg">
-              Get a Valuation
+              {t('hero.getValuation')}
             </Link>
             <Link to="/knowledge" className="btn bg-transparent text-white border border-white hover:bg-white hover:bg-opacity-10 px-8 py-3 rounded-md font-medium text-lg">
-              Learn About Diamonds
+              {t('hero.learnAboutDiamonds')}
             </Link>
           </motion.div>
         </div>
@@ -96,11 +98,9 @@ const HomePage: React.FC = () => {
             viewport={{ once: true }}
             variants={fadeIn}
           >
-            <h2 className="text-3xl md:text-4xl font-serif font-bold mb-6">Welcome to <span className="text-luxury-gold">Diamond Valuation System</span></h2>
+            <h2 className="text-3xl md:text-4xl font-serif font-bold mb-6">{t('intro.title')} <span className="text-luxury-gold">{t('intro.titleHighlight')}</span></h2>
             <p className="text-lg text-gray-600">
-              We provide expert diamond appraisal services with state-of-the-art technology and experienced specialists.
-              Our mission is to deliver accurate, transparent, and reliable diamond valuations that help our clients
-              make informed decisions about their precious gemstones.
+              {t('intro.description')}
             </p>
           </motion.div>
           
@@ -118,10 +118,9 @@ const HomePage: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-3">Diamond Valuation</h3>
+              <h3 className="text-xl font-bold mb-3">{t('service.valuation.title')}</h3>
               <p className="text-gray-600">
-                Accurate diamond appraisal using advanced technology and expert analysis
-                for insurance, resale, or personal knowledge.
+                {t('service.valuation.description')}
               </p>
             </motion.div>
             
@@ -132,10 +131,9 @@ const HomePage: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0 0 12 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52 2.62 10.726c.122.499-.106 1.028-.589 1.202a5.988 5.988 0 0 1-2.031.352 5.988 5.988 0 0 1-2.031-.352c-.483-.174-.711-.703-.59-1.202L18.75 4.971Zm-16.5.52c.99-.203 1.99-.377 3-.52m0 0 2.62 10.726c.122.499-.106 1.028-.589 1.202a5.989 5.989 0 0 1-2.031.352 5.989 5.989 0 0 1-2.031-.352c-.483-.174-.711-.703-.59-1.202L5.25 4.971Z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-3">Certification</h3>
+              <h3 className="text-xl font-bold mb-3">{t('service.certification.title')}</h3>
               <p className="text-gray-600">
-                Professional diamond certification services to authenticate and
-                document the precise characteristics of your diamonds.
+                {t('service.certification.description')}
               </p>
             </motion.div>
             
@@ -146,10 +144,9 @@ const HomePage: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-3">Expert Consultation</h3>
+              <h3 className="text-xl font-bold mb-3">{t('service.consultation.title')}</h3>
               <p className="text-gray-600">
-                Personalized guidance from diamond specialists to help you understand 
-                your gemstone's quality and value.
+                {t('service.consultation.description')}
               </p>
             </motion.div>
           </motion.div>
@@ -166,10 +163,9 @@ const HomePage: React.FC = () => {
             viewport={{ once: true }}
             variants={fadeIn}
           >
-            <h2 className="text-3xl md:text-4xl font-serif font-bold mb-6">Our <span className="text-luxury-gold">Valuation Process</span></h2>
+            <h2 className="text-3xl md:text-4xl font-serif font-bold mb-6">{t('process.title')} <span className="text-luxury-gold">{t('process.titleHighlight')}</span></h2>
             <p className="text-lg text-gray-600">
-              Experience our streamlined process designed to give you accurate diamond valuations with
-              minimal wait time and maximum transparency.
+              {t('process.description')}
             </p>
           </motion.div>
           
@@ -187,16 +183,15 @@ const HomePage: React.FC = () => {
             <motion.div className="relative md:grid md:grid-cols-2 gap-8 mb-12" variants={fadeIn}>
               <div className="md:text-right md:pr-12">
                 <div className="hidden md:block absolute right-0 top-6 w-5 h-5 rounded-full bg-luxury-gold transform translate-x-2.5" />
-                <h3 className="text-2xl font-bold mb-3">Submit Request</h3>
+                <h3 className="text-2xl font-bold mb-3">{t('process.step1.title')}</h3>
                 <p className="text-gray-600">
-                  Fill out our detailed online form with information about your diamond. Include as many 
-                  details as you have, such as certification, origin, and physical characteristics.
+                  {t('process.step1.description')}
                 </p>
               </div>
               <div className="hidden md:block">
                 <img 
                   src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=2670&auto=format&fit=crop" 
-                  alt="Submit Request" 
+                  alt={t('process.step1.title')}
                   className="rounded-lg shadow-md w-full h-60 object-cover" 
                 />
               </div>
@@ -207,16 +202,15 @@ const HomePage: React.FC = () => {
               <div className="hidden md:block">
                 <img 
                   src="https://images.unsplash.com/photo-1627903227225-c2a10fefd199?q=80&w=2574&auto=format&fit=crop" 
-                  alt="Consultation" 
+                  alt={t('process.step2.title')}
                   className="rounded-lg shadow-md w-full h-60 object-cover" 
                 />
               </div>
               <div className="md:pl-12">
                 <div className="hidden md:block absolute left-0 top-6 w-5 h-5 rounded-full bg-luxury-gold transform -translate-x-2.5" />
-                <h3 className="text-2xl font-bold mb-3">Consultation</h3>
+                <h3 className="text-2xl font-bold mb-3">{t('process.step2.title')}</h3>
                 <p className="text-gray-600">
-                  Our consulting staff will contact you to discuss your valuation needs and arrange 
-                  for your diamond to be examined by our experts.
+                  {t('process.step2.description')}
                 </p>
               </div>
             </motion.div>
@@ -225,16 +219,15 @@ const HomePage: React.FC = () => {
             <motion.div className="relative md:grid md:grid-cols-2 gap-8 mb-12" variants={fadeIn}>
               <div className="md:text-right md:pr-12">
                 <div className="hidden md:block absolute right-0 top-6 w-5 h-5 rounded-full bg-luxury-gold transform translate-x-2.5" />
-                <h3 className="text-2xl font-bold mb-3">Expert Valuation</h3>
+                <h3 className="text-2xl font-bold mb-3">{t('process.step3.title')}</h3>
                 <p className="text-gray-600">
-                  Our gemologists perform a comprehensive analysis using advanced equipment to assess 
-                  all aspects of your diamond according to international standards.
+                  {t('process.step3.description')}
                 </p>
               </div>
               <div className="hidden md:block">
                 <img 
                   src="https://images.unsplash.com/photo-1573408301185-9146fe634ad0?q=80&w=2574&auto=format&fit=crop" 
-                  alt="Expert Valuation" 
+                  alt={t('process.step3.title')}
                   className="rounded-lg shadow-md w-full h-60 object-cover" 
                 />
               </div>
@@ -245,16 +238,15 @@ const HomePage: React.FC = () => {
               <div className="hidden md:block">
                 <img 
                   src="https://images.unsplash.com/photo-1563962585448-ec03defd36a0?q=80&w=2574&auto=format&fit=crop" 
-                  alt="Certification" 
+                  alt={t('process.step4.title')}
                   className="rounded-lg shadow-md w-full h-60 object-cover" 
                 />
               </div>
               <div className="md:pl-12">
                 <div className="hidden md:block absolute left-0 top-6 w-5 h-5 rounded-full bg-luxury-gold transform -translate-x-2.5" />
-                <h3 className="text-2xl font-bold mb-3">Receive Certificate</h3>
+                <h3 className="text-2xl font-bold mb-3">{t('process.step4.title')}</h3>
                 <p className="text-gray-600">
-                  Get your comprehensive valuation certificate with all details about your diamond's
-                  characteristics, quality, and estimated value in current market conditions.
+                  {t('process.step4.description')}
                 </p>
               </div>
             </motion.div>
@@ -262,7 +254,7 @@ const HomePage: React.FC = () => {
           
           <div className="mt-16 text-center">
             <Link to="/valuation" className="btn btn-primary py-3 px-8 text-lg">
-              Start Your Valuation Now
+              {t('process.startNow')}
             </Link>
           </div>
         </div>
@@ -278,9 +270,9 @@ const HomePage: React.FC = () => {
             viewport={{ once: true }}
             variants={fadeIn}
           >
-            <h2 className="text-3xl md:text-4xl font-serif font-bold mb-6">Featured <span className="text-luxury-gold">Diamonds</span></h2>
+            <h2 className="text-3xl md:text-4xl font-serif font-bold mb-6">{t('featured.diamonds.title')} <span className="text-luxury-gold">{t('featured.diamonds.titleHighlight')}</span></h2>
             <p className="text-lg text-gray-600">
-              Explore our collection of extraordinary diamonds, each with unique characteristics and exceptional beauty.
+              {t('featured.diamonds.description')}
             </p>
           </motion.div>
           
@@ -305,32 +297,32 @@ const HomePage: React.FC = () => {
                   />
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
                     <h3 className="text-white text-xl font-bold">{diamond.name}</h3>
-                    <p className="text-white opacity-90">{diamond.caratWeight} Carat {diamond.shape}</p>
+                    <p className="text-white opacity-90">{diamond.caratWeight} {t('featured.diamonds.carat')} {diamond.shape}</p>
                   </div>
                 </div>
                 <div className="p-6">
                   <div className="mb-4">
                     <div className="flex justify-between mb-2">
-                      <span className="text-gray-600">Clarity:</span>
+                      <span className="text-gray-600">{t('featured.diamonds.clarity')}</span>
                       <span className="font-medium">{diamond.clarity}</span>
                     </div>
                     <div className="flex justify-between mb-2">
-                      <span className="text-gray-600">Color:</span>
+                      <span className="text-gray-600">{t('featured.diamonds.color')}</span>
                       <span className="font-medium">{diamond.color}</span>
                     </div>
                     <div className="flex justify-between mb-2">
-                      <span className="text-gray-600">Cut:</span>
+                      <span className="text-gray-600">{t('featured.diamonds.cut')}</span>
                       <span className="font-medium">{diamond.cut}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Origin:</span>
+                      <span className="text-gray-600">{t('featured.diamonds.origin')}</span>
                       <span className="font-medium">{diamond.origin}</span>
                     </div>
                   </div>
                   <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
                     <span className="text-xl font-bold text-luxury-navy">${diamond.price.toLocaleString()}</span>
                     <Link to={`/diamonds/${diamond.id}`} className="text-luxury-gold hover:text-luxury-navy font-medium">
-                      View Details
+                      {t('featured.diamonds.viewDetails')}
                     </Link>
                   </div>
                 </div>
@@ -340,7 +332,7 @@ const HomePage: React.FC = () => {
           
           <div className="mt-12 text-center">
             <Link to="/shop" className="btn btn-secondary py-3 px-8">
-              View All Diamonds
+              {t('featured.diamonds.viewAll')}
             </Link>
           </div>
         </div>
@@ -356,9 +348,9 @@ const HomePage: React.FC = () => {
             viewport={{ once: true }}
             variants={fadeIn}
           >
-            <h2 className="text-3xl md:text-4xl font-serif font-bold mb-6">Diamond <span className="text-luxury-gold">Knowledge Base</span></h2>
+            <h2 className="text-3xl md:text-4xl font-serif font-bold mb-6">{t('knowledge.title')} <span className="text-luxury-gold">{t('knowledge.titleHighlight')}</span></h2>
             <p className="text-lg text-gray-600">
-              Enhance your understanding of diamonds with our expert articles, guides, and resources.
+              {t('knowledge.description')}
             </p>
           </motion.div>
           
@@ -392,7 +384,7 @@ const HomePage: React.FC = () => {
                   <h3 className="text-xl font-bold mb-2">{article.title}</h3>
                   <p className="text-gray-600 line-clamp-2 mb-4">{article.excerpt}</p>
                   <Link to={`/knowledge/${article.id}`} className="text-luxury-gold hover:text-luxury-navy font-medium inline-flex items-center">
-                    Read More
+                    {t('knowledge.readMore')}
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 ml-1">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                     </svg>
@@ -404,7 +396,7 @@ const HomePage: React.FC = () => {
           
           <div className="mt-12 text-center">
             <Link to="/knowledge" className="btn btn-secondary py-3 px-8">
-              Explore All Articles
+              {t('knowledge.exploreAll')}
             </Link>
           </div>
         </div>
@@ -420,7 +412,7 @@ const HomePage: React.FC = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            Ready to Discover Your Diamond's <span className="text-luxury-gold">True Value?</span>
+            {t('cta.title')} <span className="text-luxury-gold">{t('cta.titleHighlight')}</span>
           </motion.h2>
           <motion.p 
             className="text-lg max-w-2xl mx-auto mb-10"
@@ -429,8 +421,7 @@ const HomePage: React.FC = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            Start your diamond valuation journey today with our expert team and receive
-            a comprehensive assessment of your precious gemstone.
+            {t('cta.description')}
           </motion.p>
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -439,7 +430,7 @@ const HomePage: React.FC = () => {
             transition={{ duration: 0.6, delay: 0.4 }}
           >
             <Link to="/valuation" className="btn bg-luxury-gold text-white hover:bg-opacity-90 px-8 py-3 rounded-md font-medium text-lg">
-              Get Started Now
+              {t('cta.getStarted')}
             </Link>
           </motion.div>
         </div>
