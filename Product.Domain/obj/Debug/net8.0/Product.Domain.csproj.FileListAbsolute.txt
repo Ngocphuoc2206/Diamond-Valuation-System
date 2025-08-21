@@ -1,0 +1,11 @@
+D:\XD_OOP\ProductService\Product.Domain\bin\Debug\net8.0\Product.Domain.deps.json
+D:\XD_OOP\ProductService\Product.Domain\bin\Debug\net8.0\Product.Domain.dll
+D:\XD_OOP\ProductService\Product.Domain\bin\Debug\net8.0\Product.Domain.pdb
+D:\XD_OOP\ProductService\Product.Domain\obj\Debug\net8.0\Product.Domain.GeneratedMSBuildEditorConfig.editorconfig
+D:\XD_OOP\ProductService\Product.Domain\obj\Debug\net8.0\Product.Domain.AssemblyInfoInputs.cache
+D:\XD_OOP\ProductService\Product.Domain\obj\Debug\net8.0\Product.Domain.AssemblyInfo.cs
+D:\XD_OOP\ProductService\Product.Domain\obj\Debug\net8.0\Product.Domain.csproj.CoreCompileInputs.cache
+D:\XD_OOP\ProductService\Product.Domain\obj\Debug\net8.0\Product.Domain.dll
+D:\XD_OOP\ProductService\Product.Domain\obj\Debug\net8.0\refint\Product.Domain.dll
+D:\XD_OOP\ProductService\Product.Domain\obj\Debug\net8.0\Product.Domain.pdb
+D:\XD_OOP\ProductService\Product.Domain\obj\Debug\net8.0\ref\Product.Domain.dll

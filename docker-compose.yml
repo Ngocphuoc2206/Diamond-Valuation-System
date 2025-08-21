@@ -1,0 +1,15 @@
+version: '3.9'
+services:
+  product.api:
+    build: ./Product.Api
+    container_name: diamond-product-api
+    ports:
+      - "8085:8080"
+    environment:
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__Default=Data Source=/data/product.db
+    volumes:
+      - product_data:/data
+    depends_on: []
+volumes:
+  product_data: {}
