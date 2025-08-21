@@ -1,63 +1,53 @@
-using Microsoft.AspNetCore.Mvc;
-using ContentKnowledgeService.Application.DTOs;
+using ContentKnowledgeService.Application.DTOs.Knowledge;
 using ContentKnowledgeService.Application.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
-namespace ContentKnowledgeService.Api.Controllers
+using Microsoft.AspNetCore.Authorization;
+
+namespace ContentKnowledgeService.Api.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class KnowledgeController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class KnowledgeController : ControllerBase
+    private readonly IKnowledgeService _service;
+    public KnowledgeController(IKnowledgeService service) => _service = service;
+
+    [HttpGet]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetAll(CancellationToken ct) =>
+        Ok(await _service.GetAllAsync(ct));
+
+    [HttpGet("{id:guid}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
     {
-        private readonly IKnowledgeService _knowledgeService;
+        var item = await _service.GetByIdAsync(id, ct);
+        return item is null ? NotFound() : Ok(item);
+    }
 
-        public KnowledgeController(IKnowledgeService knowledgeService)
-        {
-            _knowledgeService = knowledgeService;
-        }
+    [HttpPost]
+    [Authorize(Roles="Admin,Manager,ConsultingStaff,ValuationStaff")]
+    public async Task<IActionResult> Create([FromBody] CreateKnowledgeDto dto, CancellationToken ct)
+    {
+        var created = await _service.CreateAsync(dto, ct);
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+    }
 
-        // GET: api/knowledge
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
-        {
-            var result = await _knowledgeService.GetAllAsync();
-            return Ok(result);
-        }
+    [HttpPut("{id:guid}")]
+    [Authorize(Roles="Admin,Manager,ConsultingStaff,ValuationStaff")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateKnowledgeDto dto, CancellationToken ct)
+    {
+        if (id != dto.Id) return BadRequest("Mismatched id.");
+        var ok = await _service.UpdateAsync(dto, ct);
+        return ok ? NoContent() : NotFound();
+    }
 
-        // GET: api/knowledge/{id}
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(Guid id)
-        {
-            var result = await _knowledgeService.GetByIdAsync(id);
-            if (result == null) return NotFound();
-            return Ok(result);
-        }
-
-        // POST: api/knowledge
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] KnowledgeRequest request)
-        {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
-            var created = await _knowledgeService.CreateAsync(request);
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
-        }
-
-        // PUT: api/knowledge/{id}
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, [FromBody] KnowledgeRequest request)
-        {
-            var updated = await _knowledgeService.UpdateAsync(id, request);
-            if (updated == null) return NotFound();
-            return Ok(updated);
-        }
-
-        // DELETE: api/knowledge/{id}
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid id)
-        {
-            var deleted = await _knowledgeService.DeleteAsync(id);
-            if (!deleted) return NotFound();
-            return NoContent();
-        }
+    [HttpDelete("{id:guid}")]
+    [Authorize(Roles="Admin,Manager")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
+    {
+        var ok = await _service.DeleteAsync(id, ct);
+        return ok ? NoContent() : NotFound();
     }
 }

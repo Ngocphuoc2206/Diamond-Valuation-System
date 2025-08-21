@@ -1,13 +1,12 @@
-using ContentKnowledgeService.Application.DTOs;
+using ContentKnowledgeService.Application.DTOs.Content;
 
-namespace ContentKnowledgeService.Application.Interfaces
+namespace ContentKnowledgeService.Application.Interfaces;
+
+public interface IContentService
 {
-    public interface IContentService
-    {
-        Task<ContentResponse> CreateContentAsync(CreateContentRequest request);
-        Task<IEnumerable<ContentResponse>> GetAllAsync();
-        Task<ContentResponse?> GetByIdAsync(Guid id);
-        Task<ContentResponse?> UpdateContentAsync(UpdateContentRequest request);
-        Task<bool> DeleteContentAsync(Guid id);
-    }
+    Task<IEnumerable<ContentDto>> GetAllAsync(CancellationToken ct = default);
+    Task<ContentDto?> GetByIdAsync(Guid id, CancellationToken ct = default);
+    Task<ContentDto> CreateAsync(CreateContentDto dto, CancellationToken ct = default);
+    Task<bool> UpdateAsync(UpdateContentDto dto, CancellationToken ct = default);
+    Task<bool> DeleteAsync(Guid id, CancellationToken ct = default);
 }

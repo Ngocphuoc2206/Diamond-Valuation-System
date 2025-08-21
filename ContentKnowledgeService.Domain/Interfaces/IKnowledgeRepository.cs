@@ -4,9 +4,9 @@ namespace ContentKnowledgeService.Domain.Interfaces;
 
 public interface IKnowledgeRepository
 {
-    Task<IEnumerable<Knowledge>> GetAllAsync();
-    Task<Knowledge?> GetByIdAsync(Guid id);
-    Task AddAsync(Knowledge entity);
-    Task UpdateAsync(Knowledge entity);
-    Task DeleteAsync(Knowledge entity);
+    Task<IEnumerable<Knowledge>> GetAllAsync(CancellationToken ct = default);
+    Task<Knowledge?> GetByIdAsync(Guid id, CancellationToken ct = default);
+    Task<Knowledge> AddAsync(Knowledge entity, CancellationToken ct = default);
+    Task<bool> UpdateAsync(Knowledge entity, CancellationToken ct = default);
+    Task<bool> DeleteAsync(Guid id, CancellationToken ct = default);
 }

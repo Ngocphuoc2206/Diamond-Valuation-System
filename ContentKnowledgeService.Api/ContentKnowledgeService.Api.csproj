@@ -1,13 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
+
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>ContentKnowledgeService.Api</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\ContentKnowledgeService.Application\ContentKnowledgeService.Application.csproj" />
     <ProjectReference Include="..\ContentKnowledgeService.Infrastructure\ContentKnowledgeService.Infrastructure.csproj" />
-    <ProjectReference Include="..\SharedLibrary\SharedLibrary.csproj" />
+    <ProjectReference Include="..\ContentKnowledgeService.Domain\ContentKnowledgeService.Domain.csproj" />
+    <ProjectReference Include="..\ContentKnowledgeService.SharedKernel\ContentKnowledgeService.SharedKernel.csproj" />
   </ItemGroup>
+
 </Project>

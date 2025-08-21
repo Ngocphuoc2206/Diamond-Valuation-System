@@ -1,56 +1,53 @@
-using ContentKnowledgeService.Application.DTOs;
+using ContentKnowledgeService.Application.DTOs.Content;
 using ContentKnowledgeService.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ContentKnowledgeService.Api.Controllers
+using Microsoft.AspNetCore.Authorization;
+
+namespace ContentKnowledgeService.Api.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class ContentController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class ContentController : ControllerBase
+    private readonly IContentService _service;
+    public ContentController(IContentService service) => _service = service;
+
+    [HttpGet]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetAll(CancellationToken ct) =>
+        Ok(await _service.GetAllAsync(ct));
+
+    [HttpGet("{id:guid}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
     {
-        private readonly IContentService _service;
+        var item = await _service.GetByIdAsync(id, ct);
+        return item is null ? NotFound() : Ok(item);
+    }
 
-        public ContentController(IContentService service)
-        {
-            _service = service;
-        }
+    [HttpPost]
+    [Authorize(Roles="Admin,Manager")]
+    public async Task<IActionResult> Create([FromBody] CreateContentDto dto, CancellationToken ct)
+    {
+        var created = await _service.CreateAsync(dto, ct);
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+    }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
-        {
-            var result = await _service.GetAllAsync();
-            return Ok(result);
-        }
+    [HttpPut("{id:guid}")]
+    [Authorize(Roles="Admin,Manager")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateContentDto dto, CancellationToken ct)
+    {
+        if (id != dto.Id) return BadRequest("Mismatched id.");
+        var ok = await _service.UpdateAsync(dto, ct);
+        return ok ? NoContent() : NotFound();
+    }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(Guid id)
-        {
-            var result = await _service.GetByIdAsync(id);
-            if (result == null) return NotFound();
-            return Ok(result);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Create(CreateContentRequest request)
-        {
-            var result = await _service.CreateContentAsync(request);
-            return Ok(result);
-        }
-
-        [HttpPut]
-        public async Task<IActionResult> Update(UpdateContentRequest request)
-        {
-            var result = await _service.UpdateContentAsync(request);
-            if (result == null) return NotFound();
-            return Ok(result);
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid id)
-        {
-            var success = await _service.DeleteContentAsync(id);
-            if (!success) return NotFound();
-            return Ok(new { message = "Deleted successfully" });
-        }
+    [HttpDelete("{id:guid}")]
+    [Authorize(Roles="Admin,Manager")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
+    {
+        var ok = await _service.DeleteAsync(id, ct);
+        return ok ? NoContent() : NotFound();
     }
 }

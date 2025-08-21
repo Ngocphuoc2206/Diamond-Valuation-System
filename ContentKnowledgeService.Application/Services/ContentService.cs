@@ -1,4 +1,5 @@
-using ContentKnowledgeService.Application.DTOs;
+using ContentKnowledgeService.Application.Common;
+using ContentKnowledgeService.Application.DTOs.Content;
 using ContentKnowledgeService.Application.Interfaces;
 using ContentKnowledgeService.Domain.Entities;
 using ContentKnowledgeService.Domain.Interfaces;
@@ -8,81 +9,44 @@ namespace ContentKnowledgeService.Application.Services;
 public class ContentService : IContentService
 {
     private readonly IContentRepository _repo;
-
     public ContentService(IContentRepository repo) => _repo = repo;
 
-    public async Task<IEnumerable<ContentResponse>> GetAllAsync()
-        => (await _repo.GetAllAsync())
-            .Select(c => new ContentResponse
-            {
-                Id = c.Id,
-                Title = c.Title,
-                Body = c.Body,
-                CategoryName = c.Category?.Name ?? "",
-                CreatedAt = c.CreatedAt
-            });
-
-    public async Task<ContentResponse?> GetByIdAsync(Guid id)
-    {
-        var c = await _repo.GetByIdAsync(id);
-        if (c == null) return null;
-        return new ContentResponse
-        {
-            Id = c.Id,
-            Title = c.Title,
-            Body = c.Body,
-            CategoryName = c.Category?.Name ?? "",
-            CreatedAt = c.CreatedAt
-        };
-    }
-
-    public async Task<ContentResponse> CreateAsync(CreateContentRequest req)
+    public async Task<ContentDto> CreateAsync(CreateContentDto dto, CancellationToken ct = default)
     {
         var entity = new Content
         {
-            Id = Guid.NewGuid(),
-            Title = req.Title,
-            Body = req.Body,
-            CategoryId = req.CategoryId
+            Title = dto.Title.Trim(),
+            Body = dto.Body,
+            Author = string.IsNullOrWhiteSpace(dto.Author) ? "system" : dto.Author.Trim(),
+            Type = Enum.TryParse<ContentType>(dto.Type, true, out var t) ? t : ContentType.Blog,
+            Slug = string.IsNullOrWhiteSpace(dto.Slug) ? dto.Title.Trim().ToLower().Replace(' ', '-') : dto.Slug.Trim().ToLower(),
+            IsPublished = dto.IsPublished,
+            CreatedAt = DateTime.UtcNow
         };
-        await _repo.AddAsync(entity);
-
-        return new ContentResponse
-        {
-            Id = entity.Id,
-            Title = entity.Title,
-            Body = entity.Body,
-            CategoryName = entity.Category?.Name ?? "",
-            CreatedAt = entity.CreatedAt
-        };
+        var created = await _repo.AddAsync(entity, ct);
+        return created.ToDto();
     }
 
-    public async Task<ContentResponse?> UpdateAsync(Guid id, UpdateContentRequest req)
+    public async Task<bool> DeleteAsync(Guid id, CancellationToken ct = default)
+        => await _repo.DeleteAsync(id, ct);
+
+    public async Task<IEnumerable<ContentDto>> GetAllAsync(CancellationToken ct = default)
+        => (await _repo.GetAllAsync(ct)).Select(x => x.ToDto());
+
+    public async Task<ContentDto?> GetByIdAsync(Guid id, CancellationToken ct = default)
+        => (await _repo.GetByIdAsync(id, ct))?.ToDto();
+
+    public async Task<bool> UpdateAsync(UpdateContentDto dto, CancellationToken ct = default)
     {
-        var entity = await _repo.GetByIdAsync(id);
-        if (entity == null) return null;
-
-        entity.Title = req.Title;
-        entity.Body = req.Body;
-        entity.CategoryId = req.CategoryId;
-
-        await _repo.UpdateAsync(entity);
-
-        return new ContentResponse
-        {
-            Id = entity.Id,
-            Title = entity.Title,
-            Body = entity.Body,
-            CategoryName = entity.Category?.Name ?? "",
-            CreatedAt = entity.CreatedAt
-        };
-    }
-
-    public async Task<bool> DeleteAsync(Guid id)
-    {
-        var entity = await _repo.GetByIdAsync(id);
-        if (entity == null) return false;
-        await _repo.DeleteAsync(entity);
-        return true;
+        var existing = await _repo.GetByIdAsync(dto.Id, ct);
+        if (existing is null) return false;
+        existing.Title = dto.Title.Trim();
+        existing.Body = dto.Body;
+        existing.Author = string.IsNullOrWhiteSpace(dto.Author) ? "system" : dto.Author.Trim();
+        existing.Type = Enum.TryParse<ContentType>(dto.Type, true, out var t) ? t : existing.Type;
+        existing.Slug = string.IsNullOrWhiteSpace(dto.Slug) ? existing.Slug : dto.Slug.Trim().ToLower();
+        existing.IsPublished = dto.IsPublished;
+        existing.UpdatedAt = DateTime.UtcNow;
+        return await _repo.UpdateAsync(existing, ct);
     }
 }

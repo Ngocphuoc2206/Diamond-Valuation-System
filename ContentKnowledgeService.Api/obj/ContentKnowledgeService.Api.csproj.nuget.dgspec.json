@@ -1,211 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\84934\\ContentandKnowledgeService\\ContentKnowledgeService.Api\\ContentKnowledgeService.Api.csproj": {}
+    "C:\\Users\\84934\\Downloads\\ContentandKnowledgeService\\ContentKnowledgeService.Api\\ContentKnowledgeService.Api.csproj": {}
   },
   "projects": {
-    "C:\\Users\\84934\\ContentandKnowledgeService\\ContentKnowledgeService.Api\\ContentKnowledgeService.Api.csproj": {
+    "C:\\Users\\84934\\Downloads\\ContentandKnowledgeService\\ContentKnowledgeService.Api\\ContentKnowledgeService.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\84934\\ContentandKnowledgeService\\ContentKnowledgeService.Api\\ContentKnowledgeService.Api.csproj",
+        "projectUniqueName": "C:\\Users\\84934\\Downloads\\ContentandKnowledgeService\\ContentKnowledgeService.Api\\ContentKnowledgeService.Api.csproj",
         "projectName": "ContentKnowledgeService.Api",
-        "projectPath": "C:\\Users\\84934\\ContentandKnowledgeService\\ContentKnowledgeService.Api\\ContentKnowledgeService.Api.csproj",
+        "projectPath": "C:\\Users\\84934\\Downloads\\ContentandKnowledgeService\\ContentKnowledgeService.Api\\ContentKnowledgeService.Api.csproj",
         "packagesPath": "C:\\Users\\84934\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\84934\\ContentandKnowledgeService\\ContentKnowledgeService.Api\\obj\\",
-        "projectStyle": "PackageReference",
-        "configFilePaths": [
-          "C:\\Users\\84934\\AppData\\Roaming\\NuGet\\NuGet.Config"
-        ],
-        "originalTargetFrameworks": [
-          "net9.0"
-        ],
-        "sources": {
-          "https://api.nuget.org/v3/index.json": {}
-        },
-        "frameworks": {
-          "net9.0": {
-            "targetAlias": "net9.0",
-            "projectReferences": {
-              "C:\\Users\\84934\\ContentandKnowledgeService\\ContentKnowledgeService.Application\\ContentKnowledgeService.Application.csproj": {
-                "projectPath": "C:\\Users\\84934\\ContentandKnowledgeService\\ContentKnowledgeService.Application\\ContentKnowledgeService.Application.csproj"
-              },
-              "C:\\Users\\84934\\ContentandKnowledgeService\\ContentKnowledgeService.Infrastructure\\ContentKnowledgeService.Infrastructure.csproj": {
-                "projectPath": "C:\\Users\\84934\\ContentandKnowledgeService\\ContentKnowledgeService.Infrastructure\\ContentKnowledgeService.Infrastructure.csproj"
-              },
-              "C:\\Users\\84934\\ContentandKnowledgeService\\SharedLibrary\\SharedLibrary.csproj": {
-                "projectPath": "C:\\Users\\84934\\ContentandKnowledgeService\\SharedLibrary\\SharedLibrary.csproj"
-              }
-            }
-          }
-        },
-        "warningProperties": {
-          "warnAsError": [
-            "NU1605"
-          ]
-        },
-        "restoreAuditProperties": {
-          "enableAudit": "true",
-          "auditLevel": "low",
-          "auditMode": "direct"
-        },
-        "SdkAnalysisLevel": "9.0.300"
-      },
-      "frameworks": {
-        "net9.0": {
-          "targetAlias": "net9.0",
-          "imports": [
-            "net461",
-            "net462",
-            "net47",
-            "net471",
-            "net472",
-            "net48",
-            "net481"
-          ],
-          "assetTargetFallback": true,
-          "warn": true,
-          "frameworkReferences": {
-            "Microsoft.AspNetCore.App": {
-              "privateAssets": "none"
-            },
-            "Microsoft.NETCore.App": {
-              "privateAssets": "all"
-            }
-          },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
-        }
-      }
-    },
-    "C:\\Users\\84934\\ContentandKnowledgeService\\ContentKnowledgeService.Application\\ContentKnowledgeService.Application.csproj": {
-      "version": "1.0.0",
-      "restore": {
-        "projectUniqueName": "C:\\Users\\84934\\ContentandKnowledgeService\\ContentKnowledgeService.Application\\ContentKnowledgeService.Application.csproj",
-        "projectName": "ContentKnowledgeService.Application",
-        "projectPath": "C:\\Users\\84934\\ContentandKnowledgeService\\ContentKnowledgeService.Application\\ContentKnowledgeService.Application.csproj",
-        "packagesPath": "C:\\Users\\84934\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\84934\\ContentandKnowledgeService\\ContentKnowledgeService.Application\\obj\\",
-        "projectStyle": "PackageReference",
-        "configFilePaths": [
-          "C:\\Users\\84934\\AppData\\Roaming\\NuGet\\NuGet.Config"
-        ],
-        "originalTargetFrameworks": [
-          "net9.0"
-        ],
-        "sources": {
-          "https://api.nuget.org/v3/index.json": {}
-        },
-        "frameworks": {
-          "net9.0": {
-            "targetAlias": "net9.0",
-            "projectReferences": {
-              "C:\\Users\\84934\\ContentandKnowledgeService\\ContentKnowledgeService.Domain\\ContentKnowledgeService.Domain.csproj": {
-                "projectPath": "C:\\Users\\84934\\ContentandKnowledgeService\\ContentKnowledgeService.Domain\\ContentKnowledgeService.Domain.csproj"
-              }
-            }
-          }
-        },
-        "warningProperties": {
-          "warnAsError": [
-            "NU1605"
-          ]
-        },
-        "restoreAuditProperties": {
-          "enableAudit": "true",
-          "auditLevel": "low",
-          "auditMode": "direct"
-        },
-        "SdkAnalysisLevel": "9.0.300"
-      },
-      "frameworks": {
-        "net9.0": {
-          "targetAlias": "net9.0",
-          "imports": [
-            "net461",
-            "net462",
-            "net47",
-            "net471",
-            "net472",
-            "net48",
-            "net481"
-          ],
-          "assetTargetFallback": true,
-          "warn": true,
-          "frameworkReferences": {
-            "Microsoft.NETCore.App": {
-              "privateAssets": "all"
-            }
-          },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
-        }
-      }
-    },
-    "C:\\Users\\84934\\ContentandKnowledgeService\\ContentKnowledgeService.Domain\\ContentKnowledgeService.Domain.csproj": {
-      "version": "1.0.0",
-      "restore": {
-        "projectUniqueName": "C:\\Users\\84934\\ContentandKnowledgeService\\ContentKnowledgeService.Domain\\ContentKnowledgeService.Domain.csproj",
-        "projectName": "ContentKnowledgeService.Domain",
-        "projectPath": "C:\\Users\\84934\\ContentandKnowledgeService\\ContentKnowledgeService.Domain\\ContentKnowledgeService.Domain.csproj",
-        "packagesPath": "C:\\Users\\84934\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\84934\\ContentandKnowledgeService\\ContentKnowledgeService.Domain\\obj\\",
-        "projectStyle": "PackageReference",
-        "configFilePaths": [
-          "C:\\Users\\84934\\AppData\\Roaming\\NuGet\\NuGet.Config"
-        ],
-        "originalTargetFrameworks": [
-          "net9.0"
-        ],
-        "sources": {
-          "https://api.nuget.org/v3/index.json": {}
-        },
-        "frameworks": {
-          "net9.0": {
-            "targetAlias": "net9.0",
-            "projectReferences": {}
-          }
-        },
-        "warningProperties": {
-          "warnAsError": [
-            "NU1605"
-          ]
-        },
-        "restoreAuditProperties": {
-          "enableAudit": "true",
-          "auditLevel": "low",
-          "auditMode": "direct"
-        },
-        "SdkAnalysisLevel": "9.0.300"
-      },
-      "frameworks": {
-        "net9.0": {
-          "targetAlias": "net9.0",
-          "imports": [
-            "net461",
-            "net462",
-            "net47",
-            "net471",
-            "net472",
-            "net48",
-            "net481"
-          ],
-          "assetTargetFallback": true,
-          "warn": true,
-          "frameworkReferences": {
-            "Microsoft.NETCore.App": {
-              "privateAssets": "all"
-            }
-          },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
-        }
-      }
-    },
-    "C:\\Users\\84934\\ContentandKnowledgeService\\ContentKnowledgeService.Infrastructure\\ContentKnowledgeService.Infrastructure.csproj": {
-      "version": "1.0.0",
-      "restore": {
-        "projectUniqueName": "C:\\Users\\84934\\ContentandKnowledgeService\\ContentKnowledgeService.Infrastructure\\ContentKnowledgeService.Infrastructure.csproj",
-        "projectName": "ContentKnowledgeService.Infrastructure",
-        "projectPath": "C:\\Users\\84934\\ContentandKnowledgeService\\ContentKnowledgeService.Infrastructure\\ContentKnowledgeService.Infrastructure.csproj",
-        "packagesPath": "C:\\Users\\84934\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\84934\\ContentandKnowledgeService\\ContentKnowledgeService.Infrastructure\\obj\\",
+        "outputPath": "C:\\Users\\84934\\Downloads\\ContentandKnowledgeService\\ContentKnowledgeService.Api\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\84934\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -220,8 +26,14 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\84934\\ContentandKnowledgeService\\ContentKnowledgeService.Domain\\ContentKnowledgeService.Domain.csproj": {
-                "projectPath": "C:\\Users\\84934\\ContentandKnowledgeService\\ContentKnowledgeService.Domain\\ContentKnowledgeService.Domain.csproj"
+              "C:\\Users\\84934\\Downloads\\ContentandKnowledgeService\\ContentKnowledgeService.Application\\ContentKnowledgeService.Application.csproj": {
+                "projectPath": "C:\\Users\\84934\\Downloads\\ContentandKnowledgeService\\ContentKnowledgeService.Application\\ContentKnowledgeService.Application.csproj"
+              },
+              "C:\\Users\\84934\\Downloads\\ContentandKnowledgeService\\ContentKnowledgeService.Domain\\ContentKnowledgeService.Domain.csproj": {
+                "projectPath": "C:\\Users\\84934\\Downloads\\ContentandKnowledgeService\\ContentKnowledgeService.Domain\\ContentKnowledgeService.Domain.csproj"
+              },
+              "C:\\Users\\84934\\Downloads\\ContentandKnowledgeService\\ContentKnowledgeService.Infrastructure\\ContentKnowledgeService.Infrastructure.csproj": {
+                "projectPath": "C:\\Users\\84934\\Downloads\\ContentandKnowledgeService\\ContentKnowledgeService.Infrastructure\\ContentKnowledgeService.Infrastructure.csproj"
               }
             }
           }
@@ -242,15 +54,99 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
-            "Microsoft.EntityFrameworkCore": {
+            "Asp.Versioning.Mvc.ApiExplorer": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[8.1.0, )"
             },
-            "Microsoft.EntityFrameworkCore.InMemory": {
+            "Swashbuckle.AspNetCore": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[6.5.0, )"
             }
           },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[8.0.19, 8.0.19]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.win-x64",
+              "version": "[8.0.19, 8.0.19]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[8.0.19, 8.0.19]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[8.0.19, 8.0.19]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\84934\\Downloads\\ContentandKnowledgeService\\ContentKnowledgeService.Application\\ContentKnowledgeService.Application.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\84934\\Downloads\\ContentandKnowledgeService\\ContentKnowledgeService.Application\\ContentKnowledgeService.Application.csproj",
+        "projectName": "ContentKnowledgeService.Application",
+        "projectPath": "C:\\Users\\84934\\Downloads\\ContentandKnowledgeService\\ContentKnowledgeService.Application\\ContentKnowledgeService.Application.csproj",
+        "packagesPath": "C:\\Users\\84934\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\84934\\Downloads\\ContentandKnowledgeService\\ContentKnowledgeService.Application\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\84934\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "C:\\Users\\84934\\Downloads\\ContentandKnowledgeService\\ContentKnowledgeService.Domain\\ContentKnowledgeService.Domain.csproj": {
+                "projectPath": "C:\\Users\\84934\\Downloads\\ContentandKnowledgeService\\ContentKnowledgeService.Domain\\ContentKnowledgeService.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
           "imports": [
             "net461",
             "net462",
@@ -285,27 +181,27 @@
         }
       }
     },
-    "C:\\Users\\84934\\ContentandKnowledgeService\\SharedLibrary\\SharedLibrary.csproj": {
+    "C:\\Users\\84934\\Downloads\\ContentandKnowledgeService\\ContentKnowledgeService.Domain\\ContentKnowledgeService.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\84934\\ContentandKnowledgeService\\SharedLibrary\\SharedLibrary.csproj",
-        "projectName": "SharedLibrary",
-        "projectPath": "C:\\Users\\84934\\ContentandKnowledgeService\\SharedLibrary\\SharedLibrary.csproj",
+        "projectUniqueName": "C:\\Users\\84934\\Downloads\\ContentandKnowledgeService\\ContentKnowledgeService.Domain\\ContentKnowledgeService.Domain.csproj",
+        "projectName": "ContentKnowledgeService.Domain",
+        "projectPath": "C:\\Users\\84934\\Downloads\\ContentandKnowledgeService\\ContentKnowledgeService.Domain\\ContentKnowledgeService.Domain.csproj",
         "packagesPath": "C:\\Users\\84934\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\84934\\ContentandKnowledgeService\\SharedLibrary\\obj\\",
+        "outputPath": "C:\\Users\\84934\\Downloads\\ContentandKnowledgeService\\ContentKnowledgeService.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\84934\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
-          "net9.0"
+          "net8.0"
         ],
         "sources": {
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net9.0": {
-            "targetAlias": "net9.0",
+          "net8.0": {
+            "targetAlias": "net8.0",
             "projectReferences": {}
           }
         },
@@ -322,16 +218,97 @@
         "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
-        "net9.0": {
-          "targetAlias": "net9.0",
-          "dependencies": {
-            "Microsoft.IdentityModel.Tokens": {
-              "target": "Package",
-              "version": "[7.5.1, )"
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[8.0.19, 8.0.19]"
             },
-            "System.IdentityModel.Tokens.Jwt": {
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[8.0.19, 8.0.19]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[8.0.19, 8.0.19]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\84934\\Downloads\\ContentandKnowledgeService\\ContentKnowledgeService.Infrastructure\\ContentKnowledgeService.Infrastructure.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\84934\\Downloads\\ContentandKnowledgeService\\ContentKnowledgeService.Infrastructure\\ContentKnowledgeService.Infrastructure.csproj",
+        "projectName": "ContentKnowledgeService.Infrastructure",
+        "projectPath": "C:\\Users\\84934\\Downloads\\ContentandKnowledgeService\\ContentKnowledgeService.Infrastructure\\ContentKnowledgeService.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\84934\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\84934\\Downloads\\ContentandKnowledgeService\\ContentKnowledgeService.Infrastructure\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\84934\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "C:\\Users\\84934\\Downloads\\ContentandKnowledgeService\\ContentKnowledgeService.Domain\\ContentKnowledgeService.Domain.csproj": {
+                "projectPath": "C:\\Users\\84934\\Downloads\\ContentandKnowledgeService\\ContentKnowledgeService.Domain\\ContentKnowledgeService.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[7.5.1, )"
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[8.0.0, )"
             }
           },
           "imports": [
@@ -345,6 +322,20 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[8.0.19, 8.0.19]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[8.0.19, 8.0.19]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[8.0.19, 8.0.19]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
