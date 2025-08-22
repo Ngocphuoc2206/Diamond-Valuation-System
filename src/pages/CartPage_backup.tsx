@@ -13,6 +13,7 @@ const CartPage: React.FC = () => {
     visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
   };
 
+  // Empty cart state
   if (cartItems.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -29,32 +30,18 @@ const CartPage: React.FC = () => {
           <p className="text-gray-600 mb-8">
             {t('cart.emptyDesc')}
           </p>
-          <Link
-            to="/shop"
-            className="btn btn-primary inline-block"
-          >
+          <Link to="/shop" className="btn btn-primary inline-block">
             {t('cart.continueShopping')}
           </Link>
         </motion.div>
       </div>
     );
   }
-          <h1 className="text-3xl font-serif font-bold text-luxury-navy mb-4">
-            Your Cart is Empty
-          </h1>
-          <p className="text-gray-600 mb-8">
-            Discover our beautiful collection of diamonds and jewelry pieces.
-          </p>
-          <Link
-            to="/shop"
-            className="btn btn-primary inline-block"
-          >
-            Continue Shopping
-          </Link>
-        </motion.div>
-      </div>
-    );
-  }
+
+  const subtotal = getTotalPrice();
+  const taxRate = 0.08;
+  const tax = subtotal * taxRate;
+  const total = subtotal + tax;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -68,10 +55,10 @@ const CartPage: React.FC = () => {
             className="text-center"
           >
             <h1 className="text-3xl md:text-5xl font-serif font-bold mb-4">
-              Shopping <span className="text-luxury-gold">Cart</span>
+              {t('cart.title')} <span className="text-luxury-gold">{t('cart.titleHighlight')}</span>
             </h1>
             <p className="text-lg text-gray-300">
-              Review your selected items and proceed to checkout
+              {t('cart.description')}
             </p>
           </motion.div>
         </div>
@@ -89,13 +76,13 @@ const CartPage: React.FC = () => {
             <div className="bg-white rounded-lg shadow-md p-6 mb-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-serif font-bold">
-                  Cart Items ({cartItems.length})
+                  {t('cart.title')} {t('cart.titleHighlight')} ({cartItems.length})
                 </h2>
                 <button
                   onClick={clearCart}
                   className="text-red-600 hover:text-red-800 text-sm"
                 >
-                  Clear All
+                  {t('common.clear')}
                 </button>
               </div>
 
@@ -115,6 +102,7 @@ const CartPage: React.FC = () => {
                     </div>
                     <div className="flex items-center space-x-2">
                       <button
+                        aria-label="decrease quantity"
                         onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
                         className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100"
                       >
@@ -122,6 +110,7 @@ const CartPage: React.FC = () => {
                       </button>
                       <span className="w-12 text-center font-medium">{item.quantity}</span>
                       <button
+                        aria-label="increase quantity"
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
                         className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100"
                       >
@@ -136,7 +125,7 @@ const CartPage: React.FC = () => {
                         onClick={() => removeFromCart(item.id)}
                         className="text-red-600 hover:text-red-800 text-sm mt-1"
                       >
-                        Remove
+                        {t('cart.remove')}
                       </button>
                     </div>
                   </div>
@@ -152,7 +141,7 @@ const CartPage: React.FC = () => {
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-              Continue Shopping
+              {t('cart.continueShopping')}
             </Link>
           </motion.div>
 
@@ -164,69 +153,60 @@ const CartPage: React.FC = () => {
             className="lg:col-span-1"
           >
             <div className="bg-white rounded-lg shadow-md p-6 sticky top-6">
-              <h3 className="text-xl font-serif font-bold mb-6">Order Summary</h3>
-              
+              <h3 className="text-xl font-serif font-bold mb-6">{t('cart.orderSummary')}</h3>
+
               <div className="space-y-4 mb-6">
                 <div className="flex justify-between">
-                  <span>Subtotal</span>
-                  <span>${getTotalPrice().toLocaleString()}</span>
+                  <span>{t('cart.subtotal')}</span>
+                  <span>${subtotal.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Shipping</span>
-                  <span className="text-green-600">Free</span>
+                  <span>{t('cart.shipping')}</span>
+                  <span className="text-green-600">{t('cart.free')}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Tax (estimated)</span>
-                  <span>${(getTotalPrice() * 0.08).toLocaleString()}</span>
+                  <span>{t('cart.tax')}</span>
+                  <span>${tax.toLocaleString()}</span>
                 </div>
                 <hr />
                 <div className="flex justify-between font-bold text-lg">
-                  <span>Total</span>
+                  <span>{t('cart.total')}</span>
                   <span className="text-luxury-gold">
-                    ${(getTotalPrice() * 1.08).toLocaleString()}
+                    ${total.toLocaleString()}
                   </span>
                 </div>
               </div>
 
               <div className="space-y-3">
-                <Link
-                  to="/checkout"
-                  className="btn btn-primary w-full text-center block"
-                >
-                  Proceed to Checkout
+                <Link to="/checkout" className="btn btn-primary w-full text-center block">
+                  {t('cart.proceedCheckout')}
                 </Link>
                 <button className="btn btn-secondary w-full">
-                  Request Quote
+                  {t('cart.requestQuote')}
                 </button>
               </div>
 
               {/* Trust Badges */}
               <div className="mt-8 pt-6 border-t">
-                <h4 className="font-medium mb-4">Why Choose Us?</h4>
+                <h4 className="font-medium mb-4">{t('cart.whyChoose')}</h4>
                 <div className="space-y-3 text-sm text-gray-600">
                   <div className="flex items-center space-x-2">
                     <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
-                    <span>Certified Authentic Diamonds</span>
+                    <span>{t('cart.securePayments')}</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
-                    <span>30-Day Return Policy</span>
+                    <span>{t('cart.freeShipping')}</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
-                    <span>Free Insured Shipping</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    <span>Lifetime Warranty</span>
+                    <span>{t('cart.lifetimeWarranty')}</span>
                   </div>
                 </div>
               </div>
@@ -234,13 +214,13 @@ const CartPage: React.FC = () => {
               {/* Support */}
               <div className="mt-6 pt-6 border-t text-center">
                 <p className="text-sm text-gray-600 mb-3">
-                  Need help with your order?
+                  {t('cart.needHelp')}
                 </p>
                 <Link
                   to="/contact"
                   className="text-luxury-gold hover:text-luxury-navy text-sm font-medium"
                 >
-                  Contact Our Experts
+                  {t('cart.contactExperts')}
                 </Link>
               </div>
             </div>
@@ -258,19 +238,19 @@ const CartPage: React.FC = () => {
             className="max-w-2xl mx-auto text-center"
           >
             <h2 className="text-3xl font-serif font-bold mb-4">
-              Stay Updated
+              {t('footer.newsletter')}
             </h2>
             <p className="text-gray-600 mb-6">
-              Get exclusive offers and diamond insights delivered to your inbox.
+              {t('footer.newsletterDescription')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
               <input
                 type="email"
-                placeholder="Enter your email"
+                placeholder={t('footer.email')}
                 className="flex-1 px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
               />
               <button className="btn btn-gold">
-                Subscribe
+                {t('footer.subscribe')}
               </button>
             </div>
           </motion.div>
