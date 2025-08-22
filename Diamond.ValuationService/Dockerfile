@@ -1,25 +1,40 @@
-﻿# --- Build stage ---
+﻿# ================================
+# 1) Build stage
+# ================================
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
-# copy các file .csproj để restore
-COPY Diamond.ValuationService.Domain/Diamond.ValuationService.Domain.csproj Diamond.ValuationService.Domain/
-COPY Diamond.ValuationService.Application/Diamond.ValuationService.Application.csproj Diamond.ValuationService.Application/
-COPY Diamond.ValuationService.Infrastructure/Diamond.ValuationService.Infrastructure.csproj Diamond.ValuationService.Infrastructure/
+# Copy csproj trước để cache restore
 COPY Diamond.ValuationService.Api/Diamond.ValuationService.Api.csproj Diamond.ValuationService.Api/
+COPY Diamond.ValuationService.Infrastructure/Diamond.ValuationService.Infrastructure.csproj Diamond.ValuationService.Infrastructure/
+COPY Diamond.ValuationService.Application/Diamond.ValuationService.Application.csproj Diamond.ValuationService.Application/
+COPY Diamond.ValuationService.Domain/Diamond.ValuationService.Domain.csproj Diamond.ValuationService.Domain/
+# (Nếu có .sln) COPY Diamond.ValuationService.sln ./
 
-# restore nuget package
 RUN dotnet restore Diamond.ValuationService.Api/Diamond.ValuationService.Api.csproj
 
-# copy toàn bộ source
+# Copy toàn bộ source rồi build
 COPY . .
+RUN dotnet publish Diamond.ValuationService.Api/Diamond.ValuationService.Api.csproj -c Release -o /app/publish /p:UseAppHost=false
 
-# publish API ra thư mục /app/publish
-RUN dotnet publish Diamond.ValuationService.Api/Diamond.ValuationService.Api.csproj -c Release -o /app/publish
-
-# --- Runtime stage ---
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
+# ================================
+# 2) Runtime stage (ASP.NET)
+# ================================
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
 WORKDIR /app
-COPY --from=build /app/publish .
-ENV ASPNETCORE_URLS=http://+:8080
+
+# Chạy non-root
+RUN useradd -m appuser
+USER appuser
+
+# App listen 0.0.0.0:8080
+ENV ASPNETCORE_URLS=http://0.0.0.0:8080
+EXPOSE 8080
+
+# (Tùy chọn) timezone VN cho log
+# RUN ln -snf /usr/share/zoneinfo/Asia/Ho_Chi_Minh /etc/localtime && echo "Asia/Ho_Chi_Minh" | sudo tee /etc/timezone
+
+COPY --from=build /app/publish ./
+
+# Nếu bạn đã bật db.Database.Migrate() ở Program.cs thì không cần chạy dotnet-ef trong container
 ENTRYPOINT ["dotnet", "Diamond.ValuationService.Api.dll"]

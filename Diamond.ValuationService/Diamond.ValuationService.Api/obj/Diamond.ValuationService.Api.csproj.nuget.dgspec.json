@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "E:\\Diamond-Valuation-System\\Diamond.ValuationService\\Diamond.ValuationService.Api\\Diamond.ValuationService.Api.csproj": {}
+    "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Api\\Diamond.ValuationService.Api.csproj": {}
   },
   "projects": {
-    "E:\\Diamond-Valuation-System\\Diamond.ValuationService\\Diamond.ValuationService.Api\\Diamond.ValuationService.Api.csproj": {
+    "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Api\\Diamond.ValuationService.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\Diamond-Valuation-System\\Diamond.ValuationService\\Diamond.ValuationService.Api\\Diamond.ValuationService.Api.csproj",
+        "projectUniqueName": "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Api\\Diamond.ValuationService.Api.csproj",
         "projectName": "Diamond.ValuationService.Api",
-        "projectPath": "E:\\Diamond-Valuation-System\\Diamond.ValuationService\\Diamond.ValuationService.Api\\Diamond.ValuationService.Api.csproj",
+        "projectPath": "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Api\\Diamond.ValuationService.Api.csproj",
         "packagesPath": "C:\\Users\\phamn\\.nuget\\packages\\",
-        "outputPath": "E:\\Diamond-Valuation-System\\Diamond.ValuationService\\Diamond.ValuationService.Api\\obj\\",
+        "outputPath": "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Api\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -32,14 +32,14 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "E:\\Diamond-Valuation-System\\Diamond.ValuationService\\Diamond.ValuationService.Application\\Diamond.ValuationService.Application.csproj": {
-                "projectPath": "E:\\Diamond-Valuation-System\\Diamond.ValuationService\\Diamond.ValuationService.Application\\Diamond.ValuationService.Application.csproj"
+              "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Application\\Diamond.ValuationService.Application.csproj": {
+                "projectPath": "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Application\\Diamond.ValuationService.Application.csproj"
               },
-              "E:\\Diamond-Valuation-System\\Diamond.ValuationService\\Diamond.ValuationService.Domain\\Diamond.ValuationService.Domain.csproj": {
-                "projectPath": "E:\\Diamond-Valuation-System\\Diamond.ValuationService\\Diamond.ValuationService.Domain\\Diamond.ValuationService.Domain.csproj"
+              "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Domain\\Diamond.ValuationService.Domain.csproj": {
+                "projectPath": "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Domain\\Diamond.ValuationService.Domain.csproj"
               },
-              "E:\\Diamond-Valuation-System\\Diamond.ValuationService\\Diamond.ValuationService.Infrastructure\\Diamond.ValuationService.Infrastructure.csproj": {
-                "projectPath": "E:\\Diamond-Valuation-System\\Diamond.ValuationService\\Diamond.ValuationService.Infrastructure\\Diamond.ValuationService.Infrastructure.csproj"
+              "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Infrastructure\\Diamond.ValuationService.Infrastructure.csproj": {
+                "projectPath": "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Infrastructure\\Diamond.ValuationService.Infrastructure.csproj"
               }
             }
           }
@@ -68,7 +68,19 @@
               "target": "Package",
               "version": "[9.0.5, )"
             },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.8, )"
+            },
             "Microsoft.EntityFrameworkCore.InMemory": {
+              "target": "Package",
+              "version": "[9.0.8, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
               "target": "Package",
               "version": "[9.0.8, )"
             },
@@ -100,14 +112,14 @@
         }
       }
     },
-    "E:\\Diamond-Valuation-System\\Diamond.ValuationService\\Diamond.ValuationService.Application\\Diamond.ValuationService.Application.csproj": {
+    "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Application\\Diamond.ValuationService.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\Diamond-Valuation-System\\Diamond.ValuationService\\Diamond.ValuationService.Application\\Diamond.ValuationService.Application.csproj",
+        "projectUniqueName": "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Application\\Diamond.ValuationService.Application.csproj",
         "projectName": "Diamond.ValuationService.Application",
-        "projectPath": "E:\\Diamond-Valuation-System\\Diamond.ValuationService\\Diamond.ValuationService.Application\\Diamond.ValuationService.Application.csproj",
+        "projectPath": "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Application\\Diamond.ValuationService.Application.csproj",
         "packagesPath": "C:\\Users\\phamn\\.nuget\\packages\\",
-        "outputPath": "E:\\Diamond-Valuation-System\\Diamond.ValuationService\\Diamond.ValuationService.Application\\obj\\",
+        "outputPath": "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Application\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -128,8 +140,8 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "E:\\Diamond-Valuation-System\\Diamond.ValuationService\\Diamond.ValuationService.Domain\\Diamond.ValuationService.Domain.csproj": {
-                "projectPath": "E:\\Diamond-Valuation-System\\Diamond.ValuationService\\Diamond.ValuationService.Domain\\Diamond.ValuationService.Domain.csproj"
+              "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Domain\\Diamond.ValuationService.Domain.csproj": {
+                "projectPath": "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Domain\\Diamond.ValuationService.Domain.csproj"
               }
             }
           }
@@ -150,7 +162,19 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "dependencies": {
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.8, )"
+            },
             "Microsoft.EntityFrameworkCore.InMemory": {
+              "target": "Package",
+              "version": "[9.0.8, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
               "target": "Package",
               "version": "[9.0.8, )"
             }
@@ -175,14 +199,14 @@
         }
       }
     },
-    "E:\\Diamond-Valuation-System\\Diamond.ValuationService\\Diamond.ValuationService.Domain\\Diamond.ValuationService.Domain.csproj": {
+    "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Domain\\Diamond.ValuationService.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\Diamond-Valuation-System\\Diamond.ValuationService\\Diamond.ValuationService.Domain\\Diamond.ValuationService.Domain.csproj",
+        "projectUniqueName": "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Domain\\Diamond.ValuationService.Domain.csproj",
         "projectName": "Diamond.ValuationService.Domain",
-        "projectPath": "E:\\Diamond-Valuation-System\\Diamond.ValuationService\\Diamond.ValuationService.Domain\\Diamond.ValuationService.Domain.csproj",
+        "projectPath": "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Domain\\Diamond.ValuationService.Domain.csproj",
         "packagesPath": "C:\\Users\\phamn\\.nuget\\packages\\",
-        "outputPath": "E:\\Diamond-Valuation-System\\Diamond.ValuationService\\Diamond.ValuationService.Domain\\obj\\",
+        "outputPath": "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -221,7 +245,19 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "dependencies": {
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.8, )"
+            },
             "Microsoft.EntityFrameworkCore.InMemory": {
+              "target": "Package",
+              "version": "[9.0.8, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
               "target": "Package",
               "version": "[9.0.8, )"
             }
@@ -246,14 +282,14 @@
         }
       }
     },
-    "E:\\Diamond-Valuation-System\\Diamond.ValuationService\\Diamond.ValuationService.Infrastructure\\Diamond.ValuationService.Infrastructure.csproj": {
+    "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Infrastructure\\Diamond.ValuationService.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\Diamond-Valuation-System\\Diamond.ValuationService\\Diamond.ValuationService.Infrastructure\\Diamond.ValuationService.Infrastructure.csproj",
+        "projectUniqueName": "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Infrastructure\\Diamond.ValuationService.Infrastructure.csproj",
         "projectName": "Diamond.ValuationService.Infrastructure",
-        "projectPath": "E:\\Diamond-Valuation-System\\Diamond.ValuationService\\Diamond.ValuationService.Infrastructure\\Diamond.ValuationService.Infrastructure.csproj",
+        "projectPath": "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Infrastructure\\Diamond.ValuationService.Infrastructure.csproj",
         "packagesPath": "C:\\Users\\phamn\\.nuget\\packages\\",
-        "outputPath": "E:\\Diamond-Valuation-System\\Diamond.ValuationService\\Diamond.ValuationService.Infrastructure\\obj\\",
+        "outputPath": "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -274,11 +310,11 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "E:\\Diamond-Valuation-System\\Diamond.ValuationService\\Diamond.ValuationService.Application\\Diamond.ValuationService.Application.csproj": {
-                "projectPath": "E:\\Diamond-Valuation-System\\Diamond.ValuationService\\Diamond.ValuationService.Application\\Diamond.ValuationService.Application.csproj"
+              "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Application\\Diamond.ValuationService.Application.csproj": {
+                "projectPath": "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Application\\Diamond.ValuationService.Application.csproj"
               },
-              "E:\\Diamond-Valuation-System\\Diamond.ValuationService\\Diamond.ValuationService.Domain\\Diamond.ValuationService.Domain.csproj": {
-                "projectPath": "E:\\Diamond-Valuation-System\\Diamond.ValuationService\\Diamond.ValuationService.Domain\\Diamond.ValuationService.Domain.csproj"
+              "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Domain\\Diamond.ValuationService.Domain.csproj": {
+                "projectPath": "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Domain\\Diamond.ValuationService.Domain.csproj"
               }
             }
           }
@@ -299,19 +335,22 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "dependencies": {
-            "AutoMapper": {
-              "target": "Package",
-              "version": "[12.0.1, )"
-            },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
               "version": "[9.0.8, )"
             },
-            "Microsoft.EntityFrameworkCore.InMemory": {
+            "Microsoft.EntityFrameworkCore.Design": {
+              "suppressParent": "All",
               "target": "Package",
               "version": "[9.0.8, )"
             },
             "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[9.0.8, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
               "target": "Package",
               "version": "[9.0.8, )"
             },

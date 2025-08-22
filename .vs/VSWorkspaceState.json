@@ -1,0 +1,10 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\Diamond.ValuationService",
+    "\\Diamond.ValuationService\\Diamond.ValuationService.Domain",
+    "\\Diamond.ValuationService\\Diamond.ValuationService.Domain\\Entities"
+  ],
+  "SelectedNode": "\\Diamond.ValuationService\\Diamond.ValuationService.Domain\\Entities\\CaseStatus.cs",
+  "PreviewInSolutionExplorer": false
+}
