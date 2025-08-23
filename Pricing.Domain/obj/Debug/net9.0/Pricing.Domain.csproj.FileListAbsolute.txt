@@ -1,0 +1,17 @@
+D:\PricingService\Pricing.Domain\bin\Debug\net9.0\Pricing.Domain.deps.json
+D:\PricingService\Pricing.Domain\bin\Debug\net9.0\Pricing.Domain.runtimeconfig.json
+D:\PricingService\Pricing.Domain\bin\Debug\net9.0\Pricing.Domain.dll
+D:\PricingService\Pricing.Domain\bin\Debug\net9.0\Pricing.Domain.pdb
+D:\PricingService\Pricing.Domain\bin\Debug\net9.0\SharedKernel.dll
+D:\PricingService\Pricing.Domain\bin\Debug\net9.0\SharedKernel.pdb
+D:\PricingService\Pricing.Domain\obj\Debug\net9.0\Pricing.Domain.csproj.AssemblyReference.cache
+D:\PricingService\Pricing.Domain\obj\Debug\net9.0\Pricing.Domain.GeneratedMSBuildEditorConfig.editorconfig
+D:\PricingService\Pricing.Domain\obj\Debug\net9.0\Pricing.Domain.AssemblyInfoInputs.cache
+D:\PricingService\Pricing.Domain\obj\Debug\net9.0\Pricing.Domain.AssemblyInfo.cs
+D:\PricingService\Pricing.Domain\obj\Debug\net9.0\Pricing.Domain.csproj.CoreCompileInputs.cache
+D:\PricingService\Pricing.Domain\obj\Debug\net9.0\Pricing..D95DBA1C.Up2Date
+D:\PricingService\Pricing.Domain\obj\Debug\net9.0\Pricing.Domain.dll
+D:\PricingService\Pricing.Domain\obj\Debug\net9.0\refint\Pricing.Domain.dll
+D:\PricingService\Pricing.Domain\obj\Debug\net9.0\Pricing.Domain.pdb
+D:\PricingService\Pricing.Domain\obj\Debug\net9.0\Pricing.Domain.genruntimeconfig.cache
+D:\PricingService\Pricing.Domain\obj\Debug\net9.0\ref\Pricing.Domain.dll
