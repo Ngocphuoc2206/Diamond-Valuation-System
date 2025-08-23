@@ -723,6 +723,25 @@ const enTranslations: Record<string, string> = {
   'admin.addNew': 'Add New',
   'admin.edit': 'Edit',
   'admin.delete': 'Delete',
+  'admin.ordermanager': 'Order Management',
+  'admin.totalStaff': 'Total Staff',
+  'admin.analytics': 'Analytics',
+  'admin.addNewStaff': 'Add New Staff',
+
+  // User Management Details (VI)
+  'admin.addNewUser': 'Add New User',
+  'admin.totalCustomers': 'Total Customers',
+  'admin.consultingStaff': 'Consulting Staff',
+  'admin.valuationStaff': 'Valuation Staff',
+  'admin.managers': 'Managers',
+  'admin.allUsers': 'All Users',
+  'admin.bulkActions': 'Bulk Actions',
+  'admin.user': 'User',
+  'admin.lastActive': 'Last Active',
+  'admin.suspend': 'Suspend',
+  'admin.activate': 'Activate',
+  'admin.suspended': 'Suspended',
+
 
   // System Configuration (EN)
   'admin.systemConfig': 'System Configuration',
@@ -759,6 +778,21 @@ const enTranslations: Record<string, string> = {
   'admin.filter': 'Filter',
   'admin.export': 'Export',
   'admin.import': 'Import',
+
+  // Dashboard Stats (EN)
+  'admin.keyMetrics': 'Key Metrics',
+  'admin.fromLastMonth': 'From Last Month',
+  'admin.quickActions': 'Quick Actions',
+  'admin.manageUsers': 'ManageUsers',
+  'admin.viewEditAccounts': 'View Edit Acconts',
+  'admin.valuationQueue': 'Valuation Queue',
+  'admin.monitorPending': 'Monitor Pending',
+  'admin.viewAnalytics': 'View Analytics',
+  'admin.businessInsights': 'Business Insights',
+  'admin.recentActivities': 'Recent Activities',
+  'admin.systemActivities': 'System Activities',
+
+
 
   // Valuation Results (EN)
   'valuation.results': 'Valuation Results',
@@ -933,7 +967,43 @@ const enTranslations: Record<string, string> = {
   'staff.emeraldCut': 'Emerald Cut',
   'staff.diamondAppraisalWorkstation': 'Diamond Appraisal Workstation',
   'staff.openTool': 'Open Tool',
+  // Valuaton Management (EN)
+  'admin.valuationmangement': 'Valuation Management',
+  'admin.valuationPending': 'Pending',
+  'admin.valuationInProgress': 'In Progress',
+  'admin.valuationCompleted': 'Completed',
+  'admin.valuationOverdue': 'Overdue',
 
+  //Admin Order (EN)
+  'admin.neworders': 'New Order',
+  'admin.processing': 'Processing',
+  'admin.shipped': 'Shipped',
+  'admin.delivered': 'Delivered',
+  'admin.totalrevenue': 'Total Revenue',
+  // Admin Product Management(EN)
+  'admin.totalProduct': 'Total Product',
+  'admin.inStock': 'In Stock',
+  'admin.lowStock': 'Low Stock',
+  'admin.outOfStock': 'Out Of Stock',
+
+  //Admin Analytics (EN)
+  'admin.businessAnalytics': 'Business Analytics',
+  'admin.monthlyRevenu': 'Monthly Revenu',
+  'admin.newCustomers': 'New Customer',
+  // 'admin.conversionRate' : 'Conversion Rate',
+  'admin.avgOrderValue' : 'AVG Order Value',
+  'admin.revenuTrend': 'Revenu Trend',
+  'admin.customerAcquisition': 'Customer Acquisition',
+  'admin.productPerformance': 'Product Performance',
+  'admin.engagementRings': 'Engagement Rings',
+  'admin.necklaces': 'Necklaces',
+  'admin.earrings': 'Earrings',
+  'admin.serviceUsage': 'Service Usage',
+  'admin.valuationServices': 'Valuation Services',
+  'admin.consultationCalls': 'Consultation Calls',
+  'admin.onlineStoreOrders' : 'Online Store Orders',
+
+  
   // Enhanced Staff Features (EN)
   'staff.myValuationWorkflow': 'My Valuation Workflow',
   'staff.pendingReview': 'Pending Review',
@@ -942,6 +1012,8 @@ const enTranslations: Record<string, string> = {
   'staff.viewCallHistory': 'View Call History',
   'staff.bookAppointment': 'Book Appointment',
 };
+
+
 
 /* =========================
    Vietnamese translations
@@ -1297,6 +1369,45 @@ const viTranslations: Record<string, string> = {
   'placeholder.revenueChart': '[Biểu Đồ Doanh Thu]',
   'placeholder.customerChart': '[Biểu Đồ Khách Hàng]',
 
+   // Valuaton Management (VI)
+  'admin.valuationmangement': 'Quản lý định giá',
+  'admin.valuationPending': 'Chưa giải quyết',
+  'admin.valuationInProgress': 'Đang tiến hành',
+  'admin.valuationCompleted': 'Hoàn thành',
+  'admin.valuationOverdue': 'Quá hạn',
+
+  // Admin Order (VI)
+  'admin.neworders': 'Đơn hàng mới',
+  'admin.processing': 'Đang tiến hành',
+  'admin.shipped': 'Đã vận chuyển',
+  'admin.delivered': 'Đã giao hàng',
+  'admin.totalrevenue': 'Tổng cộng',
+
+  // Admin Product Management (VI)
+  'admin.productManagement': 'Quản lý sản phẩm',
+  'admin.totalProduct': 'Tổng sản phẩm',
+  'admin.inStock': 'Còn hàng',
+  'admin.lowStock': 'Hàng tồn kho',
+  'admin.outOfStock': 'Hết hàng',
+
+  //Admin Analytics (Vi)
+  'admin.businessAnalytics': 'Phân tích',
+  'admin.monthlyRevenu': 'Doanh thu hằng tháng',
+  'admin.newCustomers': 'Khách hàng mới',
+  // 'admin.conversionRate' : 'Conversion Rate',
+  'admin.avgOrderValue' : 'Gía trị đơn hàng trung bình',
+  'admin.revenuTrend': 'Xu hướng doanh thu',
+  'admin.customerAcquisition': 'Thu hút khách hàng',
+  'admin.productPerformance': 'Hiệu suất sản phẩm',
+  'admin.engagementRings': 'Nhẫn đính hôn',
+  'admin.necklaces': 'Vòng cổ',
+  'admin.earrings': 'Hoa tai',
+  'admin.serviceUsage': 'Sử dụng dịch vụ',
+  'admin.valuationServices': 'Dịch vụ định giá',
+  'admin.consultationCalls': 'Cuộc gọi tư vấn',
+  'admin.onlineStoreOrders' : 'Đơn hàng trực tuyến',
+
+
   // Staff placeholders (VI)
   'placeholder.marketValue': 'Giá Trị Thị Trường ($)',
   'placeholder.insuranceValue': 'Giá Trị Bảo Hiểm ($)',
@@ -1572,6 +1683,8 @@ const viTranslations: Record<string, string> = {
   'admin.accessDenied': 'Từ Chối Truy Cập',
   'admin.noPermission': 'Bạn không có quyền truy cập trang này.',
   'admin.backToDashboard': 'Quay Lại Bảng Điều Khiển',
+   'admin.customerRating': 'Khách hàng đánh giá',
+   'admin.ordermanager': 'Quản lý đơn hàng',
 
   // Admin Navigation (VI)
   'admin.overview': 'Tổng Quan',
@@ -1581,7 +1694,8 @@ const viTranslations: Record<string, string> = {
   'admin.products': 'Sản Phẩm',
   'admin.staffManagement': 'Quản Lý Nhân Viên',
   'admin.analytics': 'Phân Tích',
-
+  'admin.totalStaff': 'Tổng nhân viên',
+  'admin.addNewStaff': 'Thêm nhân viên',
   // System Configuration (VI)
   'admin.systemConfig': 'Cấu Hình Hệ Thống',
   'admin.pricingManagement': 'Quản Lý Giá Cả',
@@ -1600,6 +1714,7 @@ const viTranslations: Record<string, string> = {
   'admin.staff': 'Nhân Viên',
   'admin.admins': 'Quản Trị Viên',
   'admin.totalUsers': 'Tổng Số Người Dùng',
+  'admin.totalValuations': 'Tổng số định giá',
   'admin.activeUsers': 'Người Dùng Hoạt Động',
   'admin.newUsers': 'Người Dùng Mới',
   'admin.userDetails': 'Chi Tiết Người Dùng',

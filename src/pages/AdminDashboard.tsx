@@ -1030,7 +1030,7 @@ const AdminDashboard: React.FC = () => {
               >
                 <div className="bg-white rounded-lg shadow-md p-6">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-serif font-bold">Valuation Management</h3>
+                    <h3 className="text-xl font-serif font-bold">{t('admin.valuationmangement')}</h3>
                     <button 
                       onClick={() => handleValuationAction('add')}
                       className="btn btn-primary"
@@ -1042,19 +1042,19 @@ const AdminDashboard: React.FC = () => {
                   {/* Valuation Statistics */}
                   <div className="grid md:grid-cols-4 gap-4 mb-6">
                     <div className="bg-blue-50 p-4 rounded-lg">
-                      <h4 className="font-medium text-blue-800">Pending</h4>
+                      <h4 className="font-medium text-blue-800">{t('admin.valuationPending')}</h4>
                       <p className="text-2xl font-bold text-blue-900">{valuationStats.pending}</p>
                     </div>
                     <div className="bg-yellow-50 p-4 rounded-lg">
-                      <h4 className="font-medium text-yellow-800">In Progress</h4>
+                      <h4 className="font-medium text-yellow-800">{t('admin.valuationInProgress')}</h4>
                       <p className="text-2xl font-bold text-yellow-900">{valuationStats.inProgress}</p>
                     </div>
                     <div className="bg-green-50 p-4 rounded-lg">
-                      <h4 className="font-medium text-green-800">Completed</h4>
+                      <h4 className="font-medium text-green-800">{t('admin.valuationCompleted')}</h4>
                       <p className="text-2xl font-bold text-green-900">{valuationStats.completed}</p>
                     </div>
                     <div className="bg-red-50 p-4 rounded-lg">
-                      <h4 className="font-medium text-red-800">Overdue</h4>
+                      <h4 className="font-medium text-red-800">{t('admin.valuationOverdue')}</h4>
                       <p className="text-2xl font-bold text-red-900">{valuationStats.overdue}</p>
                     </div>
                   </div>
@@ -1134,7 +1134,7 @@ const AdminDashboard: React.FC = () => {
               >
                 <div className="bg-white rounded-lg shadow-md p-6">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-serif font-bold">Order Management</h3>
+                    <h3 className="text-xl font-serif font-bold">{t('admin.ordermanager')}</h3>
                     <div className="flex space-x-3">
                       <select className="px-3 py-2 border rounded-md">
                         <option>All Orders</option>
@@ -1155,23 +1155,23 @@ const AdminDashboard: React.FC = () => {
                   {/* Order Statistics */}
                   <div className="grid md:grid-cols-5 gap-4 mb-6">
                     <div className="bg-blue-50 p-4 rounded-lg">
-                      <h4 className="font-medium text-blue-800">New Orders</h4>
+                      <h4 className="font-medium text-blue-800">{t('admin.neworders')}</h4>
                       <p className="text-2xl font-bold text-blue-900">{orderStats.newOrders}</p>
                     </div>
                     <div className="bg-yellow-50 p-4 rounded-lg">
-                      <h4 className="font-medium text-yellow-800">Processing</h4>
+                      <h4 className="font-medium text-yellow-800">{t('admin.processing')}</h4>
                       <p className="text-2xl font-bold text-yellow-900">{orderStats.processing}</p>
                     </div>
                     <div className="bg-purple-50 p-4 rounded-lg">
-                      <h4 className="font-medium text-purple-800">Shipped</h4>
+                      <h4 className="font-medium text-purple-800">{t('admin.shipped')}</h4>
                       <p className="text-2xl font-bold text-purple-900">{orderStats.shipped}</p>
                     </div>
                     <div className="bg-green-50 p-4 rounded-lg">
-                      <h4 className="font-medium text-green-800">Delivered</h4>
+                      <h4 className="font-medium text-green-800">{t('admin.delivered')}</h4>
                       <p className="text-2xl font-bold text-green-900">{orderStats.delivered}</p>
                     </div>
                     <div className="bg-gray-50 p-4 rounded-lg">
-                      <h4 className="font-medium text-gray-800">Total Revenue</h4>
+                      <h4 className="font-medium text-gray-800">{t('admin.totalrevenue')}</h4>
                       <p className="text-2xl font-bold text-gray-900">${(orderStats.totalRevenue / 1000).toFixed(0)}K</p>
                     </div>
                   </div>
@@ -1243,9 +1243,9 @@ const AdminDashboard: React.FC = () => {
               >
                 <div className="bg-white rounded-lg shadow-md p-6">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-serif font-bold">Product Management</h3>
+                    <h3 className="text-xl font-serif font-bold">{t('admin.productManagement')}</h3>
                     <div className="flex space-x-3">
-                      <button className="btn btn-secondary">Import Products</button>
+                      {/* <button className="btn btn-secondary">Import Products</button> */}
                       <button 
                         onClick={() => handleProductAction('add')}
                         className="btn btn-primary"
@@ -1258,19 +1258,19 @@ const AdminDashboard: React.FC = () => {
                   {/* Product Statistics */}
                   <div className="grid md:grid-cols-4 gap-4 mb-6">
                     <div className="bg-blue-50 p-4 rounded-lg">
-                      <h4 className="font-medium text-blue-800">Total Products</h4>
+                      <h4 className="font-medium text-blue-800">{t('admin.totalProduct')}</h4>
                       <p className="text-2xl font-bold text-blue-900">{productStats.total}</p>
                     </div>
                     <div className="bg-green-50 p-4 rounded-lg">
-                      <h4 className="font-medium text-green-800">In Stock</h4>
+                      <h4 className="font-medium text-green-800">{t('admin.inStock')}</h4>
                       <p className="text-2xl font-bold text-green-900">{productStats.inStock}</p>
                     </div>
                     <div className="bg-yellow-50 p-4 rounded-lg">
-                      <h4 className="font-medium text-yellow-800">Low Stock</h4>
+                      <h4 className="font-medium text-yellow-800">{t('admin.lowStock')}</h4>
                       <p className="text-2xl font-bold text-yellow-900">{productStats.lowStock}</p>
                     </div>
                     <div className="bg-red-50 p-4 rounded-lg">
-                      <h4 className="font-medium text-red-800">Out of Stock</h4>
+                      <h4 className="font-medium text-red-800">{t('admin.outOfStock')}</h4>
                       <p className="text-2xl font-bold text-red-900">{productStats.outOfStock}</p>
                     </div>
                   </div>
@@ -1384,31 +1384,31 @@ const AdminDashboard: React.FC = () => {
               >
                 <div className="bg-white rounded-lg shadow-md p-6">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-serif font-bold">Staff Management</h3>
+                    <h3 className="text-xl font-serif font-bold">{t('admin.staffManagement')}</h3>
                     <button 
                       onClick={() => handleStaffAction('add')}
                       className="btn btn-primary"
                     >
-                      Add New Staff
+                      {t('admin.addNewStaff')}
                     </button>
                   </div>
 
                   {/* Staff Statistics */}
                   <div className="grid md:grid-cols-4 gap-4 mb-6">
                     <div className="bg-blue-50 p-4 rounded-lg">
-                      <h4 className="font-medium text-blue-800">Consulting Staff</h4>
+                      <h4 className="font-medium text-blue-800">{t('admin.consultingStaff')}</h4>
                       <p className="text-2xl font-bold text-blue-900">{staff.filter(s => s.role === 'consulting_staff').length}</p>
                     </div>
                     <div className="bg-purple-50 p-4 rounded-lg">
-                      <h4 className="font-medium text-purple-800">Valuation Staff</h4>
+                      <h4 className="font-medium text-purple-800">{t('admin.valuationStaff')}</h4>
                       <p className="text-2xl font-bold text-purple-900">{staff.filter(s => s.role === 'valuation_staff').length}</p>
                     </div>
                     <div className="bg-green-50 p-4 rounded-lg">
-                      <h4 className="font-medium text-green-800">Managers</h4>
+                      <h4 className="font-medium text-green-800">{t('admin.managers')}</h4>
                       <p className="text-2xl font-bold text-green-900">{staff.filter(s => s.role === 'manager').length}</p>
                     </div>
                     <div className="bg-yellow-50 p-4 rounded-lg">
-                      <h4 className="font-medium text-yellow-800">Total Staff</h4>
+                      <h4 className="font-medium text-yellow-800">{t('admin.totalStaff')}</h4>
                       <p className="text-2xl font-bold text-yellow-900">{staff.length}</p>
                     </div>
                   </div>
@@ -1535,27 +1535,27 @@ const AdminDashboard: React.FC = () => {
                 className="space-y-6"
               >
                 <div className="bg-white rounded-lg shadow-md p-6">
-                  <h3 className="text-xl font-serif font-bold mb-6">Business Analytics</h3>
+                  <h3 className="text-xl font-serif font-bold mb-6">{t('admin.businessAnalytics')}</h3>
                   
                   {/* Key Metrics */}
                   <div className="grid md:grid-cols-4 gap-4 mb-8">
                     <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-lg">
-                      <h4 className="font-medium opacity-90">Monthly Revenue</h4>
+                      <h4 className="font-medium opacity-90">{t('admin.monthlyRevenu')}</h4>
                       <p className="text-3xl font-bold">$342,890</p>
                       <p className="text-sm opacity-75">↗ +12.5% from last month</p>
                     </div>
                     <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-lg">
-                      <h4 className="font-medium opacity-90">New Customers</h4>
+                      <h4 className="font-medium opacity-90">{t('admin.newCustomers')}</h4>
                       <p className="text-3xl font-bold">284</p>
                       <p className="text-sm opacity-75">↗ +8.3% from last month</p>
                     </div>
                     <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 rounded-lg">
-                      <h4 className="font-medium opacity-90">Conversion Rate</h4>
+                      <h4 className="font-medium opacity-90">{t('admin.conversionRate')}</h4>
                       <p className="text-3xl font-bold">18.2%</p>
                       <p className="text-sm opacity-75">↗ +2.1% from last month</p>
                     </div>
                     <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white p-6 rounded-lg">
-                      <h4 className="font-medium opacity-90">Avg Order Value</h4>
+                      <h4 className="font-medium opacity-90">{t('admin.avgOrderValue')}</h4>
                       <p className="text-3xl font-bold">$1,847</p>
                       <p className="text-sm opacity-75">↗ +5.7% from last month</p>
                     </div>
@@ -1564,36 +1564,36 @@ const AdminDashboard: React.FC = () => {
                   {/* Charts and Graphs */}
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="p-4 border rounded-lg">
-                      <h4 className="font-medium mb-4">Revenue Trend (Last 6 Months)</h4>
+                      <h4 className="font-medium mb-4">{t('admin.revenuTrend')} </h4>
                       <div className="h-48 bg-gray-100 rounded flex items-center justify-center">
                         <p className="text-gray-500">{t('placeholder.revenueChart')}</p>
                       </div>
                     </div>
                     <div className="p-4 border rounded-lg">
-                      <h4 className="font-medium mb-4">Customer Acquisition</h4>
+                      <h4 className="font-medium mb-4">{t('admin.customerAcquisition')}</h4>
                       <div className="h-48 bg-gray-100 rounded flex items-center justify-center">
                         <p className="text-gray-500">{t('placeholder.customerChart')}</p>
                       </div>
                     </div>
                     <div className="p-4 border rounded-lg">
-                      <h4 className="font-medium mb-4">Product Performance</h4>
+                      <h4 className="font-medium mb-4">{t('admin.productPerformance')}</h4>
                       <div className="space-y-2">
                         <div className="flex justify-between">
-                          <span>Engagement Rings</span>
+                          <span>{t('admin.engagementRings')}</span>
                           <span className="font-bold">45%</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div className="bg-luxury-gold h-2 rounded-full" style={{ width: '45%' }}></div>
                         </div>
                         <div className="flex justify-between">
-                          <span>Necklaces</span>
+                          <span>{t('admin.necklaces')}</span>
                           <span className="font-bold">28%</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div className="bg-luxury-gold h-2 rounded-full" style={{ width: '28%' }}></div>
                         </div>
                         <div className="flex justify-between">
-                          <span>Earrings</span>
+                          <span>{t('admin.earrings')}</span>
                           <span className="font-bold">18%</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
@@ -1602,18 +1602,18 @@ const AdminDashboard: React.FC = () => {
                       </div>
                     </div>
                     <div className="p-4 border rounded-lg">
-                      <h4 className="font-medium mb-4">Service Usage</h4>
+                      <h4 className="font-medium mb-4">{t('admin.serviceUsage')}</h4>
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <span>Valuation Services</span>
+                          <span>{t('admin.valuationServices')}</span>
                           <span className="font-bold text-blue-600">342 requests</span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span>Consultation Calls</span>
+                          <span>{t('admin.consultationCalls')}</span>
                           <span className="font-bold text-green-600">156 calls</span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span>Online Store Orders</span>
+                          <span>{t('admin.onlineStoreOrders')}</span>
                           <span className="font-bold text-purple-600">89 orders</span>
                         </div>
                       </div>
