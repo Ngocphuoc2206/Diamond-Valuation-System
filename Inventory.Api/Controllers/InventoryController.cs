@@ -1,56 +1,34 @@
-﻿using Inventory.Domain.Entities;
-using Inventory.Infrastructure.Interfaces;
+﻿using Inventory.Application.DTOs;
+using Inventory.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Inventory.Api.Controllers;
-
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v1.0/inventory")]
 public class InventoryController : ControllerBase
 {
-    private readonly IInventoryService _service;
+    private readonly IInventoryService _svc;
+    public InventoryController(IInventoryService svc) => _svc = svc;
 
-    public InventoryController(IInventoryService service)
+    [HttpGet("{sku}")]
+    public async Task<IActionResult> Get(string sku)
     {
-        _service = service;
+        var it = await _svc.GetAsync(sku);
+        return it is null ? NotFound() : Ok(it);
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
-        => Ok(await _service.GetAllAsync());
-
-    [HttpGet("{sku}")]
-    public async Task<IActionResult> GetBySku(string sku)
-    {
-        var item = await _service.GetBySkuAsync(sku);
-        if (item == null) return NotFound();
-        return Ok(item);
-    }
+        => Ok(await _svc.GetAllAsync());
 
     [HttpPost]
-    public async Task<IActionResult> Add([FromBody] InventoryItem item)
-    {
-        await _service.AddAsync(item);
-        return CreatedAtAction(nameof(GetBySku), new { sku = item.SKU }, item);
-    }
+    public async Task<IActionResult> Upsert(CreateOrUpdateInventoryItemDto dto)
+        => Ok(await _svc.UpsertAsync(dto));
 
-    [HttpPut("{sku}")]
-    public async Task<IActionResult> Update(string sku, [FromBody] InventoryItem updated)
-    {
-        var existing = await _service.GetBySkuAsync(sku);
-        if (existing == null) return NotFound();
+    [HttpPatch("{sku}/adjust")]
+    public async Task<IActionResult> Adjust(string sku, [FromBody] int delta)
+        => Ok(await _svc.AdjustQuantityAsync(sku, delta));
 
-        existing.Quantity = updated.Quantity;
-        existing.Location = updated.Location;
-        await _service.UpdateAsync(existing);
-
-        return NoContent();
-    }
-
-    [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete(Guid id)
-    {
-        await _service.DeleteAsync(id);
-        return NoContent();
-    }
+    [HttpDelete("{sku}")]
+    public async Task<IActionResult> Delete(string sku)
+        => Ok(await _svc.DeleteAsync(sku));
 }

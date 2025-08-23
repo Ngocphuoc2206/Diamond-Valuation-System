@@ -7,15 +7,37 @@ services:
     ports:
       - "1433:1433"
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: diamond-rabbitmq
+    ports:
+      - "5672:5672" 
+      - "15672:15672"  # web management UI
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  user-service:
+  inventory-service:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ./Inventory.Api/Dockerfile
     environment:
-      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=DiamondInventoryDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True
+      - ConnectionStrings__InventoryConnection=Server=sqlserver,1433;Database=DiamondInventoryDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True
       - ASPNETCORE_URLS=http://+:8080
+      # RabbitMQ settings → trỏ tới service name "rabbitmq"
+      - RabbitMQ__HostName=rabbitmq
+      - RabbitMQ__Port=5672
+      - RabbitMQ__UserName=guest
+      - RabbitMQ__Password=guest
     ports:
       - "8081:8080"
     depends_on:
-      - sqlserver
+      sqlserver:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy

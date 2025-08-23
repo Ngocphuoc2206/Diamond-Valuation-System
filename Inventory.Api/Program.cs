@@ -1,12 +1,16 @@
-﻿
-using Asp.Versioning;
+﻿using Asp.Versioning;
+using Inventory.Application.Handlers;
+using Inventory.Application.Interfaces;
 using Inventory.Application.Services;
 using Inventory.Domain.Repositories;
-using Inventory.Infrastructure.Interfaces;
-using Inventory.Infrastructure.Persistence;
+using Inventory.Infrastructure.Data;
 using Inventory.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using SharedLibrary.Messaging.Interfaces;
+using SharedLibrary.Messaging;
+using SharedLibrary.Messaging.Events;
+using RabbitMQ.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +19,10 @@ builder.Services.AddDbContext<InventoryDbContext>(options =>
 
 builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();
+
+// Add RabbitMQ Event Bus
+builder.Services.AddSingleton<IEventBus, RabbitMQEventBus>();
+builder.Services.AddTransient<OrderCreatedEventHandler>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -42,6 +50,20 @@ builder.Services.AddApiVersioning(opt =>
     setup.SubstituteApiVersionInUrl = true; // thay {version} ở route
 });
 
+// đọc config "RabbitMQ" từ appsettings / env
+builder.Services.AddSingleton(sp =>
+{
+    var cfg = sp.GetRequiredService<IConfiguration>().GetSection("RabbitMQ");
+    return new ConnectionFactory
+    {
+        HostName = cfg["HostName"] ?? "localhost",
+        Port = int.TryParse(cfg["Port"], out var p) ? p : 5672,
+        UserName = cfg["UserName"] ?? "guest",
+        Password = cfg["Password"] ?? "guest",
+        VirtualHost = cfg["VirtualHost"] ?? "/",
+    };
+});
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -50,6 +72,8 @@ using (var scope = app.Services.CreateScope())
     try
     {
         db.Database.Migrate();
+        var bus = scope.ServiceProvider.GetRequiredService<IEventBus>();
+        bus.Subscribe<OrderCreatedEvent, OrderCreatedEventHandler>();
     }
     catch (Exception ex)
     {
@@ -66,6 +90,8 @@ app.UseSwaggerUI(o =>
     o.RoutePrefix = string.Empty; // bật nếu muốn swagger ở "/"
 });
 
-
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 app.Run();
