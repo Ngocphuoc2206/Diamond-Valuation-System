@@ -1,0 +1,76 @@
+[
+  {
+    "ContainingType": "Payment.Api.Controllers.PaymentsController",
+    "Method": "Create",
+    "RelativePath": "api/v1/payments",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "Payment.Application.DTOs.CreatePaymentDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Payment.Api.Controllers.PaymentsController",
+    "Method": "Get",
+    "RelativePath": "api/v1/payments/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Payment.Api.Controllers.PaymentsController",
+    "Method": "Simulate",
+    "RelativePath": "api/v1/payments/{id}/simulate",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "result",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "reason",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Payment.Api.Controllers.PaymentsController",
+    "Method": "FakeWebhook",
+    "RelativePath": "api/v1/payments/fake/webhook",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "Payment.Application.DTOs.FakeWebhookDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  }
+]
