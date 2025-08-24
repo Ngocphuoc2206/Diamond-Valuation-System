@@ -1,12 +1,11 @@
 // User types
-export interface User {
-  id: string;
-  name: string;
+export type User = {
+  id: number;
   email: string;
-  password?: string; // Optional for security - not always included in responses
-  role: 'guest' | 'customer' | 'consulting_staff' | 'valuation_staff' | 'manager' | 'admin';
+  name: string;
+  role: string;
   avatar?: string;
-}
+};
 
 // Diamond types
 export interface Diamond {
@@ -39,7 +38,12 @@ export interface ValuationRequest {
   id: string;
   customerId: string;
   customerName: string;
-  status: 'submitted' | 'consulting' | 'received' | 'in_valuation' | 'completed';
+  status:
+    | "submitted"
+    | "consulting"
+    | "received"
+    | "in_valuation"
+    | "completed";
   createdAt: string;
   updatedAt: string;
   diamondDetails: Partial<Diamond>;
@@ -50,17 +54,17 @@ export interface ValuationRequest {
 }
 
 // Product types (for e-commerce)
-export interface Product {
-  id: string;
-  name: string;
-  price: number;
-  category: string;
-  description: string;
-  images: string[];
-  inStock: boolean;
-  featured: boolean;
-  diamondDetails?: Partial<Diamond>;
-}
+// export interface Product {
+//   id: string;
+//   name: string;
+//   price: number;
+//   category: string;
+//   description: string;
+//   images: string[];
+//   inStock: boolean;
+//   featured: boolean;
+//   diamondDetails?: Partial<Diamond>;
+// }
 
 // Article types (for knowledge base)
 export interface Article {
@@ -85,6 +89,7 @@ export interface CartItem {
   price: number;
   image: string;
   quantity: number;
+  sku?: string;
 }
 
 // Statistics Dashboard
