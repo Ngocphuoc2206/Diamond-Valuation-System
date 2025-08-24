@@ -559,7 +559,7 @@ const enTranslations: Record<string, string> = {
   'contact.phoneNumber': 'Phone Number',
   'contact.emailAddress': 'Email Address',
   'contact.address': 'Address',
-  'contact.officeAddress': '123 Diamond District, New York, NY 10036',
+  'contact.officeAddress': '123 Diamond District, Binh Thanh',
   'contact.faqsTitle': 'Frequently Asked Questions',
   'contact.howLongValuation': 'How long does a valuation take?',
   'contact.howLongAnswer': 'Most valuations are completed within 3-5 business days from receipt.',
@@ -639,7 +639,7 @@ const enTranslations: Record<string, string> = {
   'auth.and': 'and',
   'auth.subscribeNewsletter': 'Subscribe to our newsletter for updates',
 
-  // Dashboard (user)
+  // Dashboard (user) (EN)
   'dashboard.welcome': 'Welcome back',
   'dashboard.subtitle': 'Manage your account, orders, and valuations',
   'dashboard.overview': 'Overview',
@@ -675,7 +675,7 @@ const enTranslations: Record<string, string> = {
   'dashboard.downloadReport': 'Download Report',
   'dashboard.contactSupport': 'Contact Support',
 
-  // Communication
+  // Communication (EN)
   'communication.title': 'Communication Center',
   'communication.subtitle': 'Stay connected with our team',
   'communication.newMessage': 'New Message',
@@ -1363,6 +1363,43 @@ const viTranslations: Record<string, string> = {
   'placeholder.createPassword': 'Tạo mật khẩu',
   'placeholder.confirmPassword': 'Xác nhận mật khẩu',
 
+    // Dashboard (user)
+  'dashboard.welcome': 'Chào mừng trở lại',
+  'dashboard.subtitle': 'Quản lý tài khoản, đơn hàng và yêu cầu định giá',
+  'dashboard.overview': 'Tổng quan',
+  'dashboard.orders': 'Đơn hàng',
+  'dashboard.valuations': 'Định giá',
+  'dashboard.favorites': 'Yêu thích',
+  'dashboard.profile': 'Hồ sơ',
+  'dashboard.requests': 'Yêu cầu của tôi',
+  'dashboard.notifications': 'Thông báo',
+  'dashboard.newValuation': 'Định giá mới',
+  'dashboard.totalOrders': 'Tổng số đơn hàng',
+  'dashboard.totalRequests': 'Tổng số yêu cầu',
+  'dashboard.completed': 'Hoàn thành',
+  'dashboard.inProgress': 'Đang xử lý',
+  'dashboard.pending': 'Đang chờ',
+  'dashboard.recentActivity': 'Hoạt động gần đây',
+  'dashboard.orderHistory': 'Lịch sử đơn hàng',
+  'dashboard.item': 'sản phẩm',
+  'dashboard.items': 'sản phẩm',
+  'dashboard.valuationRequests': 'Các yêu cầu định giá',
+  'dashboard.profileSettings': 'Cài đặt hồ sơ',
+  'dashboard.changePhoto': 'Thay đổi ảnh',
+  'dashboard.photoRequirements': 'JPG, PNG hoặc GIF. Kích thước tối đa 2MB.',
+  'dashboard.addPhone': 'Thêm số điện thoại',
+  'dashboard.location': 'Địa chỉ',
+  'dashboard.cityCountry': 'Thành phố, Quốc gia',
+  'dashboard.saveChanges': 'Lưu thay đổi',
+  'dashboard.viewAll': 'Xem tất cả',
+  'dashboard.status': 'Trạng thái',
+  'dashboard.submittedDate': 'Ngày gửi',
+  'dashboard.lastUpdate': 'Cập nhật lần cuối',
+  'dashboard.viewDetails': 'Xem chi tiết',
+  'dashboard.downloadReport': 'Tải báo cáo',
+  'dashboard.contactSupport': 'Liên hệ hỗ trợ',
+
+
   // Admin placeholders (VI)
   'placeholder.searchUsers': 'Tìm kiếm người dùng...',
   'placeholder.searchProducts': 'Tìm kiếm sản phẩm...',
@@ -1464,6 +1501,7 @@ const viTranslations: Record<string, string> = {
     'Nếu bạn không tìm thấy câu trả lời mình tìm kiếm, đội ngũ chuyên gia của chúng tôi sẵn sàng hỗ trợ bạn một cách cá nhân.',
   'faq.startValuation': 'Bắt Đầu Định Giá',
   'faq.contactSupport': 'Liên Hệ Hỗ Trợ',
+  
 
   // FAQ Categories (VI)
   'faq.categories.all': 'Tất Cả Câu Hỏi',
@@ -1596,7 +1634,7 @@ const viTranslations: Record<string, string> = {
   'contact.phoneNumber': 'Số Điện Thoại',
   'contact.emailAddress': 'Địa Chỉ Email',
   'contact.address': 'Địa Chỉ',
-  'contact.officeAddress': '123 Khu Kim Cương, New York, NY 10036',
+  'contact.officeAddress': '123 Khu Kim Cương, Bình Thạnh',
   'contact.faqsTitle': 'Câu Hỏi Thường Gặp',
   'contact.howLongValuation': 'Định giá mất bao lâu?',
   'contact.howLongAnswer': 'Hầu hết các định giá được hoàn thành trong vòng 3-5 ngày làm việc kể từ khi nhận.',
@@ -1675,6 +1713,27 @@ const viTranslations: Record<string, string> = {
   'auth.agreeToTerms': 'Tôi đồng ý với',
   'auth.and': 'và',
   'auth.subscribeNewsletter': 'Đăng ký nhận bản tin để cập nhật thông tin',
+
+    // Communication (Vi)
+  'communication.title': 'Trung tâm liên lạc',
+  'communication.subtitle': 'Giữ kết nối với đội ngũ của chúng tôi',
+  'communication.newMessage': 'Tin nhắn mới',
+  'communication.messages': 'Tin nhắn',
+  'communication.history': 'Lịch sử liên lạc',
+  'communication.compose': 'Soạn tin nhắn',
+  'communication.subject': 'Chủ đề',
+  'communication.message': 'Nội dung',
+  'communication.requestId': 'Mã yêu cầu liên quan',
+  'communication.send': 'Gửi tin nhắn',
+  'communication.cancel': 'Hủy',
+  'communication.noMessages': 'Chưa có tin nhắn nào',
+  'communication.noMessagesDesc':
+    'Khi bạn nhận được tin nhắn từ đội ngũ của chúng tôi, chúng sẽ hiển thị tại đây.',
+  'communication.readMore': 'Đọc thêm',
+  'communication.reply': 'Trả lời',
+  'communication.download': 'Tải xuống',
+  'communication.attachment': 'Tệp đính kèm',
+
 
   // Admin Dashboard (VI)
   'admin.title': 'Bảng Điều Khiển',

@@ -48,6 +48,14 @@ export const users: User[] = [
     role: "admin",
     avatar: "https://i.pravatar.cc/150?img=12",
   },
+  {
+    id: "6",
+    name: "thang",
+    email: "thang@diamond.com",
+    password: "123",
+    role: "customer",
+    avatar: "https://i.pravatar.cc/150?img=12",
+  },
 ];
 
 // Sample Diamonds

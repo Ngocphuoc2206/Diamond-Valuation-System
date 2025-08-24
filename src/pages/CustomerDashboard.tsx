@@ -48,52 +48,52 @@ const CustomerDashboard: React.FC = () => {
 
   // Mock data for customer valuation requests
   const [customerRequests, setCustomerRequests] = useState<CustomerValuationRequest[]>([
-    {
-      id: 'VAL-2024-0123',
-      submittedDate: '2024-01-15',
-      status: 'valuation_completed',
-      diamondType: 'Round Brilliant Cut',
-      caratWeight: '2.5ct',
-      estimatedValue: '$15,000',
-      actualValue: '$18,500',
-      consultantName: 'Sarah Johnson',
-      lastUpdate: '2024-01-22',
-      notes: 'Insurance appraisal completed. Results ready for download.',
-      priority: 'high',
-      receiptNumber: 'RCP-2024-0123',
-      results: {
-        marketValue: 17500,
-        insuranceValue: 18500,
-        retailValue: 19800,
-        certificationDetails: 'GIA Certified - Excellent Cut, VS1 Clarity, G Color',
-        condition: 'Excellent',
-        report: 'Professional valuation report with detailed analysis and certification verification.'
-      }
-    },
-    {
-      id: 'VAL-2024-0156',
-      submittedDate: '2024-01-20',
-      status: 'customer_contacted',
-      diamondType: 'Emerald Cut',
-      caratWeight: '3.2ct',
-      estimatedValue: '$22,000',
-      consultantName: 'Mike Chen',
-      lastUpdate: '2024-01-21',
-      notes: 'Consultant will contact you within 24 hours to schedule inspection.',
-      priority: 'normal',
-      receiptNumber: 'RCP-2024-0156'
-    },
-    {
-      id: 'VAL-2024-0167',
-      submittedDate: '2024-01-25',
-      status: 'submitted',
-      diamondType: 'Princess Cut',
-      caratWeight: '1.8ct',
-      estimatedValue: '$8,500',
-      lastUpdate: '2024-01-25',
-      notes: 'Request received. A consultant will be assigned shortly.',
-      priority: 'normal'
-    }
+    // {
+    //   id: 'VAL-2024-0123',
+    //   submittedDate: '2024-01-15',
+    //   status: 'valuation_completed',
+    //   diamondType: 'Round Brilliant Cut',
+    //   caratWeight: '2.5ct',
+    //   estimatedValue: '$15,000',
+    //   actualValue: '$18,500',
+    //   consultantName: 'Sarah Johnson',
+    //   lastUpdate: '2024-01-22',
+    //   notes: 'Insurance appraisal completed. Results ready for download.',
+    //   priority: 'high',
+    //   receiptNumber: 'RCP-2024-0123',
+    //   results: {
+    //     marketValue: 17500,
+    //     insuranceValue: 18500,
+    //     retailValue: 19800,
+    //     certificationDetails: 'GIA Certified - Excellent Cut, VS1 Clarity, G Color',
+    //     condition: 'Excellent',
+    //     report: 'Professional valuation report with detailed analysis and certification verification.'
+    //   }
+    // },
+    // {
+    //   id: 'VAL-2024-0156',
+    //   submittedDate: '2024-01-20',
+    //   status: 'customer_contacted',
+    //   diamondType: 'Emerald Cut',
+    //   caratWeight: '3.2ct',
+    //   estimatedValue: '$22,000',
+    //   consultantName: 'Mike Chen',
+    //   lastUpdate: '2024-01-21',
+    //   notes: 'Consultant will contact you within 24 hours to schedule inspection.',
+    //   priority: 'normal',
+    //   receiptNumber: 'RCP-2024-0156'
+    // },
+    // {
+    //   id: 'VAL-2024-0167',
+    //   submittedDate: '2024-01-25',
+    //   status: 'submitted',
+    //   diamondType: 'Princess Cut',
+    //   caratWeight: '1.8ct',
+    //   estimatedValue: '$8,500',
+    //   lastUpdate: '2024-01-25',
+    //   notes: 'Request received. A consultant will be assigned shortly.',
+    //   priority: 'normal'
+    // }
   ]);
 
   const [notifications, setNotifications] = useState<CustomerNotification[]>([
@@ -288,7 +288,7 @@ const CustomerDashboard: React.FC = () => {
                     <span className="text-2xl">📋</span>
                   </div>
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-500">Total Requests</p>
+                    <p className="text-sm font-medium text-gray-500">Tổng số yêu cầu</p>
                     <p className="text-2xl font-bold text-gray-900">{customerRequests.length}</p>
                   </div>
                 </div>
@@ -300,7 +300,7 @@ const CustomerDashboard: React.FC = () => {
                     <span className="text-2xl">⏳</span>
                   </div>
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-500">In Progress</p>
+                    <p className="text-sm font-medium text-gray-500">Đang tiến hành</p>
                     <p className="text-2xl font-bold text-orange-600">
                       {customerRequests.filter(r => !['completed', 'results_sent'].includes(r.status)).length}
                     </p>
@@ -314,7 +314,7 @@ const CustomerDashboard: React.FC = () => {
                     <span className="text-2xl">✅</span>
                   </div>
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-500">Completed</p>
+                    <p className="text-sm font-medium text-gray-500">Hoàn thành</p>
                     <p className="text-2xl font-bold text-green-600">
                       {customerRequests.filter(r => ['completed', 'results_sent', 'valuation_completed'].includes(r.status)).length}
                     </p>
@@ -328,7 +328,7 @@ const CustomerDashboard: React.FC = () => {
                     <span className="text-2xl">💰</span>
                   </div>
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-500">Total Value</p>
+                    <p className="text-sm font-medium text-gray-500">Tổng giá trị</p>
                     <p className="text-2xl font-bold text-luxury-gold">
                       ${customerRequests.reduce((sum, r) => sum + (parseFloat(r.actualValue?.replace(/[,$]/g, '') || r.estimatedValue?.replace(/[,$]/g, '') || '0')), 0).toLocaleString()}
                     </p>

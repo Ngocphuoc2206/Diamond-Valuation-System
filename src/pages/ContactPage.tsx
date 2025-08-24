@@ -112,7 +112,7 @@ const ContactPage: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="font-bold text-luxury-navy mb-1">{t('contact.phoneNumber')}</h3>
-                    <p className="text-gray-600">+1 (555) 123-4567</p>
+                    <p className="text-gray-600">+ 342506338</p>
                     <p className="text-sm text-gray-500">{t('contact.mondayFriday')}</p>
                   </div>
                 </div>
@@ -125,8 +125,8 @@ const ContactPage: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="font-bold text-luxury-navy mb-1">{t('contact.emailAddress')}</h3>
-                    <p className="text-gray-600">info@diamondvalley.com</p>
-                    <p className="text-sm text-gray-500">We respond within 24 hours</p>
+                    <p className="text-gray-600">congty@diamondvalley.com</p>
+                    <p className="text-sm text-gray-500">Chúng tôi trả lời trong vòng 24 giờ</p>
                   </div>
                 </div>
 
@@ -142,7 +142,7 @@ const ContactPage: React.FC = () => {
                     <p className="text-gray-600">
                       {t('contact.officeAddress')}
                     </p>
-                    <p className="text-sm text-gray-500">By appointment only</p>
+                    <p className="text-sm text-gray-500">Chỉ theo lịch hẹn</p>
                   </div>
                 </div>
 

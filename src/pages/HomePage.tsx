@@ -201,7 +201,7 @@ const HomePage: React.FC = () => {
             <motion.div className="relative md:grid md:grid-cols-2 gap-8 mb-12" variants={fadeIn}>
               <div className="hidden md:block">
                 <img 
-                  src="https://images.unsplash.com/photo-1627903227225-c2a10fefd199?q=80&w=2574&auto=format&fit=crop" 
+                   src="https://images.unsplash.com/photo-1604881991405-b273c7a4386a?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8dCVDNiVCMCUyMHYlRTElQkElQTVufGVufDB8fDB8fHww" 
                   alt={t('process.step2.title')}
                   className="rounded-lg shadow-md w-full h-60 object-cover" 
                 />
@@ -237,7 +237,7 @@ const HomePage: React.FC = () => {
             <motion.div className="relative md:grid md:grid-cols-2 gap-8" variants={fadeIn}>
               <div className="hidden md:block">
                 <img 
-                  src="https://images.unsplash.com/photo-1563962585448-ec03defd36a0?q=80&w=2574&auto=format&fit=crop" 
+                  src="https://images.unsplash.com/photo-1589330694653-ded6df03f754?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Z2klRTElQkElQTV5JTIwY2glRTElQkIlQTluZyUyMG5oJUUxJUJBJUFEbnxlbnwwfHwwfHx8MA%3D%3D"
                   alt={t('process.step4.title')}
                   className="rounded-lg shadow-md w-full h-60 object-cover" 
                 />
