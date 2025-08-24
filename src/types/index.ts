@@ -76,6 +76,7 @@ export interface Article {
   featuredImage: string;
   featured: boolean;
   readTime: string;
+  externalUrl?: string;
 }
 
 // Cart Item types (for shopping cart)
