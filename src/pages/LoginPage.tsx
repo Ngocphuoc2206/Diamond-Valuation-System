@@ -174,7 +174,7 @@ const LoginPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Demo Credentials */}
+          {/* Demo Credentials
           <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
             <h4 className="text-sm font-medium text-blue-800 mb-3">Demo Credentials for Testing:</h4>
             <div className="space-y-2 text-sm text-blue-600">
@@ -209,7 +209,7 @@ const LoginPage: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Social Login */}
           <div className="bg-white rounded-lg shadow-md p-6">

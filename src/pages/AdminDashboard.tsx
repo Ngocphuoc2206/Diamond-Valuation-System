@@ -4,11 +4,35 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { Link } from 'react-router-dom';
 import { users as initialUsers } from '../data/mockData';
+import {
+  ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid,
+  BarChart, Bar
+} from 'recharts';
+
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+const revenueTrendData = [
+  { month: 'Jan', revenue: 18000 },
+  { month: 'Feb', revenue: 20500 },
+  { month: 'Mar', revenue: 19000 },
+  { month: 'Apr', revenue: 23000 },
+  { month: 'May', revenue: 26800 },
+  { month: 'Jun', revenue: 25500 },
+  { month: 'Jul', revenue: 28400 },
+];
+const customerAcquisitionData = [
+  { week: 'W1', customers: 48 },
+  { week: 'W2', customers: 62 },
+  { week: 'W3', customers: 55 },
+  { week: 'W4', customers: 71 },
+  { week: 'W5', customers: 66 },
+];
+
 
 // Mock data for admin dashboard
 const dashboardStats = {
-  totalUsers: 1247,
-  totalValuations: 892,
+  totalUsers: 50,
+  totalValuations: 2,
   pendingValuations: 34,
   totalRevenue: 2456789,
   monthlyRevenue: 234567,
@@ -1564,17 +1588,34 @@ const AdminDashboard: React.FC = () => {
                   {/* Charts and Graphs */}
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="p-4 border rounded-lg">
-                      <h4 className="font-medium mb-4">{t('admin.revenuTrend')} </h4>
-                      <div className="h-48 bg-gray-100 rounded flex items-center justify-center">
-                        <p className="text-gray-500">{t('placeholder.revenueChart')}</p>
-                      </div>
-                    </div>
-                    <div className="p-4 border rounded-lg">
-                      <h4 className="font-medium mb-4">{t('admin.customerAcquisition')}</h4>
-                      <div className="h-48 bg-gray-100 rounded flex items-center justify-center">
-                        <p className="text-gray-500">{t('placeholder.customerChart')}</p>
-                      </div>
-                    </div>
+  <h4 className="font-medium mb-4">{t('admin.revenuTrend')}</h4>
+  <div className="h-48 rounded">
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart data={revenueTrendData}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="month" />
+        <YAxis />
+        <Tooltip />
+        <Line type="monotone" dataKey="revenue" strokeWidth={2} dot={false} />
+      </LineChart>
+    </ResponsiveContainer>
+  </div>
+</div>
+<div className="p-4 border rounded-lg">
+  <h4 className="font-medium mb-4">{t('admin.customerAcquisition')}</h4>
+  <div className="h-48 rounded">
+    <ResponsiveContainer width="100%" height="100%">
+      <BarChart data={customerAcquisitionData}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="week" />
+        <YAxis />
+        <Tooltip />
+        <Bar dataKey="customers" />
+      </BarChart>
+    </ResponsiveContainer>
+  </div>
+</div>
+
                     <div className="p-4 border rounded-lg">
                       <h4 className="font-medium mb-4">{t('admin.productPerformance')}</h4>
                       <div className="space-y-2">

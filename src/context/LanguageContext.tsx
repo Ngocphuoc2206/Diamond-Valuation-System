@@ -727,6 +727,14 @@ const enTranslations: Record<string, string> = {
   'admin.totalStaff': 'Total Staff',
   'admin.analytics': 'Analytics',
   'admin.addNewStaff': 'Add New Staff',
+  // Admin Dashboard (EN)
+'admin.title': 'Dashboard',
+'admin.titleHighlight': 'Administration',
+'admin.description': 'Comprehensive system management and administration',
+'admin.accessDenied': 'Access Denied',
+'admin.noPermission': 'You do not have permission to access this page.',
+'admin.backToDashboard': 'Back to Dashboard',
+
 
   // User Management Details (VI)
   'admin.addNewUser': 'Add New User',
@@ -1364,7 +1372,7 @@ const viTranslations: Record<string, string> = {
   'placeholder.confirmPassword': 'Xác nhận mật khẩu',
 
     // Dashboard (user)
-  'dashboard.welcome': 'Chào mừng trở lại',
+  'dashboard.welcome': 'Chào mừng ',
   'dashboard.subtitle': 'Quản lý tài khoản, đơn hàng và yêu cầu định giá',
   'dashboard.overview': 'Tổng quan',
   'dashboard.orders': 'Đơn hàng',
@@ -1843,7 +1851,7 @@ const viTranslations: Record<string, string> = {
 
   // Customer Dashboard (VI)
   'customer.dashboard': 'Bảng Điều Khiển Khách Hàng',
-  'customer.welcomeBack': 'Chào mừng trở lại',
+  'customer.welcomeBack': 'Chào mừng',
   'customer.requestValuation': 'Yêu Cầu Định Giá',
   'customer.browseShop': 'Duyệt Cửa Hàng',
   'customer.overview': 'Tổng Quan',
