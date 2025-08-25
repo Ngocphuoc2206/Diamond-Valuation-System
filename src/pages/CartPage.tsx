@@ -1,19 +1,70 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { useCart } from '../context/CartContext';
-import { useLanguage } from '../context/LanguageContext';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { useCart } from "../context/CartContext";
+import { useLanguage } from "../context/LanguageContext";
 
 const CartPage: React.FC = () => {
-  const { cartItems, updateQuantity, removeFromCart, getTotalPrice, clearCart } = useCart();
+  // CartContext server-backed
+  const {
+    items,
+    subtotal: ctxSubtotal,
+    loading,
+    error,
+    updateQuantity, // (cartItemId, qty)
+    removeItem, // ✅ đúng tên
+    getTotalPrice,
+    clearCartLocal,
+  } = useCart();
   const { t } = useLanguage();
+
+  const [isBusy, setIsBusy] = useState(false);
 
   const fadeInUp = {
     hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
   };
 
-  if (cartItems.length === 0) {
+  // Xoá toàn bộ trên server: gọi remove từng cartItem
+  const handleClearAll = async () => {
+    if (!items.length) return;
+    setIsBusy(true);
+    try {
+      await Promise.allSettled(items.map((it) => removeItem(it.id)));
+      // dọn local cho chắc (BE đã xoá từng item)
+      clearCartLocal();
+    } finally {
+      setIsBusy(false);
+    }
+  };
+
+  // Trạng thái tải
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center text-gray-600">Loading cart...</div>
+      </div>
+    );
+  }
+
+  // Lỗi nạp giỏ
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <h1 className="text-2xl font-bold text-red-600 mb-2">
+            {t("common.error")}
+          </h1>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <Link to="/shop" className="btn btn-primary">
+            {t("cart.continueShopping")}
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (items.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <motion.div
@@ -24,21 +75,21 @@ const CartPage: React.FC = () => {
         >
           <div className="text-6xl mb-6">🛒</div>
           <h1 className="text-3xl md:text-5xl font-serif font-bold mb-4">
-            {t('cart.empty')}
+            {t("cart.empty")}
           </h1>
-          <p className="text-gray-600 mb-8">
-            {t('cart.emptyDesc')}
-          </p>
-          <Link
-            to="/shop"
-            className="btn btn-primary inline-block"
-          >
-            {t('cart.continueShopping')}
+          <p className="text-gray-600 mb-8">{t("cart.emptyDesc")}</p>
+          <Link to="/shop" className="btn btn-primary inline-block">
+            {t("cart.continueShopping")}
           </Link>
         </motion.div>
       </div>
     );
   }
+
+  // Tính thuế demo 8%
+  const subtotal = Number.isFinite(ctxSubtotal) ? ctxSubtotal : getTotalPrice();
+  const tax = subtotal * 0.08;
+  const total = subtotal + tax;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -52,11 +103,12 @@ const CartPage: React.FC = () => {
             className="text-center"
           >
             <h1 className="text-3xl md:text-5xl font-serif font-bold mb-4">
-              {t('cart.title')} <span className="text-luxury-gold">{t('cart.titleHighlight')}</span>
+              {t("cart.title")}{" "}
+              <span className="text-luxury-gold">
+                {t("cart.titleHighlight")}
+              </span>
             </h1>
-            <p className="text-lg text-gray-300">
-              {t('cart.description')}
-            </p>
+            <p className="text-lg text-gray-300">{t("cart.description")}</p>
           </motion.div>
         </div>
       </section>
@@ -73,54 +125,85 @@ const CartPage: React.FC = () => {
             <div className="bg-white rounded-lg shadow-md p-6 mb-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-serif font-bold">
-                  Cart Items ({cartItems.length})
+                  Cart Items ({items.length})
                 </h2>
                 <button
-                  onClick={clearCart}
-                  className="text-red-600 hover:text-red-800 text-sm"
+                  type="button"
+                  onClick={handleClearAll}
+                  disabled={isBusy}
+                  className="text-red-600 hover:text-red-800 text-sm disabled:opacity-50"
                 >
-                  Clear All
+                  {isBusy ? t("common.processing") : "Clear All"}
                 </button>
               </div>
 
               <div className="space-y-6">
-                {cartItems.map((item) => (
-                  <div key={item.id} className="flex items-center space-x-4 pb-6 border-b last:border-b-0">
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-20 h-20 object-cover rounded-md"
-                    />
+                {items.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center space-x-4 pb-6 border-b last:border-b-0"
+                  >
+                    {item.imageUrl ? (
+                      <img
+                        src={item.imageUrl}
+                        alt={item.name ?? item.sku}
+                        className="w-20 h-20 object-cover rounded-md"
+                      />
+                    ) : (
+                      <div className="w-20 h-20 bg-gray-100 rounded-md flex items-center justify-center text-gray-400">
+                        N/A
+                      </div>
+                    )}
+
                     <div className="flex-1">
-                      <h3 className="font-bold text-lg mb-1">{item.name}</h3>
+                      <h3 className="font-bold text-lg mb-1">
+                        {item.name ?? item.sku}
+                      </h3>
                       <p className="text-luxury-gold font-bold text-xl">
-                        ${item.price.toLocaleString()}
+                        ${item.unitPrice.toLocaleString()}
                       </p>
                     </div>
+
                     <div className="flex items-center space-x-2">
                       <button
-                        onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
-                        className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100"
+                        type="button"
+                        onClick={() =>
+                          updateQuantity(
+                            item.id,
+                            Math.max(1, item.quantity - 1)
+                          )
+                        }
+                        disabled={isBusy || item.quantity <= 1}
+                        className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 disabled:opacity-40"
                       >
                         -
                       </button>
-                      <span className="w-12 text-center font-medium">{item.quantity}</span>
+                      <span className="w-12 text-center font-medium">
+                        {item.quantity}
+                      </span>
                       <button
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100"
+                        type="button"
+                        onClick={() =>
+                          updateQuantity(item.id, item.quantity + 1)
+                        }
+                        disabled={isBusy}
+                        className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 disabled:opacity-40"
                       >
                         +
                       </button>
                     </div>
+
                     <div className="text-right">
                       <p className="font-bold text-lg">
-                        ${(item.price * item.quantity).toLocaleString()}
+                        ${item.lineTotal.toLocaleString()}
                       </p>
                       <button
-                        onClick={() => removeFromCart(item.id)}
-                        className="text-red-600 hover:text-red-800 text-sm mt-1"
+                        type="button"
+                        onClick={() => removeItem(item.id)}
+                        disabled={isBusy}
+                        className="text-red-600 hover:text-red-800 text-sm mt-1 disabled:opacity-50"
                       >
-                        {t('cart.remove')}
+                        {t("cart.remove")}
                       </button>
                     </div>
                   </div>
@@ -133,10 +216,20 @@ const CartPage: React.FC = () => {
               to="/shop"
               className="inline-flex items-center text-luxury-navy hover:text-luxury-gold"
             >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
               </svg>
-              {t('cart.continueShopping')}
+              {t("cart.continueShopping")}
             </Link>
           </motion.div>
 
@@ -148,26 +241,28 @@ const CartPage: React.FC = () => {
             className="lg:col-span-1"
           >
             <div className="bg-white rounded-lg shadow-md p-6 sticky top-6">
-              <h3 className="text-xl font-serif font-bold mb-6">{t('cart.orderSummary')}</h3>
-              
+              <h3 className="text-xl font-serif font-bold mb-6">
+                {t("cart.orderSummary")}
+              </h3>
+
               <div className="space-y-4 mb-6">
                 <div className="flex justify-between">
-                  <span>{t('cart.subtotal')}</span>
-                  <span>${getTotalPrice().toLocaleString()}</span>
+                  <span>{t("cart.subtotal")}</span>
+                  <span>${subtotal.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>{t('cart.shipping')}</span>
-                  <span className="text-green-600">{t('cart.free')}</span>
+                  <span>{t("cart.shipping")}</span>
+                  <span className="text-green-600">{t("cart.free")}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>{t('cart.tax')}</span>
-                  <span>${(getTotalPrice() * 0.08).toLocaleString()}</span>
+                  <span>{t("cart.tax")}</span>
+                  <span>${tax.toLocaleString()}</span>
                 </div>
                 <hr />
                 <div className="flex justify-between font-bold text-lg">
-                  <span>{t('cart.total')}</span>
+                  <span>{t("cart.total")}</span>
                   <span className="text-luxury-gold">
-                    ${(getTotalPrice() * 1.08).toLocaleString()}
+                    ${total.toLocaleString()}
                   </span>
                 </div>
               </div>
@@ -177,40 +272,58 @@ const CartPage: React.FC = () => {
                   to="/checkout"
                   className="btn btn-primary w-full text-center block"
                 >
-                  {t('cart.proceedCheckout')}
+                  {t("cart.proceedCheckout")}
                 </Link>
-                <button className="btn btn-secondary w-full">
-                  {t('cart.requestQuote')}
+                <button type="button" className="btn btn-secondary w-full">
+                  {t("cart.requestQuote")}
                 </button>
               </div>
 
               {/* Trust Badges */}
               <div className="mt-8 pt-6 border-t">
-                <h4 className="font-medium mb-4">{t('cart.whyChoose')}</h4>
+                <h4 className="font-medium mb-4">{t("cart.whyChoose")}</h4>
                 <div className="space-y-3 text-sm text-gray-600">
                   <div className="flex items-center space-x-2">
-                    <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    <svg
+                      className="w-4 h-4 text-green-600"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                     <span>Certified Authentic Diamonds</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    <svg
+                      className="w-4 h-4 text-green-600"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                     <span>30-Day Return Policy</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    <svg
+                      className="w-4 h-4 text-green-600"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
                     </svg>
-                    <span>Free Insured Shipping</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    <span>{t('cart.lifetimeWarranty')}</span>
+                    <span>{t("cart.lifetimeWarranty")}</span>
                   </div>
                 </div>
               </div>
@@ -218,13 +331,13 @@ const CartPage: React.FC = () => {
               {/* Support */}
               <div className="mt-6 pt-6 border-t text-center">
                 <p className="text-sm text-gray-600 mb-3">
-                  {t('cart.needHelp')}
+                  {t("cart.needHelp")}
                 </p>
                 <Link
                   to="/contact"
                   className="text-luxury-gold hover:text-luxury-navy text-sm font-medium"
                 >
-                  {t('cart.contactExperts')}
+                  {t("cart.contactExperts")}
                 </Link>
               </div>
             </div>

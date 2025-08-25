@@ -153,6 +153,6 @@ function App() {
       </AuthProvider>
     </LanguageProvider>
   );
-}
+};
 
 export default App;
