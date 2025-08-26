@@ -14,7 +14,7 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<UserDbContext>(opt =>
-            opt.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+            opt.UseSqlServer(configuration.GetConnectionString("UserConnection")));
 
         services.AddScoped<IUnitOfWork, UOW>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();

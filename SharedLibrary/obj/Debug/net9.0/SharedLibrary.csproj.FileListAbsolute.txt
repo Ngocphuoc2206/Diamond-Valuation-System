@@ -24,3 +24,16 @@ D:\UserService\SharedLibrary\obj\Debug\net9.0\SharedLibrary.dll
 D:\UserService\SharedLibrary\obj\Debug\net9.0\refint\SharedLibrary.dll
 D:\UserService\SharedLibrary\obj\Debug\net9.0\SharedLibrary.pdb
 D:\UserService\SharedLibrary\obj\Debug\net9.0\ref\SharedLibrary.dll
+D:\Diamond-Valuation-Service\UserService\SharedLibrary\bin\Debug\net9.0\SharedLibrary.deps.json
+D:\Diamond-Valuation-Service\UserService\SharedLibrary\bin\Debug\net9.0\SharedLibrary.dll
+D:\Diamond-Valuation-Service\UserService\SharedLibrary\bin\Debug\net9.0\SharedLibrary.pdb
+D:\Diamond-Valuation-Service\UserService\SharedLibrary\obj\Debug\net9.0\SharedLibrary.csproj.AssemblyReference.cache
+D:\Diamond-Valuation-Service\UserService\SharedLibrary\obj\Debug\net9.0\SharedLibrary.GeneratedMSBuildEditorConfig.editorconfig
+D:\Diamond-Valuation-Service\UserService\SharedLibrary\obj\Debug\net9.0\SharedLibrary.AssemblyInfoInputs.cache
+D:\Diamond-Valuation-Service\UserService\SharedLibrary\obj\Debug\net9.0\SharedLibrary.AssemblyInfo.cs
+D:\Diamond-Valuation-Service\UserService\SharedLibrary\obj\Debug\net9.0\SharedLibrary.csproj.CoreCompileInputs.cache
+D:\Diamond-Valuation-Service\UserService\SharedLibrary\obj\Debug\net9.0\SharedLibrary.sourcelink.json
+D:\Diamond-Valuation-Service\UserService\SharedLibrary\obj\Debug\net9.0\SharedLibrary.dll
+D:\Diamond-Valuation-Service\UserService\SharedLibrary\obj\Debug\net9.0\refint\SharedLibrary.dll
+D:\Diamond-Valuation-Service\UserService\SharedLibrary\obj\Debug\net9.0\SharedLibrary.pdb
+D:\Diamond-Valuation-Service\UserService\SharedLibrary\obj\Debug\net9.0\ref\SharedLibrary.dll

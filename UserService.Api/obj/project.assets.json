@@ -6114,11 +6114,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\UserService\\UserService.Api\\UserService.Api.csproj",
+      "projectUniqueName": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Api\\UserService.Api.csproj",
       "projectName": "UserService.Api",
-      "projectPath": "D:\\UserService\\UserService.Api\\UserService.Api.csproj",
+      "projectPath": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Api\\UserService.Api.csproj",
       "packagesPath": "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\",
-      "outputPath": "D:\\UserService\\UserService.Api\\obj\\",
+      "outputPath": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Api\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -6140,14 +6140,14 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "D:\\UserService\\UserService.Application\\UserService.Application.csproj": {
-              "projectPath": "D:\\UserService\\UserService.Application\\UserService.Application.csproj"
+            "D:\\Diamond-Valuation-Service\\UserService\\UserService.Application\\UserService.Application.csproj": {
+              "projectPath": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Application\\UserService.Application.csproj"
             },
-            "D:\\UserService\\UserService.Domain\\UserService.Domain.csproj": {
-              "projectPath": "D:\\UserService\\UserService.Domain\\UserService.Domain.csproj"
+            "D:\\Diamond-Valuation-Service\\UserService\\UserService.Domain\\UserService.Domain.csproj": {
+              "projectPath": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Domain\\UserService.Domain.csproj"
             },
-            "D:\\UserService\\UserService.Infrastructure\\UserService.Infrastructure.csproj": {
-              "projectPath": "D:\\UserService\\UserService.Infrastructure\\UserService.Infrastructure.csproj"
+            "D:\\Diamond-Valuation-Service\\UserService\\UserService.Infrastructure\\UserService.Infrastructure.csproj": {
+              "projectPath": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Infrastructure\\UserService.Infrastructure.csproj"
             }
           }
         }

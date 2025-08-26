@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\UserService\\SharedLibrary\\SharedLibrary.csproj": {}
+    "D:\\Diamond-Valuation-Service\\UserService\\SharedLibrary\\SharedLibrary.csproj": {}
   },
   "projects": {
-    "D:\\UserService\\SharedLibrary\\SharedLibrary.csproj": {
+    "D:\\Diamond-Valuation-Service\\UserService\\SharedLibrary\\SharedLibrary.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\UserService\\SharedLibrary\\SharedLibrary.csproj",
+        "projectUniqueName": "D:\\Diamond-Valuation-Service\\UserService\\SharedLibrary\\SharedLibrary.csproj",
         "projectName": "SharedLibrary",
-        "projectPath": "D:\\UserService\\SharedLibrary\\SharedLibrary.csproj",
+        "projectPath": "D:\\Diamond-Valuation-Service\\UserService\\SharedLibrary\\SharedLibrary.csproj",
         "packagesPath": "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\",
-        "outputPath": "D:\\UserService\\SharedLibrary\\obj\\",
+        "outputPath": "D:\\Diamond-Valuation-Service\\UserService\\SharedLibrary\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

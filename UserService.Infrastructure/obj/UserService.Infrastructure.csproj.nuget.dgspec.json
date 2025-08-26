@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\UserService\\UserService.Infrastructure\\UserService.Infrastructure.csproj": {}
+    "D:\\Diamond-Valuation-Service\\UserService\\UserService.Infrastructure\\UserService.Infrastructure.csproj": {}
   },
   "projects": {
-    "D:\\UserService\\SharedKernel\\SharedKernel.csproj": {
+    "D:\\Diamond-Valuation-Service\\UserService\\SharedKernel\\SharedKernel.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\UserService\\SharedKernel\\SharedKernel.csproj",
+        "projectUniqueName": "D:\\Diamond-Valuation-Service\\UserService\\SharedKernel\\SharedKernel.csproj",
         "projectName": "SharedKernel",
-        "projectPath": "D:\\UserService\\SharedKernel\\SharedKernel.csproj",
+        "projectPath": "D:\\Diamond-Valuation-Service\\UserService\\SharedKernel\\SharedKernel.csproj",
         "packagesPath": "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\",
-        "outputPath": "D:\\UserService\\SharedKernel\\obj\\",
+        "outputPath": "D:\\Diamond-Valuation-Service\\UserService\\SharedKernel\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -76,14 +76,14 @@
         }
       }
     },
-    "D:\\UserService\\SharedLibrary\\SharedLibrary.csproj": {
+    "D:\\Diamond-Valuation-Service\\UserService\\SharedLibrary\\SharedLibrary.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\UserService\\SharedLibrary\\SharedLibrary.csproj",
+        "projectUniqueName": "D:\\Diamond-Valuation-Service\\UserService\\SharedLibrary\\SharedLibrary.csproj",
         "projectName": "SharedLibrary",
-        "projectPath": "D:\\UserService\\SharedLibrary\\SharedLibrary.csproj",
+        "projectPath": "D:\\Diamond-Valuation-Service\\UserService\\SharedLibrary\\SharedLibrary.csproj",
         "packagesPath": "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\",
-        "outputPath": "D:\\UserService\\SharedLibrary\\obj\\",
+        "outputPath": "D:\\Diamond-Valuation-Service\\UserService\\SharedLibrary\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -172,14 +172,14 @@
         }
       }
     },
-    "D:\\UserService\\UserService.Domain\\UserService.Domain.csproj": {
+    "D:\\Diamond-Valuation-Service\\UserService\\UserService.Domain\\UserService.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\UserService\\UserService.Domain\\UserService.Domain.csproj",
+        "projectUniqueName": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Domain\\UserService.Domain.csproj",
         "projectName": "UserService.Domain",
-        "projectPath": "D:\\UserService\\UserService.Domain\\UserService.Domain.csproj",
+        "projectPath": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Domain\\UserService.Domain.csproj",
         "packagesPath": "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\",
-        "outputPath": "D:\\UserService\\UserService.Domain\\obj\\",
+        "outputPath": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -201,11 +201,11 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "D:\\UserService\\SharedKernel\\SharedKernel.csproj": {
-                "projectPath": "D:\\UserService\\SharedKernel\\SharedKernel.csproj"
+              "D:\\Diamond-Valuation-Service\\UserService\\SharedKernel\\SharedKernel.csproj": {
+                "projectPath": "D:\\Diamond-Valuation-Service\\UserService\\SharedKernel\\SharedKernel.csproj"
               },
-              "D:\\UserService\\SharedLibrary\\SharedLibrary.csproj": {
-                "projectPath": "D:\\UserService\\SharedLibrary\\SharedLibrary.csproj"
+              "D:\\Diamond-Valuation-Service\\UserService\\SharedLibrary\\SharedLibrary.csproj": {
+                "projectPath": "D:\\Diamond-Valuation-Service\\UserService\\SharedLibrary\\SharedLibrary.csproj"
               }
             }
           }
@@ -255,14 +255,14 @@
         }
       }
     },
-    "D:\\UserService\\UserService.Infrastructure\\UserService.Infrastructure.csproj": {
+    "D:\\Diamond-Valuation-Service\\UserService\\UserService.Infrastructure\\UserService.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\UserService\\UserService.Infrastructure\\UserService.Infrastructure.csproj",
+        "projectUniqueName": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Infrastructure\\UserService.Infrastructure.csproj",
         "projectName": "UserService.Infrastructure",
-        "projectPath": "D:\\UserService\\UserService.Infrastructure\\UserService.Infrastructure.csproj",
+        "projectPath": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Infrastructure\\UserService.Infrastructure.csproj",
         "packagesPath": "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\",
-        "outputPath": "D:\\UserService\\UserService.Infrastructure\\obj\\",
+        "outputPath": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -284,8 +284,8 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "D:\\UserService\\UserService.Domain\\UserService.Domain.csproj": {
-                "projectPath": "D:\\UserService\\UserService.Domain\\UserService.Domain.csproj"
+              "D:\\Diamond-Valuation-Service\\UserService\\UserService.Domain\\UserService.Domain.csproj": {
+                "projectPath": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Domain\\UserService.Domain.csproj"
               }
             }
           }

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\UserService\\SharedKernel\\SharedKernel.csproj": {}
+    "D:\\Diamond-Valuation-Service\\UserService\\SharedKernel\\SharedKernel.csproj": {}
   },
   "projects": {
-    "D:\\UserService\\SharedKernel\\SharedKernel.csproj": {
+    "D:\\Diamond-Valuation-Service\\UserService\\SharedKernel\\SharedKernel.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\UserService\\SharedKernel\\SharedKernel.csproj",
+        "projectUniqueName": "D:\\Diamond-Valuation-Service\\UserService\\SharedKernel\\SharedKernel.csproj",
         "projectName": "SharedKernel",
-        "projectPath": "D:\\UserService\\SharedKernel\\SharedKernel.csproj",
+        "projectPath": "D:\\Diamond-Valuation-Service\\UserService\\SharedKernel\\SharedKernel.csproj",
         "packagesPath": "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\",
-        "outputPath": "D:\\UserService\\SharedKernel\\obj\\",
+        "outputPath": "D:\\Diamond-Valuation-Service\\UserService\\SharedKernel\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

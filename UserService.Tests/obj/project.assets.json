@@ -1900,11 +1900,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\UserService\\UserService.Tests\\UserService.Tests.csproj",
+      "projectUniqueName": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Tests\\UserService.Tests.csproj",
       "projectName": "UserService.Tests",
-      "projectPath": "D:\\UserService\\UserService.Tests\\UserService.Tests.csproj",
+      "projectPath": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Tests\\UserService.Tests.csproj",
       "packagesPath": "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\",
-      "outputPath": "D:\\UserService\\UserService.Tests\\obj\\",
+      "outputPath": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Tests\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

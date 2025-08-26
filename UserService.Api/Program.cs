@@ -20,6 +20,10 @@ builder.Services.AddOpenApi();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddSharedLibrary(builder.Configuration);
 
+//add swagger
+builder.Services.AddSwaggerGen();
+
+
 // Application services
 builder.Services.AddScoped<IUserService, UserService.Application.Services.UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -70,7 +74,20 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+var AllowFE = "_allowFE";
+builder.Services.AddCors(opt =>
+{
+    opt.AddPolicy(AllowFE, p => p
+        .WithOrigins("http://localhost:5173") // Vite dev server
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials());
+});
+
+
 var app = builder.Build();
+
+app.UseCors(AllowFE);
 
 using (var scope = app.Services.CreateScope())
 {

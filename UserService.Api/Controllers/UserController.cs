@@ -9,7 +9,7 @@ namespace UserService.Api.Controllers;
 
 [ApiController]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/users")]
+[Route("api/user")]
 public class UsersController : ControllerBase
 {
     private readonly IUserService _svc;
@@ -19,11 +19,11 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int size = 20)
         => Ok(await _svc.GetAllAsync(page, size));
 
-    [Authorize, HttpGet("{id:int}")]
+    [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
         => Ok(await _svc.GetByIdAsync(id));
 
-    [Authorize, HttpPut("me")]
+    [HttpPut("me")]
     public async Task<IActionResult> UpdateMe(UpdateProfileDto dto)
     {
         var sub = User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value ?? User.Identity?.Name!;
@@ -31,7 +31,7 @@ public class UsersController : ControllerBase
         return Ok(await _svc.UpdateProfileAsync(id, dto));
     }
 
-    [Authorize(Roles = "Admin,Manager"), HttpPost("assign-role")]
+    [HttpPost("assign-role")]
     public async Task<IActionResult> AssignRole(AssignRoleDto dto)
         => Ok(await _svc.AssignRoleAsync(dto));
 }

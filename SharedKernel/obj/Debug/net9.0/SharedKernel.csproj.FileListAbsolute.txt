@@ -22,3 +22,15 @@ D:\UserService\SharedKernel\obj\Debug\net9.0\SharedKernel.dll
 D:\UserService\SharedKernel\obj\Debug\net9.0\refint\SharedKernel.dll
 D:\UserService\SharedKernel\obj\Debug\net9.0\SharedKernel.pdb
 D:\UserService\SharedKernel\obj\Debug\net9.0\ref\SharedKernel.dll
+D:\Diamond-Valuation-Service\UserService\SharedKernel\bin\Debug\net9.0\SharedKernel.deps.json
+D:\Diamond-Valuation-Service\UserService\SharedKernel\bin\Debug\net9.0\SharedKernel.dll
+D:\Diamond-Valuation-Service\UserService\SharedKernel\bin\Debug\net9.0\SharedKernel.pdb
+D:\Diamond-Valuation-Service\UserService\SharedKernel\obj\Debug\net9.0\SharedKernel.GeneratedMSBuildEditorConfig.editorconfig
+D:\Diamond-Valuation-Service\UserService\SharedKernel\obj\Debug\net9.0\SharedKernel.AssemblyInfoInputs.cache
+D:\Diamond-Valuation-Service\UserService\SharedKernel\obj\Debug\net9.0\SharedKernel.AssemblyInfo.cs
+D:\Diamond-Valuation-Service\UserService\SharedKernel\obj\Debug\net9.0\SharedKernel.csproj.CoreCompileInputs.cache
+D:\Diamond-Valuation-Service\UserService\SharedKernel\obj\Debug\net9.0\SharedKernel.sourcelink.json
+D:\Diamond-Valuation-Service\UserService\SharedKernel\obj\Debug\net9.0\SharedKernel.dll
+D:\Diamond-Valuation-Service\UserService\SharedKernel\obj\Debug\net9.0\refint\SharedKernel.dll
+D:\Diamond-Valuation-Service\UserService\SharedKernel\obj\Debug\net9.0\SharedKernel.pdb
+D:\Diamond-Valuation-Service\UserService\SharedKernel\obj\Debug\net9.0\ref\SharedKernel.dll
