@@ -11,13 +11,11 @@ public class PaymentService : IPaymentService
 {
     private readonly IUnitOfWork _uow;
     private readonly IEnumerable<IPaymentProvider> _providers;
-    private readonly IHttpClientFactory _http; // để gọi OrderService xác thực amount (tuỳ bạn dùng)
 
-    public PaymentService(IUnitOfWork uow, IEnumerable<IPaymentProvider> providers, IHttpClientFactory httpClientFactory)
+    public PaymentService(IUnitOfWork uow, IEnumerable<IPaymentProvider> providers)
     {
         _uow = uow;
         _providers = providers;
-        _http = httpClientFactory;
     }
 
     public async Task<ApiResponse<PaymentViewDto>> CreateAsync(CreatePaymentDto dto, string idempotencyKey)
@@ -25,7 +23,7 @@ public class PaymentService : IPaymentService
         if (string.IsNullOrWhiteSpace(idempotencyKey))
             return ApiResponse<PaymentViewDto>.Failure("Missing Idempotency-Key");
 
-        // gọi OrderService để check OrderNo + Amount khớp
+        //OrderService để check OrderNo + Amount khớp
         // validate với OrderService
 
         var existing = (await _uow.Payments.GetManyAsync(x => x.OrderNo == dto.OrderNo &&
@@ -58,8 +56,6 @@ public class PaymentService : IPaymentService
         var (redirectUrl, extRef) = await provider.CreateAsync(p);
         p.ExternalRef = extRef;
         await _uow.Payments.UpdateAsync(p);
-
-        // (tuỳ chọn) ghi outbox PaymentInitiated
 
         return ApiResponse<PaymentViewDto>.CreateSuccessResponse(ToView(p), redirectUrl);
     }

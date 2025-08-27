@@ -1,4 +1,6 @@
-﻿namespace Payment.Application.DTOs;
+﻿using Payment.Domain.Entities;
+
+namespace Payment.Application.DTOs;
 
 public record CreatePaymentDto(string OrderNo, decimal Amount, string Method); // Method="FAKE"
 public record PaymentViewDto(int Id, string OrderNo, string Provider, decimal Amount, string Status, string? ExternalRef);

@@ -12,6 +12,7 @@
           "Microsoft.EntityFrameworkCore.SqlServer": "9.0.8",
           "Payment.Application": "1.0.0",
           "Payment.Domain": "1.0.0",
+          "SharedKernel": "1.0.0",
           "SharedLibrary": "1.0.0"
         },
         "runtime": {
@@ -1011,6 +1012,7 @@
       "Payment.Application/1.0.0": {
         "dependencies": {
           "Payment.Domain": "1.0.0",
+          "SharedKernel": "1.0.0",
           "SharedLibrary": "1.0.0"
         },
         "runtime": {

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\PaymentService\\Payment.Application\\Payment.Application.csproj": {}
+    "D:\\Diamond-Valuation-Service\\PaymentService\\Payment.Application\\Payment.Application.csproj": {}
   },
   "projects": {
-    "D:\\PaymentService\\Payment.Application\\Payment.Application.csproj": {
+    "D:\\Diamond-Valuation-Service\\PaymentService\\Payment.Application\\Payment.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\PaymentService\\Payment.Application\\Payment.Application.csproj",
+        "projectUniqueName": "D:\\Diamond-Valuation-Service\\PaymentService\\Payment.Application\\Payment.Application.csproj",
         "projectName": "Payment.Application",
-        "projectPath": "D:\\PaymentService\\Payment.Application\\Payment.Application.csproj",
+        "projectPath": "D:\\Diamond-Valuation-Service\\PaymentService\\Payment.Application\\Payment.Application.csproj",
         "packagesPath": "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\",
-        "outputPath": "D:\\PaymentService\\Payment.Application\\obj\\",
+        "outputPath": "D:\\Diamond-Valuation-Service\\PaymentService\\Payment.Application\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -33,11 +33,14 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "D:\\PaymentService\\Payment.Domain\\Payment.Domain.csproj": {
-                "projectPath": "D:\\PaymentService\\Payment.Domain\\Payment.Domain.csproj"
+              "D:\\Diamond-Valuation-Service\\PaymentService\\Payment.Domain\\Payment.Domain.csproj": {
+                "projectPath": "D:\\Diamond-Valuation-Service\\PaymentService\\Payment.Domain\\Payment.Domain.csproj"
               },
-              "D:\\PaymentService\\SharedLibrary\\SharedLibrary.csproj": {
-                "projectPath": "D:\\PaymentService\\SharedLibrary\\SharedLibrary.csproj"
+              "D:\\Diamond-Valuation-Service\\PaymentService\\SharedKernel\\SharedKernel.csproj": {
+                "projectPath": "D:\\Diamond-Valuation-Service\\PaymentService\\SharedKernel\\SharedKernel.csproj"
+              },
+              "D:\\Diamond-Valuation-Service\\PaymentService\\SharedLibrary\\SharedLibrary.csproj": {
+                "projectPath": "D:\\Diamond-Valuation-Service\\PaymentService\\SharedLibrary\\SharedLibrary.csproj"
               }
             }
           }
@@ -85,14 +88,14 @@
         }
       }
     },
-    "D:\\PaymentService\\Payment.Domain\\Payment.Domain.csproj": {
+    "D:\\Diamond-Valuation-Service\\PaymentService\\Payment.Domain\\Payment.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\PaymentService\\Payment.Domain\\Payment.Domain.csproj",
+        "projectUniqueName": "D:\\Diamond-Valuation-Service\\PaymentService\\Payment.Domain\\Payment.Domain.csproj",
         "projectName": "Payment.Domain",
-        "projectPath": "D:\\PaymentService\\Payment.Domain\\Payment.Domain.csproj",
+        "projectPath": "D:\\Diamond-Valuation-Service\\PaymentService\\Payment.Domain\\Payment.Domain.csproj",
         "packagesPath": "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\",
-        "outputPath": "D:\\PaymentService\\Payment.Domain\\obj\\",
+        "outputPath": "D:\\Diamond-Valuation-Service\\PaymentService\\Payment.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -114,11 +117,11 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "D:\\PaymentService\\SharedKernel\\SharedKernel.csproj": {
-                "projectPath": "D:\\PaymentService\\SharedKernel\\SharedKernel.csproj"
+              "D:\\Diamond-Valuation-Service\\PaymentService\\SharedKernel\\SharedKernel.csproj": {
+                "projectPath": "D:\\Diamond-Valuation-Service\\PaymentService\\SharedKernel\\SharedKernel.csproj"
               },
-              "D:\\PaymentService\\SharedLibrary\\SharedLibrary.csproj": {
-                "projectPath": "D:\\PaymentService\\SharedLibrary\\SharedLibrary.csproj"
+              "D:\\Diamond-Valuation-Service\\PaymentService\\SharedLibrary\\SharedLibrary.csproj": {
+                "projectPath": "D:\\Diamond-Valuation-Service\\PaymentService\\SharedLibrary\\SharedLibrary.csproj"
               }
             }
           }
@@ -166,14 +169,14 @@
         }
       }
     },
-    "D:\\PaymentService\\SharedKernel\\SharedKernel.csproj": {
+    "D:\\Diamond-Valuation-Service\\PaymentService\\SharedKernel\\SharedKernel.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\PaymentService\\SharedKernel\\SharedKernel.csproj",
+        "projectUniqueName": "D:\\Diamond-Valuation-Service\\PaymentService\\SharedKernel\\SharedKernel.csproj",
         "projectName": "SharedKernel",
-        "projectPath": "D:\\PaymentService\\SharedKernel\\SharedKernel.csproj",
+        "projectPath": "D:\\Diamond-Valuation-Service\\PaymentService\\SharedKernel\\SharedKernel.csproj",
         "packagesPath": "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\",
-        "outputPath": "D:\\PaymentService\\SharedKernel\\obj\\",
+        "outputPath": "D:\\Diamond-Valuation-Service\\PaymentService\\SharedKernel\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -238,14 +241,14 @@
         }
       }
     },
-    "D:\\PaymentService\\SharedLibrary\\SharedLibrary.csproj": {
+    "D:\\Diamond-Valuation-Service\\PaymentService\\SharedLibrary\\SharedLibrary.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\PaymentService\\SharedLibrary\\SharedLibrary.csproj",
+        "projectUniqueName": "D:\\Diamond-Valuation-Service\\PaymentService\\SharedLibrary\\SharedLibrary.csproj",
         "projectName": "SharedLibrary",
-        "projectPath": "D:\\PaymentService\\SharedLibrary\\SharedLibrary.csproj",
+        "projectPath": "D:\\Diamond-Valuation-Service\\PaymentService\\SharedLibrary\\SharedLibrary.csproj",
         "packagesPath": "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\",
-        "outputPath": "D:\\PaymentService\\SharedLibrary\\obj\\",
+        "outputPath": "D:\\Diamond-Valuation-Service\\PaymentService\\SharedLibrary\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

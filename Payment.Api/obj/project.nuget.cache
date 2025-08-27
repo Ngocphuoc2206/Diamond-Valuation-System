@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "yNpzhutFAKk=",
+  "dgSpecHash": "orx399lOMIU=",
   "success": true,
-  "projectFilePath": "D:\\PaymentService\\Payment.Api\\Payment.Api.csproj",
+  "projectFilePath": "D:\\Diamond-Valuation-Service\\PaymentService\\Payment.Api\\Payment.Api.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\asp.versioning.abstractions\\8.1.0\\asp.versioning.abstractions.8.1.0.nupkg.sha512",
     "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\asp.versioning.http\\8.1.0\\asp.versioning.http.8.1.0.nupkg.sha512",

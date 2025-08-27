@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Payment.Infrastructure.Data;
 using Payment.Infrastructure.DependencyInjection;
-using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,11 +50,28 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+var AllowFE = "_allowFE";
+builder.Services.AddCors(opt =>
+{
+    opt.AddPolicy(AllowFE, p => p
+        .WithOrigins("http://localhost:5173") // Vite dev server
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials());
+});
+
 var app = builder.Build();
+
+app.UseCors(AllowFE);
+
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<PaymentDbContext>();
     db.Database.Migrate();
+
+    // Đăng ký các event handler
+    //var bus = scope.ServiceProvider.GetRequiredService<IEventBus>();
+    //bus.Subscribe<OrderCreatedEvent, OrderCreatedEventHandler>();
 }
 
 var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();

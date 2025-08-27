@@ -1593,6 +1593,7 @@
         "framework": ".NETCoreApp,Version=v9.0",
         "dependencies": {
           "Payment.Domain": "1.0.0",
+          "SharedKernel": "1.0.0",
           "SharedLibrary": "1.0.0"
         },
         "compile": {
@@ -4548,6 +4549,7 @@
       "Microsoft.EntityFrameworkCore.SqlServer >= 9.0.8",
       "Payment.Application >= 1.0.0",
       "Payment.Domain >= 1.0.0",
+      "SharedKernel >= 1.0.0",
       "SharedLibrary >= 1.0.0"
     ]
   },
@@ -4558,11 +4560,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\PaymentService\\Payment.Infrastructure\\Payment.Infrastructure.csproj",
+      "projectUniqueName": "D:\\Diamond-Valuation-Service\\PaymentService\\Payment.Infrastructure\\Payment.Infrastructure.csproj",
       "projectName": "Payment.Infrastructure",
-      "projectPath": "D:\\PaymentService\\Payment.Infrastructure\\Payment.Infrastructure.csproj",
+      "projectPath": "D:\\Diamond-Valuation-Service\\PaymentService\\Payment.Infrastructure\\Payment.Infrastructure.csproj",
       "packagesPath": "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\",
-      "outputPath": "D:\\PaymentService\\Payment.Infrastructure\\obj\\",
+      "outputPath": "D:\\Diamond-Valuation-Service\\PaymentService\\Payment.Infrastructure\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -4584,14 +4586,17 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "D:\\PaymentService\\Payment.Application\\Payment.Application.csproj": {
-              "projectPath": "D:\\PaymentService\\Payment.Application\\Payment.Application.csproj"
+            "D:\\Diamond-Valuation-Service\\PaymentService\\Payment.Application\\Payment.Application.csproj": {
+              "projectPath": "D:\\Diamond-Valuation-Service\\PaymentService\\Payment.Application\\Payment.Application.csproj"
             },
-            "D:\\PaymentService\\Payment.Domain\\Payment.Domain.csproj": {
-              "projectPath": "D:\\PaymentService\\Payment.Domain\\Payment.Domain.csproj"
+            "D:\\Diamond-Valuation-Service\\PaymentService\\Payment.Domain\\Payment.Domain.csproj": {
+              "projectPath": "D:\\Diamond-Valuation-Service\\PaymentService\\Payment.Domain\\Payment.Domain.csproj"
             },
-            "D:\\PaymentService\\SharedLibrary\\SharedLibrary.csproj": {
-              "projectPath": "D:\\PaymentService\\SharedLibrary\\SharedLibrary.csproj"
+            "D:\\Diamond-Valuation-Service\\PaymentService\\SharedKernel\\SharedKernel.csproj": {
+              "projectPath": "D:\\Diamond-Valuation-Service\\PaymentService\\SharedKernel\\SharedKernel.csproj"
+            },
+            "D:\\Diamond-Valuation-Service\\PaymentService\\SharedLibrary\\SharedLibrary.csproj": {
+              "projectPath": "D:\\Diamond-Valuation-Service\\PaymentService\\SharedLibrary\\SharedLibrary.csproj"
             }
           }
         }

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "/OvYgZHUm0I=",
+  "dgSpecHash": "oMqjXF7+p1A=",
   "success": true,
-  "projectFilePath": "D:\\PaymentService\\Payment.Infrastructure\\Payment.Infrastructure.csproj",
+  "projectFilePath": "D:\\Diamond-Valuation-Service\\PaymentService\\Payment.Infrastructure\\Payment.Infrastructure.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",

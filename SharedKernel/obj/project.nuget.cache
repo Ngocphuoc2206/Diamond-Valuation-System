@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "nHWt1oFj1WE=",
+  "dgSpecHash": "tnxC6cVa5GM=",
   "success": true,
-  "projectFilePath": "D:\\PaymentService\\SharedKernel\\SharedKernel.csproj",
+  "projectFilePath": "D:\\Diamond-Valuation-Service\\PaymentService\\SharedKernel\\SharedKernel.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\system.threading.tasks.extensions\\4.6.3\\system.threading.tasks.extensions.4.6.3.nupkg.sha512"
   ],

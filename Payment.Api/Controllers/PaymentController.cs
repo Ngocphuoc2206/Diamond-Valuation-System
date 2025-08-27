@@ -2,14 +2,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Payment.Application.DTOs;
-using Payment.Application.Services.Interfaces;
 using Payment.Domain.Services.Interfaces;
 
 namespace Payment.Api.Controllers;
 
 [ApiController]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/payments")]
+[Route("api/payments")]
 public class PaymentsController : ControllerBase
 {
     private readonly IPaymentService _svc;
@@ -37,8 +36,6 @@ public class PaymentsController : ControllerBase
         var res = await _svc.HandleFakeWebhookAsync(dto, raw);
         return Ok(res);
     }
-
-    // Siêu nhanh: đổi trạng thái không cần webhook
     [HttpPost("{id:int}/simulate")]
     public async Task<IActionResult> Simulate(int id, [FromQuery] string result = "success", [FromQuery] string? reason = null)
         => Ok(await _svc.SimulateAsync(id, result, reason));
