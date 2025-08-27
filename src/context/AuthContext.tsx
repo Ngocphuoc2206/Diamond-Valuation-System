@@ -74,6 +74,85 @@ function decodeJwt(token?: string | null): any | null {
   }
 }
 
+/** =======================
+ *  CHUẨN HOÁ ROLE (QUAN TRỌNG)
+ *  =======================
+ *  - Hỗ trợ BE trả PascalCase (ConsultingStaff), snake_case (consulting_staff),
+ *    camel/space/dash… và cả mảng roles.
+ */
+function normalizeRole(
+  raw?: string
+):
+  | "admin"
+  | "manager"
+  | "consulting_staff"
+  | "valuation_staff"
+  | "customer"
+  | "guest"
+  | "" {
+  const s = (raw ?? "")
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "")
+    .replace(/[-_]/g, "");
+  if (s === "admin") return "admin";
+  if (s === "manager") return "manager";
+  if (s === "customer") return "customer";
+  if (s === "guest") return "guest";
+  if (s === "consultingstaff") return "consulting_staff";
+  if (s === "valuationstaff") return "valuation_staff";
+  return "";
+}
+
+/** Nếu BE trả mảng roles, chọn role "mạnh" nhất theo thứ tự ưu tiên */
+function pickPrimaryRole(arr: unknown): string | undefined {
+  if (!Array.isArray(arr)) return undefined;
+  // map về dạng không dấu/không '_' để so sánh
+  const canon = (s: string) =>
+    s.toLowerCase().replace(/\s+/g, "").replace(/[-_]/g, "");
+  const order = [
+    "admin",
+    "manager",
+    "consultingstaff",
+    "valuationstaff",
+    "customer",
+    "guest",
+  ];
+  const idx = arr
+    .map((r) => (typeof r === "string" ? canon(r) : ""))
+    .map((r) => order.indexOf(r))
+    .filter((i) => i >= 0)
+    .sort((a, b) => a - b)[0];
+  if (idx === undefined) return undefined;
+  // tìm lại giá trị gốc đầu tiên khớp
+  const want = order[idx];
+  return arr.find((r) => typeof r === "string" && canon(r) === want) as
+    | string
+    | undefined;
+}
+
+/** Lấy role từ payload một cách an toàn */
+function getRoleFromPayload(payload: any): string {
+  // phổ biến nhất
+  const single =
+    payload?.role ??
+    payload?.Role ??
+    payload?.app_role ??
+    payload?.["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+
+  // nếu có mảng roles
+  const multi =
+    payload?.roles ??
+    payload?.Roles ??
+    payload?.app_roles ??
+    payload?.["http://schemas.microsoft.com/ws/2008/06/identity/claims/roles"];
+
+  const chosen =
+    (Array.isArray(multi) ? pickPrimaryRole(multi) : undefined) ?? single ?? "";
+  return normalizeRole(chosen);
+}
+
 // ====== Axios instance + interceptors (attach Bearer, auto refresh) ======
 const api: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -188,7 +267,7 @@ type AuthContextType = {
     email: string,
     password: string,
     rememberMe?: boolean
-  ) => Promise<boolean>; // giữ tương thích, thêm rememberMe?
+  ) => Promise<boolean>;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
   loginWithTokens?: (
@@ -213,20 +292,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       const payload = decodeJwt(tokens.accessToken);
       if (payload) {
         setUser({
-          // map qua kiểu User của FE bạn (tùy project)
           id: Number(payload.uid ?? payload.userId ?? 0),
           email: payload.email ?? "",
           name: payload.fullName ?? payload.unique_name ?? payload.sub ?? "",
-          role:
-            (
-              payload.role ??
-              payload[
-                "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-              ] ??
-              ""
-            )
-              ?.toString()
-              ?.toLowerCase?.() ?? "",
+          role: getRoleFromPayload(payload), // <-- CHUẨN HOÁ TẠI ĐÂY
         } as User);
       }
     }
@@ -255,6 +324,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       saveTokens(
         {
           accessToken: accessToken ?? null,
+        },
+        rememberMe
+      );
+      // nếu BE trả kèm refreshToken/expiresAt, vẫn lưu
+      saveTokens(
+        {
+          accessToken: accessToken ?? null,
           refreshToken: refreshToken ?? null,
           expiresAt: expiresAt ?? null,
         },
@@ -269,16 +345,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
               email: payload.email ?? email,
               name:
                 payload.fullName ?? payload.unique_name ?? payload.sub ?? "",
-              role:
-                (
-                  payload.role ??
-                  payload[
-                    "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-                  ] ??
-                  ""
-                )
-                  ?.toString()
-                  ?.toLowerCase?.() ?? "",
+              role: getRoleFromPayload(payload), // <-- CHUẨN HOÁ TẠI ĐÂY
             } as User)
           : null
       );
@@ -306,16 +373,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
             id: Number(payload.uid ?? payload.userId ?? 0),
             email: payload.email ?? "",
             name: payload.fullName ?? payload.unique_name ?? payload.sub ?? "",
-            role:
-              (
-                payload.role ??
-                payload[
-                  "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-                ] ??
-                ""
-              )
-                ?.toString()
-                ?.toLowerCase?.() ?? "",
+            role: getRoleFromPayload(payload), // <-- CHUẨN HOÁ TẠI ĐÂY
           } as User)
         : null
     );

@@ -15,11 +15,11 @@ const RequireRole: React.FC<RequireRoleProps> = ({ children, allowed }) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  const role = (user?.role ?? "").toLowerCase();
-  if (!allowed.map((r) => r.toLowerCase()).includes(role)) {
-    return <Navigate to="/403" replace />;
-  }
-
+  const norm = (s?: string) =>
+    (s ?? "").toLowerCase().replace(/\s+/g, "").replace(/[-_]/g, "");
+  const role = norm(user?.role);
+  const allow = allowed.map(norm);
+  if (!allow.includes(role)) return <Navigate to="/403" replace />;
   return <>{children}</>;
 };
 

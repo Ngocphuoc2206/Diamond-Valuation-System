@@ -46,7 +46,6 @@ const LoginPage: React.FC = () => {
     try {
       // gọi BE qua AuthContext
       await login(formData.email, formData.password, formData.rememberMe);
-
       // điều hướng về trang trước đó (nếu có) hoặc dashboard
       const to =
         location?.state?.from?.pathname &&

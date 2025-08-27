@@ -1,12 +1,18 @@
 export interface Product {
   id: string; // Guid hoặc string
   name: string;
-  description?: string;
-  sku?: string;
-  category?: string; // nếu BE trả categoryId -> đổi thành number | string
   price: number;
-  stock?: number;
-  imageUrl?: string | null;
-  images?: string[]; // nếu bạn muốn gallery
-  createdAt?: string; // ISO
+  sku: string;
+  description: string;
+  category: string;
+  images: string[];
+  inStock: boolean;
+  featured: boolean;
+  diamondDetails: {
+    shape?: string;
+    caratWeight: number;
+    color: string;
+    clarity: string;
+    cut: string;
+  };
 }

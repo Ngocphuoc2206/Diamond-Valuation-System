@@ -1,15 +1,10 @@
-import type {
-  Article,
-  Diamond,
-  Product,
-  User,
-  ValuationRequest,
-} from "../types";
+import type { Article, Diamond, User, ValuationRequest } from "../types";
+import type { Product } from "../types/product";
 
 // Sample Users with Passwords
 export const users: User[] = [
   {
-    id: "1",
+    id: 1,
     name: "John Doe",
     email: "customer@diamond.com",
     password: "customer123",
@@ -17,7 +12,7 @@ export const users: User[] = [
     avatar: "https://i.pravatar.cc/150?img=1",
   },
   {
-    id: "2",
+    id: 2,
     name: "Jane Smith",
     email: "consulting@diamond.com",
     password: "consulting123",
@@ -25,7 +20,7 @@ export const users: User[] = [
     avatar: "https://i.pravatar.cc/150?img=5",
   },
   {
-    id: "3",
+    id: 3,
     name: "Dr. Robert Johnson",
     email: "valuation@diamond.com",
     password: "valuation123",
@@ -33,7 +28,7 @@ export const users: User[] = [
     avatar: "https://i.pravatar.cc/150?img=8",
   },
   {
-    id: "4",
+    id: 4,
     name: "Sarah Williams",
     email: "manager@diamond.com",
     password: "manager123",
@@ -41,7 +36,7 @@ export const users: User[] = [
     avatar: "https://i.pravatar.cc/150?img=9",
   },
   {
-    id: "5",
+    id: 5,
     name: "Michael Brown",
     email: "admin@diamond.com",
     password: "admin123",
@@ -49,7 +44,7 @@ export const users: User[] = [
     avatar: "https://i.pravatar.cc/150?img=12",
   },
   {
-    id: "6",
+    id: 6,
     name: "thang",
     email: "thang@diamond.com",
     password: "123",

@@ -90,7 +90,7 @@ const ShopPage: React.FC = () => {
 
   // ✅ Map đúng payload theo CartContext server-backed
   const handleAddToCart = async (product: Product) => {
-    const imageUrl = product.images?.[0] ?? product.imageUrl ?? "";
+    const imageUrl = product.images?.[0] ?? product.images ?? "";
     const unitPrice = product.price ?? 0; // <-- ĐỔI price -> unitPrice
     const sku = product.sku ?? String(product.id); // fallback nếu đang dùng id làm sku
 
@@ -100,9 +100,9 @@ const ShopPage: React.FC = () => {
     }
 
     await addToCart({
-      sku, // BE bắt buộc
+      sku,
       quantity: 1,
-      unitPrice, // ✅ khóa đúng cho BE
+      unitPrice, //
       name: product.name,
       imageUrl,
     });
@@ -282,7 +282,7 @@ const ShopPage: React.FC = () => {
                 >
                   <div className="relative">
                     <img
-                      src={product.images?.[0] ?? product.imageUrl ?? ""}
+                      src={product.images?.[0] ?? product.images ?? ""}
                       alt={product.name}
                       className="w-full h-64 object-cover"
                     />

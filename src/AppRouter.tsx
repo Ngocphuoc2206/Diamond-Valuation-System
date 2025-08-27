@@ -8,7 +8,6 @@ import {
   Outlet,
 } from "react-router-dom";
 
-// Providers đặt ở App.tsx hoặc main.tsx (không đặt ở router)
 import MainLayout from "./layouts/MainLayout";
 import DashboardLayout from "./layouts/DashboardLayout";
 
@@ -16,7 +15,7 @@ import ProtectedRoute from "./router/ProtectedRoute";
 import PublicOnlyRoute from "./router/PublicOnlyRoute";
 import RequireRole from "./router/RequireRole";
 
-// ----- Lazy pages (giữ giống App.tsx hiện tại) -----
+// ----- Lazy pages -----
 const HomePage = lazy(() => import("./pages/HomePage"));
 const ValuationTool = lazy(() => import("./pages/ValuationTool"));
 const KnowledgePage = lazy(() => import("./pages/KnowledgePage"));
@@ -34,11 +33,15 @@ const CustomerCommunication = lazy(
   () => import("./pages/CustomerCommunication")
 );
 
-// Các trang hệ thống (bạn có thể thay bằng trang của bạn nếu đã có)
-const Forbidden = lazy(() => import("./pages/system/Forbidden")); // 403
-const NotFound = lazy(() => import("./pages/system/NotFound")); // 404
+// System pages
+const Forbidden = lazy(() => import("./pages/system/Forbidden"));
+const NotFound = lazy(() => import("./pages/system/NotFound"));
 
-// ----- Loading fallback -----
+// Dashboards
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const StaffDashboard = lazy(() => import("./pages/StaffDashboard"));
+const CustomerDashboard = lazy(() => import("./pages/CustomerDashboard"));
+
 const Loading = () => (
   <div className="flex items-center justify-center min-h-screen">
     <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-luxury-gold" />
@@ -110,52 +113,80 @@ const AppRouter: React.FC = () => {
               </ProtectedRoute>
             }
           >
-            {/* Trang tổng/role-based entry (mọi role đăng nhập đều vào được) */}
+            {/* Entry chung: tự chọn dashboard theo role */}
             <Route index element={<RoleBasedDashboard />} />
 
-            {/* Ví dụ các route con có phân quyền:
-                - products, analytics: manager + admin
-                - users, content: admin
-               Bạn có thể thêm/thay theo nhu cầu. */}
+            {/* ====== NHÁNH ADMIN (admin/manager) ====== */}
             <Route
-              path="products"
+              path="admin"
               element={
-                <RequireRole allowed={["manager", "admin"]}>
-                  {/* Bạn có thể thay bằng page thật nếu đã có */}
-                  <div className="p-6">Products (manager/admin)</div>
+                <RequireRole allowed={["admin", "manager"]}>
+                  <Outlet />
                 </RequireRole>
               }
-            />
+            >
+              <Route index element={<AdminDashboard />} />
+              <Route
+                path="products"
+                element={<div className="p-6">Products (manager/admin)</div>}
+              />
+              <Route
+                path="analytics"
+                element={<div className="p-6">Analytics (manager/admin)</div>}
+              />
+              <Route
+                path="users"
+                element={
+                  <RequireRole allowed={["admin"]}>
+                    <div className="p-6">Users (admin)</div>
+                  </RequireRole>
+                }
+              />
+              <Route
+                path="content"
+                element={
+                  <RequireRole allowed={["admin"]}>
+                    <div className="p-6">Content (admin)</div>
+                  </RequireRole>
+                }
+              />
+            </Route>
+
+            {/* ====== NHÁNH STAFF (consulting/valuation/manager) ====== */}
             <Route
-              path="analytics"
+              path="staff"
               element={
-                <RequireRole allowed={["manager", "admin"]}>
-                  <div className="p-6">Analytics (manager/admin)</div>
+                <RequireRole
+                  allowed={[
+                    // đổi về role đã chuẩn hoá
+                    "consulting_staff",
+                    "valuation_staff",
+                    "manager",
+                  ]}
+                >
+                  <Outlet />
                 </RequireRole>
               }
-            />
+            >
+              <Route index element={<StaffDashboard />} />
+            </Route>
+
+            {/* ====== NHÁNH CUSTOMER ====== */}
             <Route
-              path="users"
+              path="customer"
               element={
-                <RequireRole allowed={["admin"]}>
-                  <div className="p-6">Users (admin)</div>
+                <RequireRole allowed={["customer"]}>
+                  <Outlet />
                 </RequireRole>
               }
-            />
-            <Route
-              path="content"
-              element={
-                <RequireRole allowed={["admin"]}>
-                  <div className="p-6">Content (admin)</div>
-                </RequireRole>
-              }
-            />
+            >
+              <Route index element={<CustomerDashboard />} />
+            </Route>
+
+            {/* Settings: ai đã đăng nhập cũng vào được */}
             <Route
               path="settings"
-              element={
-                // mọi role đã login đều có thể vào (không bọc RequireRole)
-                <div className="p-6">Settings</div>
-              }
+              element={<div className="p-6">Settings</div>}
             />
           </Route>
 
