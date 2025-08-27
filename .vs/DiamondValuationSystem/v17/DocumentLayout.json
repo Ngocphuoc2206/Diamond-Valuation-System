@@ -3,20 +3,32 @@
   "WorkspaceRootPath": "D:\\Diamond-Valuation-Service\\UserService\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{DF34D81C-7A4E-C00C-9417-419794CE0023}|UserService.Application\\UserService.Application.csproj|d:\\diamond-valuation-service\\userservice\\userservice.application\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{DF34D81C-7A4E-C00C-9417-419794CE0023}|UserService.Application\\UserService.Application.csproj|solutionrelative:userservice.application\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{2BB83C70-A316-4E30-DA94-F03E02E54AFB}|SharedLibrary\\SharedLibrary.csproj|d:\\diamond-valuation-service\\userservice\\sharedlibrary\\dependencyinjection\\addlibrary.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2BB83C70-A316-4E30-DA94-F03E02E54AFB}|SharedLibrary\\SharedLibrary.csproj|solutionrelative:sharedlibrary\\dependencyinjection\\addlibrary.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{04E13BBA-FC1E-7394-4AB5-E46BD1A6170D}|UserService.Api\\UserService.Api.csproj|d:\\diamond-valuation-service\\userservice\\userservice.api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{04E13BBA-FC1E-7394-4AB5-E46BD1A6170D}|UserService.Api\\UserService.Api.csproj|solutionrelative:userservice.api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{04E13BBA-FC1E-7394-4AB5-E46BD1A6170D}|UserService.Api\\UserService.Api.csproj|d:\\diamond-valuation-service\\userservice\\userservice.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{04E13BBA-FC1E-7394-4AB5-E46BD1A6170D}|UserService.Api\\UserService.Api.csproj|solutionrelative:userservice.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{CDEBC20E-23B3-B67D-0A4E-BE2DE33CECEC}|UserService.Infrastructure\\UserService.Infrastructure.csproj|d:\\diamond-valuation-service\\userservice\\userservice.infrastructure\\seeding\\dbseeder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CDEBC20E-23B3-B67D-0A4E-BE2DE33CECEC}|UserService.Infrastructure\\UserService.Infrastructure.csproj|solutionrelative:userservice.infrastructure\\seeding\\dbseeder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{2BB83C70-A316-4E30-DA94-F03E02E54AFB}|SharedLibrary\\SharedLibrary.csproj|d:\\diamond-valuation-service\\userservice\\sharedlibrary\\jwt\\jwtservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{2BB83C70-A316-4E30-DA94-F03E02E54AFB}|SharedLibrary\\SharedLibrary.csproj|solutionrelative:sharedlibrary\\jwt\\jwtservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2BB83C70-A316-4E30-DA94-F03E02E54AFB}|SharedLibrary\\SharedLibrary.csproj|d:\\diamond-valuation-service\\userservice\\sharedlibrary\\jwt\\ijwtservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2BB83C70-A316-4E30-DA94-F03E02E54AFB}|SharedLibrary\\SharedLibrary.csproj|solutionrelative:sharedlibrary\\jwt\\ijwtservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{DF34D81C-7A4E-C00C-9417-419794CE0023}|UserService.Application\\UserService.Application.csproj|d:\\diamond-valuation-service\\userservice\\userservice.application\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{DF34D81C-7A4E-C00C-9417-419794CE0023}|UserService.Application\\UserService.Application.csproj|solutionrelative:userservice.application\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{92B2889F-75B8-CC1C-5AB2-C83719094E42}|UserService.Domain\\UserService.Domain.csproj|d:\\diamond-valuation-service\\userservice\\userservice.domain\\entities\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{92B2889F-75B8-CC1C-5AB2-C83719094E42}|UserService.Domain\\UserService.Domain.csproj|solutionrelative:userservice.domain\\entities\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{04E13BBA-FC1E-7394-4AB5-E46BD1A6170D}|UserService.Api\\UserService.Api.csproj|d:\\diamond-valuation-service\\userservice\\userservice.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{04E13BBA-FC1E-7394-4AB5-E46BD1A6170D}|UserService.Api\\UserService.Api.csproj|solutionrelative:userservice.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{DF34D81C-7A4E-C00C-9417-419794CE0023}|UserService.Application\\UserService.Application.csproj|d:\\diamond-valuation-service\\userservice\\userservice.application\\services\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -38,7 +50,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Bookmark",
@@ -50,20 +62,81 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "AuthController.cs",
-              "DocumentMoniker": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Api\\Controllers\\AuthController.cs",
-              "RelativeDocumentMoniker": "UserService.Api\\Controllers\\AuthController.cs",
-              "ToolTip": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Api\\Controllers\\AuthController.cs",
-              "RelativeToolTip": "UserService.Api\\Controllers\\AuthController.cs",
-              "ViewState": "AgIAABAAAAAAAAAAAAA8wBkAAAAnAAAAAAAAAA==",
+              "DocumentIndex": 0,
+              "Title": "AddLibrary.cs",
+              "DocumentMoniker": "D:\\Diamond-Valuation-Service\\UserService\\SharedLibrary\\DependencyInjection\\AddLibrary.cs",
+              "RelativeDocumentMoniker": "SharedLibrary\\DependencyInjection\\AddLibrary.cs",
+              "ToolTip": "D:\\Diamond-Valuation-Service\\UserService\\SharedLibrary\\DependencyInjection\\AddLibrary.cs",
+              "RelativeToolTip": "SharedLibrary\\DependencyInjection\\AddLibrary.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAWAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-26T11:23:13.954Z",
+              "WhenOpened": "2025-08-27T09:42:39.174Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "DBSeeder.cs",
+              "DocumentMoniker": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Infrastructure\\Seeding\\DBSeeder.cs",
+              "RelativeDocumentMoniker": "UserService.Infrastructure\\Seeding\\DBSeeder.cs",
+              "ToolTip": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Infrastructure\\Seeding\\DBSeeder.cs",
+              "RelativeToolTip": "UserService.Infrastructure\\Seeding\\DBSeeder.cs",
+              "ViewState": "AgIAACwAAAAAAAAAAAAIwDQAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-27T02:43:00.826Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "JwtService.cs",
+              "DocumentMoniker": "D:\\Diamond-Valuation-Service\\UserService\\SharedLibrary\\Jwt\\JwtService.cs",
+              "RelativeDocumentMoniker": "SharedLibrary\\Jwt\\JwtService.cs",
+              "ToolTip": "D:\\Diamond-Valuation-Service\\UserService\\SharedLibrary\\Jwt\\JwtService.cs",
+              "RelativeToolTip": "SharedLibrary\\Jwt\\JwtService.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAAA8AAABQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-26T14:52:11.85Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "IJwtService.cs",
+              "DocumentMoniker": "D:\\Diamond-Valuation-Service\\UserService\\SharedLibrary\\Jwt\\IJwtService.cs",
+              "RelativeDocumentMoniker": "SharedLibrary\\Jwt\\IJwtService.cs",
+              "ToolTip": "D:\\Diamond-Valuation-Service\\UserService\\SharedLibrary\\Jwt\\IJwtService.cs",
+              "RelativeToolTip": "SharedLibrary\\Jwt\\IJwtService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-26T14:52:08.792Z"
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 4,
+              "Title": "AuthService.cs",
+              "DocumentMoniker": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Application\\Services\\AuthService.cs",
+              "RelativeDocumentMoniker": "UserService.Application\\Services\\AuthService.cs",
+              "ToolTip": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Application\\Services\\AuthService.cs",
+              "RelativeToolTip": "UserService.Application\\Services\\AuthService.cs",
+              "ViewState": "AgIAAGUAAAAAAAAAAAA5wHAAAAArAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-26T14:45:53.845Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "User.cs",
+              "DocumentMoniker": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Domain\\Entities\\User.cs",
+              "RelativeDocumentMoniker": "UserService.Domain\\Entities\\User.cs",
+              "ToolTip": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Domain\\Entities\\User.cs",
+              "RelativeToolTip": "UserService.Domain\\Entities\\User.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAAA8wAkAAAAiAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-26T12:08:34.381Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
               "Title": "UserService.cs",
               "DocumentMoniker": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Application\\Services\\UserService.cs",
               "RelativeDocumentMoniker": "UserService.Application\\Services\\UserService.cs",
@@ -71,51 +144,23 @@
               "RelativeToolTip": "UserService.Application\\Services\\UserService.cs",
               "ViewState": "AgIAACcAAAAAAAAAAAAowAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-26T11:17:04.597Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-08-26T11:17:04.597Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "AuthService.cs",
-              "DocumentMoniker": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Application\\Services\\AuthService.cs",
-              "RelativeDocumentMoniker": "UserService.Application\\Services\\AuthService.cs",
-              "ToolTip": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Application\\Services\\AuthService.cs",
-              "RelativeToolTip": "UserService.Application\\Services\\AuthService.cs",
-              "ViewState": "AgIAAKQAAAAAAAAAAAAgwJEAAAAJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-26T11:15:32.018Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 6,
               "Title": "Program.cs",
               "DocumentMoniker": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Api\\Program.cs",
               "RelativeDocumentMoniker": "UserService.Api\\Program.cs",
               "ToolTip": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Api\\Program.cs",
               "RelativeToolTip": "UserService.Api\\Program.cs",
-              "ViewState": "AgIAACQAAAAAAAAAAAAAABQAAAAhAAAAAAAAAA==",
+              "ViewState": "AgIAAE4AAAAAAAAAAAAAABMAAAAiAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-26T11:14:28.449Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-08-26T11:14:28.449Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "JwtService.cs",
-              "DocumentMoniker": "D:\\Diamond-Valuation-Service\\UserService\\SharedLibrary\\Jwt\\JwtService.cs",
-              "RelativeDocumentMoniker": "SharedLibrary\\Jwt\\JwtService.cs",
-              "ToolTip": "D:\\Diamond-Valuation-Service\\UserService\\SharedLibrary\\Jwt\\JwtService.cs",
-              "RelativeToolTip": "SharedLibrary\\Jwt\\JwtService.cs",
-              "ViewState": "AgIAAAgAAAAAAAAAAAA9wAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-26T11:14:12.448Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 9,
               "Title": "IUnitOfWork.cs",
               "DocumentMoniker": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Domain\\Interfaces\\IUnitOfWork.cs",
               "RelativeDocumentMoniker": "UserService.Domain\\Interfaces\\IUnitOfWork.cs",
@@ -123,12 +168,11 @@
               "RelativeToolTip": "UserService.Domain\\Interfaces\\IUnitOfWork.cs",
               "ViewState": "AgIAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-26T11:05:15.915Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-08-26T11:05:15.915Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 8,
               "Title": "IUserRepository.cs",
               "DocumentMoniker": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Domain\\Interfaces\\IUserRepository.cs",
               "RelativeDocumentMoniker": "UserService.Domain\\Interfaces\\IUserRepository.cs",
@@ -136,8 +180,7 @@
               "RelativeToolTip": "UserService.Domain\\Interfaces\\IUserRepository.cs",
               "ViewState": "AgIAAAYAAAAAAAAAAAAAAAsAAAA5AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-26T11:04:44.24Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-08-26T11:04:44.24Z"
             }
           ]
         }

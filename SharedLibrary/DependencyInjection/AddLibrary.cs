@@ -4,7 +4,6 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using SharedLibrary.Jwt;
 using Microsoft.IdentityModel.Tokens;
-using SharedLibrary.ServiceClients;
 using SharedLibrary.Messaging;
 using RabbitMQ.Client;
 using System.Net;
