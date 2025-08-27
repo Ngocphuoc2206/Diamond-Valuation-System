@@ -226,7 +226,7 @@ const LoginPage: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */
 
           {/* Social Login UI (chưa nối OAuth) */}
           <div className="bg-white rounded-lg shadow-md p-6">

@@ -1,12 +1,19 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useCart } from "../context/CartContext";
 import { useLanguage } from "../context/LanguageContext";
 import { OrderAPI } from "../services/order";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 type PaymentMethod = "COD" | "VNPay" | "Momo" | "Stripe";
+
+const currency = (n: number) =>
+  `$${(Number.isFinite(n) ? n : 0).toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
 
 const CheckoutPage: React.FC = () => {
   const { t } = useLanguage();
@@ -34,36 +41,41 @@ const CheckoutPage: React.FC = () => {
     visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
   };
 
-  /** Xử lý thay đổi input (fix lỗi checked) */
+  /** Xử lý thay đổi input (fix checkbox) */
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const { name, type, value } = e.target;
-    const checked =
-      type === "checkbox" ? (e.target as HTMLInputElement).checked : undefined;
+    const target = e.target as HTMLInputElement | HTMLTextAreaElement;
+    const { name, type, value } = target;
+    const nextValue = type === "checkbox" ? (target as HTMLInputElement).checked : value;
 
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: nextValue,
     }));
   };
 
-  // Tính tiền
-  const subtotal = getTotalPrice();
-  const tax = subtotal * 0.08;
-  const insurance = formData.insurance ? subtotal * 0.02 : 0;
-  const total = subtotal + tax + insurance;
+  /** Tính tiền – dùng useMemo để tránh “redeclare” và tính lặp */
+  const { subtotal, tax, insurance, total } = useMemo(() => {
+    const sub = getTotalPrice(); // lấy từ context
+    const t = +(sub * 0.08).toFixed(2);
+    const ins = formData.insurance ? +(sub * 0.02).toFixed(2) : 0;
+    const tot = +(sub + t + ins).toFixed(2);
+    return { subtotal: sub, tax: t, insurance: ins, total: tot };
+  }, [items, formData.insurance, getTotalPrice]);
 
-  // Submit
+  /** Submit */
   const onPlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!cartKey) {
       setErr("Cart is missing. Please add items again.");
+      toast.error("Cart is missing. Please add items again.");
       return;
     }
-    if (items.length === 0) {
+    if (!items || items.length === 0) {
       setErr("Your cart is empty.");
+      toast.error("Your cart is empty.");
       return;
     }
 
@@ -81,8 +93,9 @@ const CheckoutPage: React.FC = () => {
       const res = await OrderAPI.checkout(payload);
 
       if (!res?.success) {
-        setErr(res?.message || "Checkout failed");
-        toast.error(res?.message || "Checkout failed ❌");
+        const message = res?.message || "Checkout failed";
+        setErr(message);
+        toast.error(`${message} ❌`);
         return;
       }
 
@@ -95,13 +108,12 @@ const CheckoutPage: React.FC = () => {
         return;
       }
 
-      // COD hoặc đã thanh toán xong
+      // COD hoặc thanh toán xong
       clearCartLocal();
       toast.success("Đặt hàng thành công 🎉");
       navigate("/");
     } catch (e: any) {
-      const msg =
-        e?.response?.data?.message || e?.message || "Đặt hàng thất bại";
+      const msg = e?.response?.data?.message || e?.message || "Đặt hàng thất bại";
       setErr(msg);
       toast.error(msg);
     } finally {
@@ -123,6 +135,7 @@ const CheckoutPage: React.FC = () => {
             Continue Shopping
           </Link>
         </motion.div>
+        <ToastContainer position="top-right" autoClose={2500} />
       </div>
     );
   }
@@ -169,6 +182,7 @@ const CheckoutPage: React.FC = () => {
                         <div className="flex items-center space-x-2">
                           <input
                             type="radio"
+                            name="paymentMethod"
                             value={pm}
                             checked={paymentMethod === pm}
                             onChange={() => setPaymentMethod(pm)}
@@ -190,6 +204,7 @@ const CheckoutPage: React.FC = () => {
                       placeholder="Card Number"
                       required
                       className="input"
+                      autoComplete="cc-number"
                     />
                     <input
                       type="text"
@@ -199,6 +214,7 @@ const CheckoutPage: React.FC = () => {
                       placeholder="MM/YY"
                       required
                       className="input"
+                      autoComplete="cc-exp"
                     />
                     <input
                       type="text"
@@ -208,6 +224,7 @@ const CheckoutPage: React.FC = () => {
                       placeholder="CVV"
                       required
                       className="input"
+                      autoComplete="cc-csc"
                     />
                     <input
                       type="text"
@@ -217,6 +234,7 @@ const CheckoutPage: React.FC = () => {
                       placeholder="Cardholder Name"
                       required
                       className="input"
+                      autoComplete="cc-name"
                     />
                   </div>
                 )}
@@ -277,7 +295,7 @@ const CheckoutPage: React.FC = () => {
                     disabled={isProcessing}
                     className="btn btn-primary"
                   >
-                    {isProcessing ? "Processing..." : `Đặt Hàng $${total}`}
+                    {isProcessing ? "Processing..." : `Đặt Hàng ${currency(total)}`}
                   </button>
                 </div>
               </motion.div>
@@ -296,36 +314,36 @@ const CheckoutPage: React.FC = () => {
               {items.map((it) => (
                 <div key={it.id} className="flex justify-between">
                   <span>
-                    {it.name ?? it.sku} x {it.quantity}
+                    {(it.name ?? it.sku) as string} x {it.quantity}
                   </span>
-                  <span>${it.lineTotal.toLocaleString()}</span>
+                  <span>{currency(it.lineTotal)}</span>
                 </div>
               ))}
             </div>
             <hr />
             <div className="flex justify-between mt-4">
               <span>Subtotal</span>
-              <span>${subtotal.toLocaleString()}</span>
+              <span>{currency(subtotal)}</span>
             </div>
             <div className="flex justify-between">
               <span>Tax</span>
-              <span>${tax.toLocaleString()}</span>
+              <span>{currency(tax)}</span>
             </div>
             {formData.insurance && (
               <div className="flex justify-between">
                 <span>Insurance</span>
-                <span>${insurance.toLocaleString()}</span>
+                <span>{currency(insurance)}</span>
               </div>
             )}
             <div className="flex justify-between font-bold text-lg mt-4">
               <span>Total</span>
-              <span className="text-luxury-gold">
-                ${total.toLocaleString()}
-              </span>
+              <span className="text-luxury-gold">{currency(total)}</span>
             </div>
           </motion.div>
         </form>
       </div>
+
+      <ToastContainer position="top-right" autoClose={2500} />
     </div>
   );
 };

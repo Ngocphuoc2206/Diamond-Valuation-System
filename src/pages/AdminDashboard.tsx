@@ -18,8 +18,8 @@ import SettingsTab from "./AdminTabs/SettingsTab";
 import { users as initialUsers } from "../data/mockData";
 
 const dashboardStats = {
-  totalUsers: 1247,
-  totalValuations: 892,
+  totalUsers: 50,
+  totalValuations: 2,
   pendingValuations: 34,
   totalRevenue: 2456789,
   monthlyRevenue: 234567,
