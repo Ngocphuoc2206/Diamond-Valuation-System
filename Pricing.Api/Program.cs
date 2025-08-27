@@ -1,5 +1,4 @@
-﻿using Asp.Versioning;
-using Asp.Versioning.ApiExplorer;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Pricing.Application.Services;
@@ -37,7 +36,7 @@ builder.Services.AddApiVersioning(opt =>
     opt.AssumeDefaultVersionWhenUnspecified = true;
     opt.ReportApiVersions = true;
 })
-.AddApiExplorer(setup =>
+.AddVersionedApiExplorer(setup =>
 {
     setup.GroupNameFormat = "'v'VVV";       // => v1, v1.0
     setup.SubstituteApiVersionInUrl = true; // thay {version} ở route
@@ -52,7 +51,19 @@ builder.Services.AddCors(opt =>
         .AllowAnyMethod());
 });
 
+var AllowFE = "_allowFE";
+builder.Services.AddCors(opt =>
+{
+    opt.AddPolicy(AllowFE, p => p
+        .WithOrigins("http://localhost:5173") // Vite dev server
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials());
+});
+
 var app = builder.Build();
+
+app.UseCors(AllowFE);
 
 // Luôn bật Swagger
 app.UseSwagger();

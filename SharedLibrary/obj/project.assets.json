@@ -977,11 +977,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\PricingService\\SharedLibrary\\SharedLibrary.csproj",
+      "projectUniqueName": "D:\\Diamond-Valuation-Service\\PricingService\\SharedLibrary\\SharedLibrary.csproj",
       "projectName": "SharedLibrary",
-      "projectPath": "D:\\PricingService\\SharedLibrary\\SharedLibrary.csproj",
+      "projectPath": "D:\\Diamond-Valuation-Service\\PricingService\\SharedLibrary\\SharedLibrary.csproj",
       "packagesPath": "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\",
-      "outputPath": "D:\\PricingService\\SharedLibrary\\obj\\",
+      "outputPath": "D:\\Diamond-Valuation-Service\\PricingService\\SharedLibrary\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

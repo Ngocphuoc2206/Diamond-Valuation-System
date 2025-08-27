@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\PricingService\\Pricing.Domain\\Pricing.Domain.csproj": {}
+    "D:\\Diamond-Valuation-Service\\PricingService\\Pricing.Domain\\Pricing.Domain.csproj": {}
   },
   "projects": {
-    "D:\\PricingService\\Pricing.Domain\\Pricing.Domain.csproj": {
+    "D:\\Diamond-Valuation-Service\\PricingService\\Pricing.Domain\\Pricing.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\PricingService\\Pricing.Domain\\Pricing.Domain.csproj",
+        "projectUniqueName": "D:\\Diamond-Valuation-Service\\PricingService\\Pricing.Domain\\Pricing.Domain.csproj",
         "projectName": "Pricing.Domain",
-        "projectPath": "D:\\PricingService\\Pricing.Domain\\Pricing.Domain.csproj",
+        "projectPath": "D:\\Diamond-Valuation-Service\\PricingService\\Pricing.Domain\\Pricing.Domain.csproj",
         "packagesPath": "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\",
-        "outputPath": "D:\\PricingService\\Pricing.Domain\\obj\\",
+        "outputPath": "D:\\Diamond-Valuation-Service\\PricingService\\Pricing.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -33,8 +33,8 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "D:\\PricingService\\SharedKernel\\SharedKernel.csproj": {
-                "projectPath": "D:\\PricingService\\SharedKernel\\SharedKernel.csproj"
+              "D:\\Diamond-Valuation-Service\\PricingService\\SharedKernel\\SharedKernel.csproj": {
+                "projectPath": "D:\\Diamond-Valuation-Service\\PricingService\\SharedKernel\\SharedKernel.csproj"
               }
             }
           }
@@ -82,14 +82,14 @@
         }
       }
     },
-    "D:\\PricingService\\SharedKernel\\SharedKernel.csproj": {
+    "D:\\Diamond-Valuation-Service\\PricingService\\SharedKernel\\SharedKernel.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\PricingService\\SharedKernel\\SharedKernel.csproj",
+        "projectUniqueName": "D:\\Diamond-Valuation-Service\\PricingService\\SharedKernel\\SharedKernel.csproj",
         "projectName": "SharedKernel",
-        "projectPath": "D:\\PricingService\\SharedKernel\\SharedKernel.csproj",
+        "projectPath": "D:\\Diamond-Valuation-Service\\PricingService\\SharedKernel\\SharedKernel.csproj",
         "packagesPath": "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\",
-        "outputPath": "D:\\PricingService\\SharedKernel\\obj\\",
+        "outputPath": "D:\\Diamond-Valuation-Service\\PricingService\\SharedKernel\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

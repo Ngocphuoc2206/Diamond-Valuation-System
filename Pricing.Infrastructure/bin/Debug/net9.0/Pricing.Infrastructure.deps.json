@@ -13,6 +13,7 @@
           "Microsoft.EntityFrameworkCore.Tools": "9.0.8",
           "Pricing.Application": "1.0.0",
           "Pricing.Domain": "1.0.0",
+          "SharedKernel": "1.0.0",
           "SharedLibrary": "1.0.0"
         },
         "runtime": {
@@ -1016,6 +1017,7 @@
       "Pricing.Application/1.0.0": {
         "dependencies": {
           "Pricing.Domain": "1.0.0",
+          "SharedKernel": "1.0.0",
           "SharedLibrary": "1.0.0"
         },
         "runtime": {

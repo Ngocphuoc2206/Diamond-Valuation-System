@@ -1,5 +1,4 @@
-﻿using Asp.Versioning;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Pricing.Application.DTOs;
 using Pricing.Application.Services.Interfaces;
@@ -8,7 +7,7 @@ namespace Pricing.Api.Controllers;
 
 [ApiController]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/pricing")]
+[Route("api/pricing")]
 public class PricingController : ControllerBase
 {
     private readonly IPricingService _svc;

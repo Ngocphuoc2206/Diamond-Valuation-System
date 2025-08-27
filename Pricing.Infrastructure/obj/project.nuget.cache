@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "5ruZKx/DHGY=",
+  "dgSpecHash": "Kszo1jpJHUY=",
   "success": true,
-  "projectFilePath": "D:\\PricingService\\Pricing.Infrastructure\\Pricing.Infrastructure.csproj",
+  "projectFilePath": "D:\\Diamond-Valuation-Service\\PricingService\\Pricing.Infrastructure\\Pricing.Infrastructure.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",
