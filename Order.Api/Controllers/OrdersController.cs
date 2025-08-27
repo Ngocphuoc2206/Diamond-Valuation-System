@@ -8,7 +8,7 @@ namespace Order.Api.Controllers;
 
 [ApiController]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/orders")]
+[Route("api/orders")]
 public class OrdersController : ControllerBase
 {
     private readonly IOrderService _svc;

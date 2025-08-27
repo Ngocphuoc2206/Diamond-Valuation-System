@@ -48,8 +48,6 @@ public class OrderService : IOrderService
             };
             await _uow.OrderItems.CreateAsync(oi);
         }
-
-        // Phát event OrderPlaced (Outbox → RabbitMQ) để Payment Service xử lý
         return ApiResponse<Order.Domain.Entities.Order>.CreateSuccessResponse(order, "Order placed");
     }
 

@@ -24,6 +24,8 @@ public class OrderDbContext : DbContext
         {
             e.ToTable("cart_items");
             e.Property(x => x.UnitPrice).HasColumnType("decimal(18,2)");
+            e.Property(x => x.Name).HasMaxLength(200);
+            e.Property(x => x.ImageUrl).HasMaxLength(1000);
         });
 
         mb.Entity<Order.Domain.Entities.Order>(e =>
@@ -41,6 +43,8 @@ public class OrderDbContext : DbContext
             e.ToTable("order_items");
             e.Property(x => x.UnitPrice).HasColumnType("decimal(18,2)");
             e.Property(x => x.LineTotal).HasColumnType("decimal(18,2)");
+            e.Property(x => x.Name).HasMaxLength(200);
+            e.Property(x => x.ImageUrl).HasMaxLength(1000);
         });
     }
 }

@@ -6,9 +6,9 @@ namespace Order.Application.Services.Interfaces;
 
 public interface ICartService
 {
-    Task<ApiResponse<Cart>> CreateOrGetAsync(string? cartKey, int? customerId);
-    Task<ApiResponse<Cart>> GetAsync(string cartKey);
-    Task<ApiResponse<Cart>> AddItemAsync(string cartKey, AddCartItemDto dto);
-    Task<ApiResponse<Cart>> UpdateItemAsync(string cartKey, UpdateCartItemDto dto);
-    Task<ApiResponse<Cart>> RemoveItemAsync(string cartKey, int cartItemId);
+    Task<CartDto> CreateOrGetAsync(string? cartKey, int? customerId);
+    Task<ApiResponse<CartDto>> GetAsync(string cartKey);
+    Task<ApiResponse<CartDto>> AddItemAsync(string cartKey, AddCartItemDto dto);
+    Task<ApiResponse<CartDto>> UpdateItemAsync(string cartKey, UpdateCartItemDto dto);
+    Task<ApiResponse<CartDto>> RemoveItemAsync(string cartKey, int cartItemId);
 }

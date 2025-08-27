@@ -6,9 +6,20 @@ using Order.Application.Services;
 using Order.Application.Services.Interfaces;
 using Order.Infrastructure.Data;
 using Order.Infrastructure.DependencyInjection;
-using SharedLibrary.DependencyInjection; // JWT ở SharedLibrary
+using Serilog;
+using SharedLibrary.DependencyInjection;
+using System.Text.Json.Serialization; // JWT ở SharedLibrary
+
+//Log cấu hình Serilog
+Log.Logger = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
+
+//Gắn Serilog vào Host
+builder.Host.UseSerilog();
 
 builder.Services.AddOpenApi();
 
@@ -27,6 +38,8 @@ builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
 builder.Services.AddScoped<DbContext>(sp => sp.GetRequiredService<OrderDbContext>());
+
+
 
 
 //Apiversioning
@@ -73,8 +86,28 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+builder.Services.AddControllers()
+    .AddJsonOptions(opt =>
+    {
+        opt.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        opt.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    });
+
+
+var AllowFE = "_allowFE";
+builder.Services.AddCors(opt =>
+{
+    opt.AddPolicy(AllowFE, p => p
+        .WithOrigins("http://localhost:5173") // Vite dev server
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials());
+});
+
 var app = builder.Build();
 
+app.UseCors(AllowFE);
+app.UseSerilogRequestLogging();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<Order.Infrastructure.Data.OrderDbContext>();

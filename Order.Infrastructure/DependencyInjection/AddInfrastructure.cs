@@ -15,7 +15,7 @@ public static class DependencyInjection
     public static IServiceCollection AddOrderInfrastructure(this IServiceCollection services, IConfiguration config)
     {
         services.AddDbContext<OrderDbContext>(opt =>
-            opt.UseSqlServer(config.GetConnectionString("OrderConnection")));
+            opt.UseSqlServer(config.GetConnectionString("OrderCartConnection")));
 
         services.AddScoped<IGenericRepository<Cart>, GenericRepository<Cart>>();
         services.AddScoped<IGenericRepository<CartItem>, GenericRepository<CartItem>>();

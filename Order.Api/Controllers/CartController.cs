@@ -8,15 +8,24 @@ namespace Order.Api.Controllers;
 
 [ApiController]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/cart")]
+[Route("api/orders/cart")]
 public class CartController : ControllerBase
 {
     private readonly ICartService _svc;
     public CartController(ICartService svc) { _svc = svc; }
 
+    // Lấy userId từ claim "sub" trong token JWT
+    private string? GetUserId()
+        => User.Identity?.IsAuthenticated == true
+            ? User.Claims.FirstOrDefault(c => c.Type == "sub")?.Value
+            : null;
+
     [AllowAnonymous, HttpPost("create")]
     public async Task<IActionResult> Create([FromQuery] string? cartKey, [FromQuery] int? customerId)
-        => Ok(await _svc.CreateOrGetAsync(cartKey, customerId));
+    {
+        customerId ??= int.TryParse(GetUserId(), out var id) ? id : null;
+        return Ok(await _svc.CreateOrGetAsync(cartKey, customerId));
+    }
 
     [AllowAnonymous, HttpGet]
     public async Task<IActionResult> Get([FromQuery] string cartKey)
