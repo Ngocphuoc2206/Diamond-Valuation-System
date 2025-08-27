@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Product.Domain\Product.Domain.csproj" />
+    <ProjectReference Include="..\SharedLibrary\SharedLibrary.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
