@@ -1,7 +1,5 @@
 ﻿using Diamond.ValuationService.Application.Interfaces;
 using Diamond.ValuationService.Infrastructure.Data;
-using Diamond.ValuationService.Infrastructure.Mapping;
-using Diamond.ValuationService.Infrastructure.Service;
 using Diamond.ValuationService.Infrastructure.Services;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -13,10 +11,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<IPdfService, PdfService>();
+// 1.1 Đăng ký DI các service nghiệp vụ
 builder.Services.AddScoped<IValuationService, ValuationServiceImpl>();
 builder.Services.AddScoped<ICaseService, CaseService>();
-builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 // 2) Connection string (ưu tiên ENV cho Docker)
 var sqlCs =
@@ -48,13 +45,14 @@ using (var scope = app.Services.CreateScope())
             db.Database.Migrate();
             Console.WriteLine("Migration completed.");
         }
-        await Seed.SeedAsync(db);
+
+        // ❌ Nếu không có class Seed thì bỏ dòng này
+        // await Seed.SeedAsync(db);
     }
     catch (Exception ex) when (
         ex is SqlException sqlEx && sqlEx.Number == 1801 /* DB exists */ ||
         ex.Message.Contains("already exists", StringComparison.OrdinalIgnoreCase))
     {
-        // ignore
         Console.WriteLine("Database already exists. Skipping creation.");
     }
     catch (Exception ex)
@@ -64,8 +62,6 @@ using (var scope = app.Services.CreateScope())
 }
 
 // 5) Middleware
-
-// Hiện lỗi chi tiết trong Docker/Development để debug 500
 if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Docker")
 {
     app.UseDeveloperExceptionPage();
@@ -74,15 +70,14 @@ if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Docke
 }
 else
 {
-    // Production: handler gọn
     app.UseExceptionHandler("/error");
 }
 
-// Redirect HTTPS chỉ khi có endpoint HTTPS (container có cấu hình Kestrel HTTPS)
+// Chỉ redirect HTTPS khi thực sự có endpoint HTTPS cấu hình qua ENV
 var hasHttpsEndpoint = !string.IsNullOrWhiteSpace(
     Environment.GetEnvironmentVariable("Kestrel__Endpoints__Https__Url")
 );
-if (app.Environment.IsDevelopment() || hasHttpsEndpoint)
+if (hasHttpsEndpoint)
 {
     app.UseHttpsRedirection();
 }

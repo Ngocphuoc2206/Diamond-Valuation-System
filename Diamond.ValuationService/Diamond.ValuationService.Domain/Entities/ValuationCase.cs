@@ -24,4 +24,4 @@ public class ValuationCase
     // Liên hệ
     public Guid ContactId { get; set; }
     public Contact Contact { get; set; } = null!;
-}
+}   
