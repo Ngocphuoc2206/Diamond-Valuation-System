@@ -1,0 +1,153 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: diamond-sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong!Passw0rd
+    ports: ["1433:1433"]
+    volumes:
+      - mssqldata:/var/opt/mssql
+    networks:
+      - diamond-net
+
+  # rabbitmq:
+  #   image: rabbitmq:3-management
+  #   container_name: diamond-rabbitmq
+  #   ports: ["5672:5672","15672:15672"] # 15672: web UI
+  #   environment:
+  #     - RABBITMQ_DEFAULT_USER=guest
+  #     - RABBITMQ_DEFAULT_PASS=guest
+  #   networks:
+  #     - diamond-net
+
+  api-gateway:
+    build:
+      context: ./ApiGateWay/ApiGetWay      # đúng như ảnh bạn chụp
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    environment:
+      - ASPNETCORE_URLS=http://+:8080
+    ports:
+      - "9000:8080"
+    depends_on:
+      - product-api
+      - order-api
+      - inventory-api
+      - payment-api
+      - pricing-api
+      - user-api
+    networks:
+      - diamond-net
+
+
+  user-api:
+    build:
+      context: ./UserService
+      dockerfile: UserService.Api/Dockerfile
+    container_name: user-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__UserConnection=Server=sqlserver,1433;Database=DiamondUserDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True
+      # - RabbitMQ__HostName=rabbitmq
+      # - RabbitMQ__UserName=guest
+      # - RabbitMQ__Password=guest
+      # - RabbitMQ__Port=5672
+    depends_on: [sqlserver]
+    ports: ["7001:8080"]
+    networks:
+      - diamond-net
+
+  product-api:
+    build:
+      context: ./CatalogService
+      dockerfile: Product.Api/Dockerfile
+    container_name: product-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__ProductConnection=Server=sqlserver,1433;Database=DiamondProductDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True
+    depends_on: [sqlserver]
+    ports: ["7002:8080"]
+    networks:
+      - diamond-net
+
+  inventory-api:
+    build:
+      context: ./InventoryService
+      dockerfile: Inventory.Api/Dockerfile
+    container_name: inventory-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__InventoryConnection=Server=sqlserver,1433;Database=DiamondInventoryDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True
+      # - RabbitMQ__HostName=rabbitmq
+      # - RabbitMQ__UserName=guest
+      # - RabbitMQ__Password=guest
+      # - RabbitMQ__Port=5672
+    depends_on: [sqlserver]
+    ports: ["7003:8080"]
+    networks:
+      - diamond-net
+
+  order-api:
+    build:
+      context: ./OrderService
+      dockerfile: Order.Api/Dockerfile
+    container_name: order-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__OrderCartConnection=Server=sqlserver,1433;Database=DiamondOrderCartDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True
+      # - RabbitMQ__HostName=rabbitmq
+      # - RabbitMQ__UserName=guest
+      # - RabbitMQ__Password=guest
+      # - RabbitMQ__Port=5672
+    depends_on: [sqlserver]
+    ports: ["7004:8080"]
+    networks:
+      - diamond-net
+
+  pricing-api:
+    build:
+      context: ./PricingService
+      dockerfile: Pricing.Api/Dockerfile
+    container_name: pricing-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__PricingConnection=Server=sqlserver,1433;Database=DiamondPricingDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True
+      # - RabbitMQ__HostName=rabbitmq
+      # - RabbitMQ__UserName=guest
+      # - RabbitMQ__Password=guest
+      # - RabbitMQ__Port=5672
+    depends_on: [sqlserver]
+    ports: ["7005:8080"]
+    networks:
+      - diamond-net
+
+  payment-api:
+    build:
+      context: ./PaymentService
+      dockerfile: Payment.Api/Dockerfile
+    container_name: payment-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__PaymentConnection=Server=sqlserver,1433;Database=DiamondPaymentDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True
+      # - RabbitMQ__HostName=rabbitmq
+      # - RabbitMQ__UserName=guest
+      # - RabbitMQ__Password=guest
+      # - RabbitMQ__Port=5672
+    depends_on: [sqlserver]
+    ports: ["7006:8080"]
+    networks:
+      - diamond-net
+
+networks:
+  diamond-net:
+    driver: bridge
+
+volumes:
+  mssqldata:
