@@ -21,8 +21,8 @@ builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();
 
 // Add RabbitMQ Event Bus
-builder.Services.AddSingleton<IEventBus, RabbitMQEventBus>();
-builder.Services.AddTransient<OrderCreatedEventHandler>();
+//builder.Services.AddSingleton<IEventBus, RabbitMQEventBus>();
+//builder.Services.AddTransient<OrderCreatedEventHandler>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -51,29 +51,40 @@ builder.Services.AddApiVersioning(opt =>
 });
 
 // đọc config "RabbitMQ" từ appsettings / env
-builder.Services.AddSingleton(sp =>
+//builder.Services.AddSingleton(sp =>
+//{
+//    var cfg = sp.GetRequiredService<IConfiguration>().GetSection("RabbitMQ");
+//    return new ConnectionFactory
+//    {
+//        HostName = cfg["HostName"] ?? "localhost",
+//        Port = int.TryParse(cfg["Port"], out var p) ? p : 5672,
+//        UserName = cfg["UserName"] ?? "guest",
+//        Password = cfg["Password"] ?? "guest",
+//        VirtualHost = cfg["VirtualHost"] ?? "/",
+//    };
+//});
+
+var AllowFE = "_allowFE";
+builder.Services.AddCors(opt =>
 {
-    var cfg = sp.GetRequiredService<IConfiguration>().GetSection("RabbitMQ");
-    return new ConnectionFactory
-    {
-        HostName = cfg["HostName"] ?? "localhost",
-        Port = int.TryParse(cfg["Port"], out var p) ? p : 5672,
-        UserName = cfg["UserName"] ?? "guest",
-        Password = cfg["Password"] ?? "guest",
-        VirtualHost = cfg["VirtualHost"] ?? "/",
-    };
+    opt.AddPolicy(AllowFE, p => p
+        .WithOrigins("http://localhost:5173") // Vite dev server
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials());
 });
 
 var app = builder.Build();
 
+app.UseCors(AllowFE);
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<InventoryDbContext>();
     try
     {
         db.Database.Migrate();
-        var bus = scope.ServiceProvider.GetRequiredService<IEventBus>();
-        bus.Subscribe<OrderCreatedEvent, OrderCreatedEventHandler>();
+        //var bus = scope.ServiceProvider.GetRequiredService<IEventBus>();
+        //bus.Subscribe<OrderCreatedEvent, OrderCreatedEventHandler>();
     }
     catch (Exception ex)
     {

@@ -3,7 +3,7 @@ using Inventory.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
-[Route("api/v1.0/inventory")]
+[Route("api/inventory")]
 public class InventoryController : ControllerBase
 {
     private readonly IInventoryService _svc;
