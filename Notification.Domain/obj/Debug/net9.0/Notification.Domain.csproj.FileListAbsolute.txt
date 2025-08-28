@@ -1,0 +1,11 @@
+D:\XD_OOP\NotificationService\Notification.Domain\bin\Debug\net9.0\Notification.Domain.deps.json
+D:\XD_OOP\NotificationService\Notification.Domain\bin\Debug\net9.0\Notification.Domain.dll
+D:\XD_OOP\NotificationService\Notification.Domain\bin\Debug\net9.0\Notification.Domain.pdb
+D:\XD_OOP\NotificationService\Notification.Domain\obj\Debug\net9.0\Notification.Domain.GeneratedMSBuildEditorConfig.editorconfig
+D:\XD_OOP\NotificationService\Notification.Domain\obj\Debug\net9.0\Notification.Domain.AssemblyInfoInputs.cache
+D:\XD_OOP\NotificationService\Notification.Domain\obj\Debug\net9.0\Notification.Domain.AssemblyInfo.cs
+D:\XD_OOP\NotificationService\Notification.Domain\obj\Debug\net9.0\Notification.Domain.csproj.CoreCompileInputs.cache
+D:\XD_OOP\NotificationService\Notification.Domain\obj\Debug\net9.0\Notification.Domain.dll
+D:\XD_OOP\NotificationService\Notification.Domain\obj\Debug\net9.0\refint\Notification.Domain.dll
+D:\XD_OOP\NotificationService\Notification.Domain\obj\Debug\net9.0\Notification.Domain.pdb
+D:\XD_OOP\NotificationService\Notification.Domain\obj\Debug\net9.0\ref\Notification.Domain.dll
