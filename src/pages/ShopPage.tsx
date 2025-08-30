@@ -5,10 +5,14 @@ import { useCart } from "../context/CartContext";
 import { useLanguage } from "../context/LanguageContext";
 import type { Product } from "../types/product";
 import { getProducts } from "../services/catalog";
+import { useAuth } from "../context/AuthContext";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ShopPage: React.FC = () => {
-  const { addToCart } = useCart();
+  const { add: addCartItem } = useCart();
   const { t } = useLanguage();
+  const { isAuthenticated } = useAuth();
 
   // --- state dữ liệu từ BE ---
   const [items, setItems] = useState<Product[]>([]);
@@ -18,14 +22,35 @@ const ShopPage: React.FC = () => {
   // --- state filter/sort ---
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("featured");
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000]);
+  // Đặt max mặc định rất lớn để không lỡ lọc mất SP giá cao
+  const [priceRange, setPriceRange] = useState<[number, number]>([
+    0,
+    Number.MAX_SAFE_INTEGER,
+  ]);
 
   useEffect(() => {
     (async () => {
+      setLoading(true);
       try {
-        const data = await getProducts();
-        setItems(data);
+        const raw = await getProducts();
+        const list = (raw as any)?.data ?? raw ?? [];
+        const arr = Array.isArray(list) ? list : [];
+        setItems(arr);
+
+        // Tự động điều chỉnh trần giá theo dữ liệu
+        const maxPrice = Math.max(
+          0,
+          ...arr.map((p: any) => Number(p?.price ?? 0))
+        );
+        if (isFinite(maxPrice) && maxPrice > 0) {
+          const rounded = Math.ceil(maxPrice / 1000) * 1000;
+          setPriceRange(([min]) => [
+            Math.max(0, min),
+            Math.max(rounded, 10_000),
+          ]);
+        }
       } catch (e: any) {
+        setItems([]);
         setError(e?.message ?? "Failed to load products");
       } finally {
         setLoading(false);
@@ -34,44 +59,49 @@ const ShopPage: React.FC = () => {
   }, []);
 
   const categories = useMemo(() => {
-    const set = new Set(items.map((p) => p.category || "Others"));
+    const set = new Set<string>(
+      items.map((p: any) => (p?.category ? String(p.category) : "Others"))
+    );
     return ["all", ...Array.from(set)];
   }, [items]);
 
   const filteredProducts = useMemo(() => {
-    let filtered = items.filter((product) => {
-      const matchesCategory =
-        selectedCategory === "all" ||
-        (product.category || "Others") === selectedCategory;
-      const matchesPrice =
-        (product.price ?? 0) >= priceRange[0] &&
-        (product.price ?? 0) <= priceRange[1];
+    let filtered = items.filter((product: any) => {
+      const category = product?.category ? String(product.category) : "Others";
+      const price = Number(product?.price ?? 0);
+
+      // Nếu API không có inStock/stock => coi như còn hàng
       const inStock =
-        typeof (product as any).inStock === "boolean"
-          ? (product as any).inStock
-          : (product.stock ?? 0) > 0;
-      return matchesCategory && matchesPrice && inStock;
+        product?.inStock ??
+        (product?.stock != null ? Number(product.stock) > 0 : true);
+
+      const matchesCategory =
+        selectedCategory === "all" || category === selectedCategory;
+      const matchesPrice = price >= priceRange[0] && price <= priceRange[1];
+
+      return matchesCategory && matchesPrice && !!inStock;
     });
 
     switch (sortBy) {
       case "price-low":
         filtered = [...filtered].sort(
-          (a, b) => (a.price ?? 0) - (b.price ?? 0)
+          (a: any, b: any) => (a?.price ?? 0) - (b?.price ?? 0)
         );
         break;
       case "price-high":
         filtered = [...filtered].sort(
-          (a, b) => (b.price ?? 0) - (a.price ?? 0)
+          (a: any, b: any) => (b?.price ?? 0) - (a?.price ?? 0)
         );
         break;
       case "name":
-        filtered = [...filtered].sort((a, b) => a.name.localeCompare(b.name));
+        filtered = [...filtered].sort((a, b) =>
+          String(a?.name ?? "").localeCompare(String(b?.name ?? ""))
+        );
         break;
       case "featured":
       default:
         filtered = [...filtered].sort(
-          (a, b) =>
-            ((b as any).featured ? 1 : 0) - ((a as any).featured ? 1 : 0)
+          (a: any, b: any) => (b?.featured ? 1 : 0) - (a?.featured ? 1 : 0)
         );
         break;
     }
@@ -88,28 +118,55 @@ const ShopPage: React.FC = () => {
     visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
   };
 
-  // ✅ Map đúng payload theo CartContext server-backed
-  const handleAddToCart = async (product: Product) => {
-    const imageUrl = product.images?.[0] ?? product.images ?? "";
-    const unitPrice = product.price ?? 0; // <-- ĐỔI price -> unitPrice
-    const sku = product.sku ?? String(product.id); // fallback nếu đang dùng id làm sku
+  // Lấy ảnh: hỗ trợ imageUrl (string) hoặc images (string[]/string)
+  const pickImage = (p: any): string => {
+    if (Array.isArray(p?.images)) return p.images[0] ?? "";
+    if (typeof p?.images === "string") return p.images;
+    if (Array.isArray(p?.imageUrl)) return p.imageUrl[0] ?? "";
+    if (typeof p?.imageUrl === "string") return p.imageUrl;
+    return "";
+  };
+
+  const handleAddToCart = async (product: any) => {
+    if (!isAuthenticated) {
+      toast.warning("Vui lòng đăng nhập trước khi thêm vào giỏ hàng!");
+      return;
+    }
+    const imageUrl = pickImage(product);
+    const unitPrice = Number(product?.price ?? 0);
+    const sku = product?.sku ?? String(product?.id ?? "");
 
     if (!sku) {
-      console.warn("Missing SKU for product", product);
+      toast.error("Sản phẩm thiếu SKU. Vui lòng liên hệ hỗ trợ.");
       return;
     }
 
-    await addToCart({
-      sku,
-      quantity: 1,
-      unitPrice, //
-      name: product.name,
-      imageUrl,
-    });
+    try {
+      await addCartItem({
+        sku,
+        quantity: 1,
+        unitPrice,
+        name: product?.name,
+        imageUrl,
+      });
+      toast.success(`Đã thêm "${product?.name}" vào giỏ hàng!`);
+    } catch (e: any) {
+      toast.error(
+        e?.response?.data?.message || e?.message || "Thêm vào giỏ hàng thất bại"
+      );
+    }
   };
 
   if (loading) return <div className="p-6">Loading products...</div>;
-  if (error) return <div className="p-6 text-red-600">{error}</div>;
+  if (error)
+    return (
+      <div className="p-6 text-red-600">
+        {error}
+        <div className="mt-2 text-sm text-gray-600">
+          Hãy kiểm tra API catalog và cấu hình VITE_API_BASE_URL.
+        </div>
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -179,7 +236,7 @@ const ShopPage: React.FC = () => {
                       value={priceRange[0]}
                       onChange={(e) =>
                         setPriceRange([
-                          parseInt(e.target.value) || 0,
+                          Math.max(0, Number(e.target.value) || 0),
                           priceRange[1],
                         ])
                       }
@@ -189,11 +246,11 @@ const ShopPage: React.FC = () => {
                     <span>-</span>
                     <input
                       type="number"
-                      value={priceRange[1]}
+                      value={Number.isFinite(priceRange[1]) ? priceRange[1] : 0}
                       onChange={(e) =>
                         setPriceRange([
                           priceRange[0],
-                          parseInt(e.target.value) || 50000,
+                          Math.max(0, Number(e.target.value) || 0),
                         ])
                       }
                       className="w-full px-3 py-2 border rounded-md text-sm"
@@ -202,7 +259,10 @@ const ShopPage: React.FC = () => {
                   </div>
                   <div className="text-sm text-gray-600">
                     ${priceRange[0].toLocaleString()} - $
-                    {priceRange[1].toLocaleString()}
+                    {(Number.isFinite(priceRange[1])
+                      ? priceRange[1]
+                      : 0
+                    ).toLocaleString()}
                   </div>
                 </div>
               </div>
@@ -212,10 +272,13 @@ const ShopPage: React.FC = () => {
                 <h4 className="font-medium mb-3">{t("shop.quickFilters")}</h4>
                 <div className="space-y-2">
                   {[
-                    { label: t("shop.under5k"), range: [0, 5000] },
-                    { label: t("shop.5to10k"), range: [5000, 10000] },
-                    { label: t("shop.10to20k"), range: [10000, 20000] },
-                    { label: t("shop.over20k"), range: [20000, 50000] },
+                    { label: t("shop.under5k"), range: [0, 5_000] },
+                    { label: t("shop.5to10k"), range: [5_000, 10_000] },
+                    { label: t("shop.10to20k"), range: [10_000, 20_000] },
+                    {
+                      label: t("shop.over20k"),
+                      range: [20_000, 1_000_000_000],
+                    },
                   ].map((filter) => (
                     <button
                       key={filter.label}
@@ -274,78 +337,58 @@ const ShopPage: React.FC = () => {
               variants={staggerContainer}
               className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
             >
-              {filteredProducts.map((product) => (
-                <motion.div
-                  key={product.id}
-                  variants={fadeInUp}
-                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300"
-                >
-                  <div className="relative">
-                    <img
-                      src={product.images?.[0] ?? product.images ?? ""}
-                      alt={product.name}
-                      className="w-full h-64 object-cover"
-                    />
-                    {(product as any).featured && (
-                      <span className="absolute top-4 left-4 bg-luxury-gold text-white px-3 py-1 rounded-full text-sm font-medium">
-                        {t("shop.featured")}
-                      </span>
-                    )}
-                  </div>
-                  <div className="p-6">
-                    <h3 className="font-serif font-bold text-lg mb-2 line-clamp-2">
-                      {product.name}
-                    </h3>
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                      {product.description}
-                    </p>
+              {filteredProducts.map((product: any) => {
+                const img = pickImage(product);
+                return (
+                  <motion.div
+                    key={product?.id ?? product?.sku}
+                    variants={fadeInUp}
+                    className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300"
+                  >
+                    <div className="relative">
+                      <img
+                        src={img}
+                        alt={product?.name}
+                        className="w-full h-64 object-cover"
+                      />
+                      {product?.featured && (
+                        <span className="absolute top-4 left-4 bg-luxury-gold text-white px-3 py-1 rounded-full text-sm font-medium">
+                          {t("shop.featured")}
+                        </span>
+                      )}
+                    </div>
+                    <div className="p-6">
+                      <h3 className="font-serif font-bold text-lg mb-2 line-clamp-2">
+                        {product?.name}
+                      </h3>
+                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                        {product?.description}
+                      </p>
 
-                    {(product as any).diamondDetails && (
-                      <div className="mb-4 text-xs text-gray-600">
-                        <div className="grid grid-cols-2 gap-1">
-                          <span>
-                            {t("shop.shape")}:{" "}
-                            {(product as any).diamondDetails.shape}
-                          </span>
-                          <span>
-                            {t("shop.carat")}:{" "}
-                            {(product as any).diamondDetails.caratWeight}
-                          </span>
-                          <span>
-                            {t("shop.color")}:{" "}
-                            {(product as any).diamondDetails.color}
-                          </span>
-                          <span>
-                            {t("shop.clarity")}:{" "}
-                            {(product as any).diamondDetails.clarity}
-                          </span>
+                      <div className="flex items-center justify-between">
+                        <span className="text-2xl font-bold text-luxury-navy">
+                          ${Number(product?.price ?? 0).toLocaleString()}
+                        </span>
+                        <div className="flex space-x-2">
+                          <Link
+                            to={`/shop/product/${product?.id}`}
+                            className="px-4 py-2 border border-luxury-navy text-luxury-navy rounded-md hover:bg-luxury-navy hover:text-white transition-colors text-sm"
+                          >
+                            {t("shop.view")}
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => handleAddToCart(product)}
+                            className="px-4 py-2 bg-luxury-gold text-white rounded-md hover:bg-opacity-90 transition-colors text-sm"
+                          >
+                            {t("shop.addToCart")}
+                          </button>
                         </div>
                       </div>
-                    )}
-
-                    <div className="flex items-center justify-between">
-                      <span className="text-2xl font-bold text-luxury-navy">
-                        ${(product.price ?? 0).toLocaleString()}
-                      </span>
-                      <div className="flex space-x-2">
-                        <Link
-                          to={`/shop/product/${product.id}`}
-                          className="px-4 py-2 border border-luxury-navy text-luxury-navy rounded-md hover:bg-luxury-navy hover:text-white transition-colors text-sm"
-                        >
-                          {t("shop.view")}
-                        </Link>
-                        <button
-                          type="button"
-                          onClick={() => handleAddToCart(product)}
-                          className="px-4 py-2 bg-luxury-gold text-white rounded-md hover:bg-opacity-90 transition-colors text-sm"
-                        >
-                          {t("shop.addToCart")}
-                        </button>
-                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                );
+              })}
             </motion.div>
 
             {filteredProducts.length === 0 && (
@@ -364,8 +407,9 @@ const ShopPage: React.FC = () => {
                   type="button"
                   onClick={() => {
                     setSelectedCategory("all");
-                    setPriceRange([0, 50000]);
                     setSortBy("featured");
+                    // reset về “vô hạn” để không lọc mất dữ liệu
+                    setPriceRange([0, Number.MAX_SAFE_INTEGER]);
                   }}
                   className="btn btn-primary"
                 >
@@ -406,6 +450,9 @@ const ShopPage: React.FC = () => {
           </motion.div>
         </div>
       </section>
+
+      {/* Toasts */}
+      <ToastContainer position="top-right" autoClose={2500} />
     </div>
   );
 };

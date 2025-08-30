@@ -1,11 +1,12 @@
 export interface Product {
+  stock: number;
   id: string; // Guid hoặc string
   name: string;
   price: number;
   sku: string;
   description: string;
   category: string;
-  images: string[];
+  imageUrl: string[];
   inStock: boolean;
   featured: boolean;
   diamondDetails: {

@@ -4,244 +4,208 @@ import React, {
   useEffect,
   useState,
   useCallback,
-  useRef,
+  useMemo,
 } from "react";
-import type { ReactNode } from "react";
-import { CartAPI } from "../services/order";
+import { useAuth } from "./AuthContext";
+import * as CartAPI from "../services/cart";
+import {
+  getCartKeyForCustomer,
+  clearCartKey as clearSessionCartKey,
+} from "../utils/cartKey";
 
-/** ==== Kiểu dữ liệu đồng bộ với BE ==== */
-export type ServerCartItem = {
-  id: number; // cartItemId
+type CartItem = {
+  id: number;
   sku: string;
   quantity: number;
   unitPrice: number;
-  lineTotal: number;
-  name?: string | null;
-  imageUrl?: string | null;
+  name?: string;
+  imageUrl?: string;
+  lineTotal?: number;
 };
-
-export type ServerCart = {
+type Cart = {
   id: number;
-  cartKey: string;
-  customerId?: number | null;
-  items: ServerCartItem[];
-  subtotal?: number;
-  discount?: number;
-  shippingFee?: number;
-  total?: number;
-};
-
-type CartContextType = {
-  cartKey: string | null;
-  items: ServerCartItem[];
+  cartKey?: string;
+  customerId?: number;
+  items: CartItem[];
   subtotal: number;
   total: number;
-  loading: boolean;
-  error: string | null;
+};
+
+type CartCtx = {
+  cart?: Cart;
+  items: CartItem[];
+  /** cartKey cho Customer/Guest (session) */
+  cartKey?: string;
+  /** tổng tiền hiện tại (từ cart hoặc tính lại) */
+  getTotalPrice: () => number;
 
   refresh: () => Promise<void>;
-
-  addToCart: (args: {
+  add: (payload: {
     sku: string;
     quantity: number;
     unitPrice: number;
     name?: string;
     imageUrl?: string;
   }) => Promise<void>;
+  update: (payload: {
+    id: number;
+    quantity: number;
+    unitPrice: number;
+  }) => Promise<void>;
+  remove: (id: number) => Promise<void>;
 
-  updateQuantity: (cartItemId: number, quantity: number) => Promise<void>;
-  removeItem: (cartItemId: number) => Promise<void>;
-
+  /** xoá cart local (ví dụ sau khi checkout) */
   clearCartLocal: () => void;
-  getTotalPrice: () => number;
 };
 
-const CartContext = createContext<CartContextType | undefined>(undefined);
+const CartContext = createContext<CartCtx>({} as CartCtx);
+export const useCart = () => useContext(CartContext);
 
-const CART_KEY_STORAGE = "cart_key";
+// Giỏ trống dùng làm fallback khi BE trả 400/404
+const EMPTY_CART: Cart = { id: 0, items: [], subtotal: 0, total: 0 };
 
-/** ==== Helpers =================================================================== */
-/** Unwrap cho cả 3 dạng: AxiosResponse<ApiResponse<T>>, AxiosResponse<T>, T */
-function unwrap<T = any>(res: any): T {
-  return res?.data?.data ?? res?.data ?? res;
-}
+export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const { user, isAuthenticated } = useAuth();
+  const [cart, setCart] = useState<Cart | undefined>(undefined);
 
-/** Random cartKey (fallback nếu BE lỗi) */
-const genCartKey = () =>
-  (crypto as any)?.randomUUID?.().replace(/-/g, "") ??
-  Math.random().toString(36).slice(2);
+  // ✅ Customer hoặc Guest đều dùng session cartKey
+  const isCustomerLike = useMemo(() => {
+    const roles = Array.isArray(user?.roles)
+      ? user?.roles
+      : user?.roles
+      ? [user?.roles]
+      : [];
+    const isCustomer = roles.some(
+      (r: any) => String(r).toLowerCase() === "customer"
+    );
+    return isCustomer || !isAuthenticated; // guest => true
+  }, [user?.roles, isAuthenticated]);
 
-/** ==== Provider ================================================================== */
-export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [cartKey, setCartKey] = useState<string | null>(() =>
-    localStorage.getItem(CART_KEY_STORAGE)
-  );
-  const [items, setItems] = useState<ServerCartItem[]>([]);
-  const [subtotal, setSubtotal] = useState<number>(0);
-  const [total, setTotal] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-
-  /** Khóa tránh tạo cartKey song song */
-  const ensureKeyInflight = useRef<Promise<string> | null>(null);
-  /** Khóa tránh refresh chồng nhau khi click nhanh */
-  const refreshInflight = useRef<Promise<void> | null>(null);
-
-  /** Tạo/Lấy cartKey hợp lệ từ BE (ưu tiên POST /cart/create) */
-  const ensureCartKey = useCallback(async (): Promise<string> => {
-    // đã có sẵn -> dùng luôn
-    if (cartKey) return cartKey;
-
-    // tránh gọi trùng
-    if (!ensureKeyInflight.current) {
-      ensureKeyInflight.current = (async () => {
-        try {
-          // Dùng endpoint create để BE đảm bảo tạo cart + trả cartKey chuẩn
-          // (CartAPI.create có thể không cần tham số)
-          const created = unwrap<ServerCart>(await CartAPI.create());
-          const keyFromBe = created?.cartKey;
-          const key = keyFromBe || genCartKey();
-
-          setCartKey(key);
-          localStorage.setItem(CART_KEY_STORAGE, key);
-          return key;
-        } catch {
-          // fallback local nếu BE lỗi tạm thời
-          const key = genCartKey();
-          setCartKey(key);
-          localStorage.setItem(CART_KEY_STORAGE, key);
-          return key;
-        } finally {
-          ensureKeyInflight.current = null;
-        }
-      })();
+  // Lấy cartKey cho Customer/Guest (session). Role nội bộ -> undefined
+  const cartKey = useMemo(() => {
+    if (!isCustomerLike) return undefined;
+    try {
+      return getCartKeyForCustomer();
+    } catch {
+      return undefined;
     }
-    return ensureKeyInflight.current;
+  }, [isCustomerLike]);
+
+  // ---- API wrappers (role-aware qua cartKey) ----
+  const refresh = useCallback(async () => {
+    try {
+      const data = await CartAPI.getCart(cartKey);
+      setCart((data as any)?.data ?? data ?? EMPTY_CART);
+    } catch (e: any) {
+      // 400/404 khi BE yêu cầu cartKey hoặc chưa có cart -> không để crash UI
+      if (e?.response?.status === 400 || e?.response?.status === 404) {
+        setCart(EMPTY_CART);
+        return;
+      }
+      console.warn("getCart failed:", e?.response?.data || e?.message);
+      setCart(EMPTY_CART);
+    }
   }, [cartKey]);
 
-  /** Nạp giỏ từ BE */
-  const refresh = useCallback(async () => {
-    if (refreshInflight.current) return refreshInflight.current;
-
-    refreshInflight.current = (async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const key = await ensureCartKey();
-        const cart = unwrap<ServerCart>(await CartAPI.get(key));
-
-        // một số API trả ApiResponse<CartDto>, một số trả thẳng CartDto
-        const arr = cart?.items ?? [];
-        setItems(arr);
-
-        const sub =
-          cart?.subtotal ??
-          arr.reduce((s, i) => s + i.unitPrice * i.quantity, 0);
-        setSubtotal(sub);
-        setTotal(cart?.total ?? sub);
-
-        // nếu BE vừa trả cartKey (lúc create), đồng bộ lại local
-        if (cart?.cartKey && cart.cartKey !== key) {
-          setCartKey(cart.cartKey);
-          localStorage.setItem(CART_KEY_STORAGE, cart.cartKey);
-        }
-      } catch (e: any) {
-        setError(
-          e?.response?.data?.message || e?.message || "Failed to load cart"
-        );
-      } finally {
-        setLoading(false);
-        refreshInflight.current = null;
-      }
-    })();
-
-    return refreshInflight.current;
-  }, [ensureCartKey]);
-
-  /** Thêm item lên BE rồi nạp lại giỏ */
-  const addToCart: CartContextType["addToCart"] = async (dto) => {
-    setError(null);
-    const key = await ensureCartKey();
-
-    // bảo vệ tối thiểu payload
-    if (!dto?.sku || dto.quantity <= 0) {
-      setError("Invalid item payload");
-      return;
-    }
-
-    await CartAPI.addItem(key, {
-      sku: String(dto.sku).trim(),
-      quantity: Number(dto.quantity) || 1,
-      unitPrice: Number(dto.unitPrice) || 0,
-      name: dto.name,
-      imageUrl: dto.imageUrl,
-    });
-
-    await refresh();
-  };
-
-  /** Cập nhật số lượng */
-  const updateQuantity: CartContextType["updateQuantity"] = async (
-    cartItemId,
-    quantity
-  ) => {
-    setError(null);
-    const key = await ensureCartKey();
-    await CartAPI.updateItem(key, { cartItemId, quantity });
-    await refresh();
-  };
-
-  /** Xoá item */
-  const removeItem: CartContextType["removeItem"] = async (cartItemId) => {
-    setError(null);
-    const key = await ensureCartKey();
-    await CartAPI.removeItem(key, cartItemId);
-    await refresh();
-  };
-
-  /** Dọn local sau khi checkout xong (không đụng BE) */
-  const clearCartLocal = () => {
-    setItems([]);
-    setSubtotal(0);
-    setTotal(0);
-    // Giữ cartKey để dùng tiếp; nếu muốn reset hoàn toàn thì bỏ comment:
-    // localStorage.removeItem(CART_KEY_STORAGE);
-    // setCartKey(null);
-  };
-
-  const getTotalPrice = () =>
-    total || items.reduce((s, i) => s + i.unitPrice * i.quantity, 0);
-
-  /** Nạp lần đầu */
   useEffect(() => {
-    // không await để không block render đầu
-    refresh();
-  }, [refresh]);
+    (async () => {
+      try {
+        await CartAPI.createOrGetCart(cartKey);
+      } catch (e: any) {
+        // bỏ qua 400 (thiếu cartKey hoặc payload chưa hợp lệ theo BE)
+        if (e?.response?.status !== 400) {
+          console.warn(
+            "createOrGetCart failed:",
+            e?.response?.data || e?.message
+          );
+        }
+      }
+      await refresh();
+    })();
+  }, [isAuthenticated, isCustomerLike, cartKey, refresh]);
+
+  const add = useCallback(
+    async (payload: {
+      sku: string;
+      quantity: number;
+      unitPrice: number;
+      name?: string;
+      imageUrl?: string;
+    }) => {
+      try {
+        await CartAPI.addItem(payload, cartKey);
+      } catch (e) {
+        console.warn("addItem failed:", e);
+        throw e; // để UI (toast) hiển thị lỗi nhưng không vỡ context
+      } finally {
+        await refresh();
+      }
+    },
+    [cartKey, refresh]
+  );
+
+  const update = useCallback(
+    async (payload: { id: number; quantity: number; unitPrice: number }) => {
+      try {
+        await CartAPI.updateItem(payload, cartKey);
+      } catch (e) {
+        console.warn("updateItem failed:", e);
+        throw e;
+      } finally {
+        await refresh();
+      }
+    },
+    [cartKey, refresh]
+  );
+
+  const remove = useCallback(
+    async (id: number) => {
+      try {
+        await CartAPI.removeItem(id, cartKey);
+      } catch (e) {
+        console.warn("removeItem failed:", e);
+        throw e;
+      } finally {
+        await refresh();
+      }
+    },
+    [cartKey, refresh]
+  );
+
+  const items = useMemo(() => cart?.items ?? [], [cart?.items]);
+
+  const getTotalPrice = useCallback(() => {
+    if (typeof cart?.total === "number") return cart.total;
+    return items.reduce((sum, it) => sum + it.unitPrice * it.quantity, 0);
+  }, [cart?.total, items]);
+
+  const clearCartLocal = useCallback(() => {
+    // Sau khi checkout xong
+    if (isCustomerLike) {
+      try {
+        clearSessionCartKey();
+      } catch {}
+    }
+    setCart(EMPTY_CART);
+  }, [isCustomerLike]);
 
   return (
     <CartContext.Provider
       value={{
-        cartKey,
+        cart,
         items,
-        subtotal,
-        total,
-        loading,
-        error,
-        refresh,
-        addToCart,
-        updateQuantity,
-        removeItem,
-        clearCartLocal,
+        cartKey,
         getTotalPrice,
+        refresh,
+        add,
+        update,
+        remove,
+        clearCartLocal,
       }}
     >
       {children}
     </CartContext.Provider>
   );
-};
-
-export const useCart = () => {
-  const ctx = useContext(CartContext);
-  if (!ctx) throw new Error("useCart must be used within a CartProvider");
-  return ctx;
 };

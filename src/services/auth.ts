@@ -14,6 +14,15 @@ export async function login(userNameOrEmail: string, password: string) {
   return data;
 }
 
+export function isCustomerRole(user?: { roles?: string[] | string }): boolean {
+  const roles = Array.isArray(user?.roles)
+    ? user?.roles
+    : user?.roles
+    ? [user.roles]
+    : [];
+  return roles?.some((r) => String(r).toLowerCase() === "customer") ?? false;
+}
+
 export async function register(payload: {
   userName: string;
   email: string;

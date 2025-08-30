@@ -3,11 +3,22 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useCart } from "../context/CartContext";
 import { useLanguage } from "../context/LanguageContext";
-import { OrderAPI } from "../services/order";
+import { checkout } from "../services/order";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useAuth } from "../context/AuthContext";
 
 type PaymentMethod = "COD" | "VNPay" | "Momo" | "Stripe";
+
+type CartItem = {
+  id: number;
+  sku: string;
+  quantity: number;
+  unitPrice: number;
+  name?: string;
+  imageUrl?: string;
+  lineTotal?: number;
+};
 
 const currency = (n: number) =>
   `$${(Number.isFinite(n) ? n : 0).toLocaleString(undefined, {
@@ -20,11 +31,24 @@ const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
 
   const { cartKey, items, getTotalPrice, clearCartLocal } = useCart();
+  const { user, isAuthenticated } = useAuth();
+
+  // ✅ Customer hoặc Guest đều là "customer-like" (cần cartKey session)
+  const isCustomerLike = React.useMemo(() => {
+    const roles = Array.isArray(user?.roles)
+      ? user?.roles
+      : user?.roles
+      ? [user?.roles]
+      : [];
+    const isCustomer = roles.some(
+      (r: any) => String(r).toLowerCase() === "customer"
+    );
+    return isCustomer || !isAuthenticated; // guest => true
+  }, [user?.roles, isAuthenticated]);
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("COD");
   const [formData, setFormData] = useState({
     notes: "",
-    newsletter: false,
     insurance: true,
     cardNumber: "",
     expiryDate: "",
@@ -41,41 +65,40 @@ const CheckoutPage: React.FC = () => {
     visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
   };
 
-  /** Xử lý thay đổi input (fix checkbox) */
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const target = e.target as HTMLInputElement | HTMLTextAreaElement;
     const { name, type, value } = target;
-    const nextValue = type === "checkbox" ? (target as HTMLInputElement).checked : value;
+    const nextValue =
+      type === "checkbox" ? (target as HTMLInputElement).checked : value;
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]: nextValue,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: nextValue as any }));
   };
 
-  /** Tính tiền – dùng useMemo để tránh “redeclare” và tính lặp */
+  // Tính tiền
   const { subtotal, tax, insurance, total } = useMemo(() => {
-    const sub = getTotalPrice(); // lấy từ context
+    const sub = getTotalPrice();
     const t = +(sub * 0.08).toFixed(2);
     const ins = formData.insurance ? +(sub * 0.02).toFixed(2) : 0;
     const tot = +(sub + t + ins).toFixed(2);
     return { subtotal: sub, tax: t, insurance: ins, total: tot };
   }, [items, formData.insurance, getTotalPrice]);
 
-  /** Submit */
+  // Submit
   const onPlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!cartKey) {
-      setErr("Cart is missing. Please add items again.");
-      toast.error("Cart is missing. Please add items again.");
-      return;
-    }
     if (!items || items.length === 0) {
       setErr("Your cart is empty.");
       toast.error("Your cart is empty.");
+      return;
+    }
+
+    // Customer/Guest bắt buộc có cartKey (session)
+    if (isCustomerLike && !cartKey) {
+      setErr("Cart is missing (session). Please add items again.");
+      toast.error("Cart is missing. Please add items again.");
       return;
     }
 
@@ -83,14 +106,16 @@ const CheckoutPage: React.FC = () => {
     setErr(null);
 
     try {
-      const payload = {
-        cartKey,
+      const payload: any = {
         shippingFee: 0,
         paymentMethod,
         note: formData.notes,
       };
+      if (isCustomerLike) {
+        payload.cartKey = cartKey; // gửi kèm cho BE
+      }
 
-      const res = await OrderAPI.checkout(payload);
+      const res = await checkout(payload);
 
       if (!res?.success) {
         const message = res?.message || "Checkout failed";
@@ -113,7 +138,8 @@ const CheckoutPage: React.FC = () => {
       toast.success("Đặt hàng thành công 🎉");
       navigate("/");
     } catch (e: any) {
-      const msg = e?.response?.data?.message || e?.message || "Đặt hàng thất bại";
+      const msg =
+        e?.response?.data?.message || e?.message || "Đặt hàng thất bại";
       setErr(msg);
       toast.error(msg);
     } finally {
@@ -295,7 +321,9 @@ const CheckoutPage: React.FC = () => {
                     disabled={isProcessing}
                     className="btn btn-primary"
                   >
-                    {isProcessing ? "Processing..." : `Đặt Hàng ${currency(total)}`}
+                    {isProcessing
+                      ? "Processing..."
+                      : `Đặt Hàng ${currency(total)}`}
                   </button>
                 </div>
               </motion.div>
@@ -311,14 +339,17 @@ const CheckoutPage: React.FC = () => {
           >
             <h3 className="text-xl font-serif font-bold mb-6">Order Summary</h3>
             <div className="space-y-2 mb-4">
-              {items.map((it) => (
-                <div key={it.id} className="flex justify-between">
-                  <span>
-                    {(it.name ?? it.sku) as string} x {it.quantity}
-                  </span>
-                  <span>{currency(it.lineTotal)}</span>
-                </div>
-              ))}
+              {items.map((it: CartItem) => {
+                const line = it.lineTotal ?? it.unitPrice * it.quantity;
+                return (
+                  <div key={it.id} className="flex justify-between">
+                    <span>
+                      {(it.name ?? it.sku) as string} x {it.quantity}
+                    </span>
+                    <span>{currency(line)}</span>
+                  </div>
+                );
+              })}
             </div>
             <hr />
             <div className="flex justify-between mt-4">

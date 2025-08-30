@@ -5,11 +5,15 @@ import { useCart } from "../context/CartContext";
 import { useLanguage } from "../context/LanguageContext";
 import type { Product } from "../types/product";
 import { getProductById, getProducts } from "../services/catalog";
+import { useAuth } from "../context/AuthContext";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ProductDetailPage: React.FC = () => {
   const { t } = useLanguage();
   const { id } = useParams<{ id: string }>();
-  const { addToCart } = useCart();
+  const { add: addCartItem } = useCart();
+  const { isAuthenticated } = useAuth();
 
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -21,6 +25,15 @@ const ProductDetailPage: React.FC = () => {
   const [adding, setAdding] = useState(false);
   const [addedMsg, setAddedMsg] = useState<string | null>(null);
 
+  // helper lấy ảnh đầu tiên từ nhiều schema khác nhau
+  const pickImage = (p: any): string => {
+    if (Array.isArray(p?.images)) return p.images[0] ?? "";
+    if (typeof p?.images === "string") return p.images;
+    if (Array.isArray(p?.imageUrl)) return p.imageUrl[0] ?? "";
+    if (typeof p?.imageUrl === "string") return p.imageUrl;
+    return "";
+  };
+
   // Load chi tiết + related
   useEffect(() => {
     if (!id) return;
@@ -29,21 +42,25 @@ const ProductDetailPage: React.FC = () => {
 
     (async () => {
       try {
-        // chi tiết
-        const p = await getProductById(id);
-        setProduct(p);
+        // Chi tiết
+        const raw = await getProductById(id);
+        const p = (raw as any)?.data ?? raw;
+        setProduct(p as Product);
         setSelectedImageIndex(0);
 
-        // related theo category (nếu có), bỏ chính nó
-        const list = await getProducts();
-        const sameCate = p.category
-          ? list.filter(
-              (x) =>
-                x.id !== p.id &&
-                (x.category || "Others") === (p.category || "Others")
-            )
-          : list.filter((x) => x.id !== p.id);
-        setRelated(sameCate.slice(0, 4));
+        // Related theo category (nếu có), bỏ chính nó
+        const rawList = await getProducts();
+        const list = ((rawList as any)?.data ?? rawList ?? []) as Product[];
+        const cate = (p as any)?.category ?? "Others";
+        const sameCate = list.filter(
+          (x: any) => x?.id !== p?.id && (x?.category ?? "Others") === cate
+        );
+        setRelated(
+          (sameCate.length
+            ? sameCate
+            : list.filter((x: any) => x?.id !== p?.id)
+          ).slice(0, 4)
+        );
       } catch (e: any) {
         setErr(e?.message ?? "Failed to load product");
       } finally {
@@ -52,19 +69,24 @@ const ProductDetailPage: React.FC = () => {
     })();
   }, [id]);
 
+  // Xử lý images (có thể là string hoặc string[]; hoặc imageUrl)
   const images: string[] = useMemo(() => {
-    // fallback nếu API chỉ có imageUrl
-    const arr = product?.images ?? [];
-    if (arr.length) return arr;
-    return product?.imageUrl ? [product.imageUrl] : [];
+    if (!product) return [];
+    const p: any = product;
+    if (Array.isArray(p?.images)) return p.images;
+    if (typeof p?.images === "string") return [p.images];
+    if (Array.isArray(p?.imageUrl)) return p.imageUrl;
+    if (typeof p?.imageUrl === "string") return [p.imageUrl];
+    return [];
   }, [product]);
 
   const inStock = useMemo(() => {
     if (!product) return false;
-    const anyProd: any = product as any;
-    return typeof anyProd.inStock === "boolean"
-      ? anyProd.inStock
-      : (product.stock ?? 0) > 0;
+    const anyProd: any = product;
+    // nếu không có inStock/stock => coi như còn hàng
+    if (typeof anyProd.inStock === "boolean") return anyProd.inStock;
+    if (anyProd.stock != null) return Number(anyProd.stock) > 0;
+    return true;
   }, [product]);
 
   const fadeInUp = {
@@ -74,11 +96,15 @@ const ProductDetailPage: React.FC = () => {
 
   // Map đúng payload theo CartContext server-backed
   const handleAddToCart = async () => {
+    if (!isAuthenticated) {
+      toast.warning("Vui lòng đăng nhập trước khi thêm vào giỏ hàng!");
+      return;
+    }
     if (!product) return;
 
-    const price = product.price ?? 0;
-    const imageUrl = images[0] ?? product.imageUrl ?? "";
-    const sku = product.sku ?? String(product.id); // fallback nếu tạm chưa có sku
+    const price = Number((product as any)?.price ?? 0);
+    const imageUrl = images[0] || pickImage(product);
+    const sku = (product as any)?.sku ?? String((product as any)?.id ?? "");
 
     if (!sku) {
       setErr("Product is missing SKU. Please contact support.");
@@ -94,16 +120,15 @@ const ProductDetailPage: React.FC = () => {
       setErr(null);
       setAddedMsg(null);
 
-      await addToCart({
-        sku, // BE cần sku
-        quantity, // số lượng user chọn
-        unitPrice: price, // ✅ ĐÚNG KEY: unitPrice (KHÔNG phải price)
+      await addCartItem({
+        sku,
+        quantity,
+        unitPrice: price,
         name: product.name,
         imageUrl,
       });
 
       setAddedMsg(t("product.addedToCart") ?? "Added to cart!");
-      // Tự ẩn message sau 2.5s
       setTimeout(() => setAddedMsg(null), 2500);
     } catch (e: any) {
       setErr(
@@ -153,7 +178,7 @@ const ProductDetailPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Breadcrumb */}
+      {/* Header / Breadcrumb */}
       <div className="bg-white border-b">
         <div className="container-custom py-4">
           <nav className="flex items-center space-x-2 text-sm">
@@ -238,7 +263,7 @@ const ProductDetailPage: React.FC = () => {
               </h1>
               <div className="flex items-center space-x-4 mb-6">
                 <span className="text-3xl font-bold text-luxury-gold">
-                  ${(product.price ?? 0).toLocaleString()}
+                  ${Number((product as any)?.price ?? 0).toLocaleString()}
                 </span>
                 <span
                   className={`font-medium ${
@@ -336,13 +361,18 @@ const ProductDetailPage: React.FC = () => {
                     </div>
                     <span className="text-sm text-gray-600">
                       Total: $
-                      {((product.price ?? 0) * quantity).toLocaleString()}
+                      {(
+                        Number((product as any)?.price ?? 0) * quantity
+                      ).toLocaleString()}
                     </span>
                   </div>
                 </div>
 
                 {addedMsg && (
                   <div className="text-green-600 text-sm">{addedMsg}</div>
+                )}
+                {err && !addedMsg && (
+                  <div className="text-red-600 text-sm">{err}</div>
                 )}
 
                 <div className="space-y-3">
@@ -422,21 +452,21 @@ const ProductDetailPage: React.FC = () => {
               You May Also Like
             </h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {related.map((rp) => (
+              {related.map((rp: any) => (
                 <Link
-                  key={rp.id}
-                  to={`/shop/product/${rp.id}`}
+                  key={rp?.id}
+                  to={`/shop/product/${rp?.id}`}
                   className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300"
                 >
                   <img
-                    src={rp.images?.[0] ?? rp.imageUrl ?? ""}
-                    alt={rp.name}
+                    src={pickImage(rp)}
+                    alt={rp?.name}
                     className="w-full h-48 object-cover"
                   />
                   <div className="p-4">
-                    <h3 className="font-bold mb-2 line-clamp-2">{rp.name}</h3>
+                    <h3 className="font-bold mb-2 line-clamp-2">{rp?.name}</h3>
                     <p className="text-luxury-gold font-bold">
-                      ${(rp.price ?? 0).toLocaleString()}
+                      ${Number(rp?.price ?? 0).toLocaleString()}
                     </p>
                   </div>
                 </Link>
@@ -445,6 +475,9 @@ const ProductDetailPage: React.FC = () => {
           </motion.div>
         )}
       </div>
+
+      {/* Nếu app của bạn đã có ToastContainer ở layout thì có thể bỏ dòng dưới */}
+      <ToastContainer position="top-right" autoClose={2500} />
     </div>
   );
 };

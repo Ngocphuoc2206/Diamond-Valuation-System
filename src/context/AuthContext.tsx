@@ -4,15 +4,10 @@ import React, {
   useEffect,
   useMemo,
   useState,
+  type ReactNode,
 } from "react";
-import type { ReactNode } from "react";
-import axios, {
-  AxiosError,
-  type AxiosInstance,
-  type AxiosRequestConfig,
-  type InternalAxiosRequestConfig,
-} from "axios";
 import type { User } from "../types";
+import { api } from "../services/apiClient";
 
 // ====== Cấu hình ======
 const API_BASE_URL =
@@ -108,7 +103,6 @@ function normalizeRole(
 /** Nếu BE trả mảng roles, chọn role "mạnh" nhất theo thứ tự ưu tiên */
 function pickPrimaryRole(arr: unknown): string | undefined {
   if (!Array.isArray(arr)) return undefined;
-  // map về dạng không dấu/không '_' để so sánh
   const canon = (s: string) =>
     s.toLowerCase().replace(/\s+/g, "").replace(/[-_]/g, "");
   const order = [
@@ -125,7 +119,6 @@ function pickPrimaryRole(arr: unknown): string | undefined {
     .filter((i) => i >= 0)
     .sort((a, b) => a - b)[0];
   if (idx === undefined) return undefined;
-  // tìm lại giá trị gốc đầu tiên khớp
   const want = order[idx];
   return arr.find((r) => typeof r === "string" && canon(r) === want) as
     | string
@@ -134,14 +127,12 @@ function pickPrimaryRole(arr: unknown): string | undefined {
 
 /** Lấy role từ payload một cách an toàn */
 function getRoleFromPayload(payload: any): string {
-  // phổ biến nhất
   const single =
     payload?.role ??
     payload?.Role ??
     payload?.app_role ??
     payload?.["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
 
-  // nếu có mảng roles
   const multi =
     payload?.roles ??
     payload?.Roles ??
@@ -152,113 +143,6 @@ function getRoleFromPayload(payload: any): string {
     (Array.isArray(multi) ? pickPrimaryRole(multi) : undefined) ?? single ?? "";
   return normalizeRole(chosen);
 }
-
-// ====== Axios instance + interceptors (attach Bearer, auto refresh) ======
-const api: AxiosInstance = axios.create({
-  baseURL: API_BASE_URL,
-  withCredentials: false,
-  timeout: 15000,
-});
-
-api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const { tokens } = readTokens();
-  if (tokens?.accessToken) {
-    config.headers = config.headers ?? {};
-    config.headers.Authorization = `Bearer ${tokens.accessToken}`;
-  }
-  return config;
-});
-
-let isRefreshing = false;
-let refreshPromise: Promise<string | null> | null = null;
-type PendingReq = {
-  resolve: (v?: unknown) => void;
-  reject: (r?: unknown) => void;
-  cfg: AxiosRequestConfig;
-};
-const pendingQueue: PendingReq[] = [];
-
-async function callRefresh(): Promise<string | null> {
-  const { tokens, remember } = readTokens();
-  const refreshToken = tokens.refreshToken;
-  if (!refreshToken) return null;
-  try {
-    const res = await axios.post<ApiEnvelope<TokenResponse>>(
-      `${API_BASE_URL}/api/auth/refresh`,
-      { refreshToken }
-    );
-    if (res.data?.success && res.data?.data?.accessToken) {
-      const data = res.data.data;
-      saveTokens(
-        {
-          accessToken: data.accessToken ?? null,
-          refreshToken: data.refreshToken ?? refreshToken, // BE có rotate
-          expiresAt: data.expiresAt ?? null,
-        },
-        remember
-      );
-      return data.accessToken ?? null;
-    }
-    return null;
-  } catch {
-    return null;
-  }
-}
-
-function flushQueue(err: unknown, token: string | null) {
-  pendingQueue.forEach((p) => (err ? p.reject(err) : p.resolve(token)));
-  pendingQueue.length = 0;
-}
-
-api.interceptors.response.use(
-  (res) => res,
-  async (error: AxiosError) => {
-    const original = error.config as AxiosRequestConfig & { _retry?: boolean };
-    if (!original) throw error;
-
-    if (error.response?.status === 401 && !original._retry) {
-      original._retry = true;
-
-      if (!isRefreshing) {
-        isRefreshing = true;
-        refreshPromise = callRefresh();
-        const newToken = await refreshPromise;
-        isRefreshing = false;
-        refreshPromise = null;
-
-        if (newToken) {
-          original.headers = original.headers ?? {};
-          (original.headers as any).Authorization = `Bearer ${newToken}`;
-          flushQueue(null, newToken);
-          return api.request(original);
-        } else {
-          flushQueue(error, null);
-          clearTokens();
-          throw error;
-        }
-      }
-
-      // Đang refresh → xếp hàng
-      return new Promise((resolve, reject) => {
-        pendingQueue.push({
-          resolve: (token?: unknown) => {
-            if (token) {
-              original.headers = original.headers ?? {};
-              (original.headers as any).Authorization = `Bearer ${
-                token as string
-              }`;
-            }
-            resolve(api.request(original));
-          },
-          reject: (err) => reject(err),
-          cfg: original,
-        });
-      });
-    }
-
-    throw error;
-  }
-);
 
 // ====== Auth Context ======
 type AuthContextType = {
@@ -295,7 +179,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
           id: Number(payload.uid ?? payload.userId ?? 0),
           email: payload.email ?? "",
           name: payload.fullName ?? payload.unique_name ?? payload.sub ?? "",
-          role: getRoleFromPayload(payload), // <-- CHUẨN HOÁ TẠI ĐÂY
+          roles: getRoleFromPayload(payload),
         } as User);
       }
     }
@@ -321,13 +205,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       }
 
       const { accessToken, refreshToken, expiresAt } = data.data;
-      saveTokens(
-        {
-          accessToken: accessToken ?? null,
-        },
-        rememberMe
-      );
-      // nếu BE trả kèm refreshToken/expiresAt, vẫn lưu
+
+      // lưu một lần là đủ
       saveTokens(
         {
           accessToken: accessToken ?? null,
@@ -345,7 +224,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
               email: payload.email ?? email,
               name:
                 payload.fullName ?? payload.unique_name ?? payload.sub ?? "",
-              role: getRoleFromPayload(payload), // <-- CHUẨN HOÁ TẠI ĐÂY
+              roles: getRoleFromPayload(payload),
             } as User)
           : null
       );
@@ -373,7 +252,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
             id: Number(payload.uid ?? payload.userId ?? 0),
             email: payload.email ?? "",
             name: payload.fullName ?? payload.unique_name ?? payload.sub ?? "",
-            role: getRoleFromPayload(payload), // <-- CHUẨN HOÁ TẠI ĐÂY
+            roles: getRoleFromPayload(payload),
           } as User)
         : null
     );
@@ -381,7 +260,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
   // BE hiện chưa có GET /api/user/me → có thể gọi /api/user/{id} nếu muốn “tươi” hơn
   const me = async () => {
-    // optional: decode uid & gọi /api/user/{id} để đồng bộ profile
     return;
   };
 

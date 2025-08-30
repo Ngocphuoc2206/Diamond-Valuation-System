@@ -1,36 +1,70 @@
-import React from "react";
+import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useCart } from "../context/CartContext";
 import { useLanguage } from "../context/LanguageContext";
 
 const CartPage: React.FC = () => {
-  // CartContext server-backed
-  const {
-    items,
-    updateQuantity, // (cartItemId, qty)
-    removeItem, // ✅ ĐÚNG TÊN: removeItem (không phải removeFromCart)
-    getTotalPrice,
-    clearCartLocal,
-  } = useCart();
+  const { cart, items, getTotalPrice, update, remove, clearCartLocal } =
+    useCart();
   const { t } = useLanguage();
+  const [isBusy, setIsBusy] = useState(false);
 
   const fadeInUp = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
   };
 
-  // Xoá toàn bộ trên server: gọi remove từng cartItem (tránh chỉ clear local)
+  // Subtotal/tax/total
+  const subtotal = useMemo(
+    () =>
+      typeof cart?.subtotal === "number" ? cart!.subtotal : getTotalPrice(),
+    [cart?.subtotal, getTotalPrice]
+  );
+  const tax = useMemo(() => +(subtotal * 0.08).toFixed(2), [subtotal]);
+  const total = useMemo(() => +(subtotal + tax).toFixed(2), [subtotal, tax]);
+
   const handleClearAll = async () => {
-    for (const it of items) {
-      try {
-        await removeItem(it.id);
-      } catch {}
+    if (!items.length) return;
+    setIsBusy(true);
+    try {
+      await Promise.allSettled(items.map((it) => remove(it.id)));
+      // Xoá local để UI sạch
+      clearCartLocal();
+    } finally {
+      setIsBusy(false);
     }
-    clearCartLocal(); // tuỳ chọn: dọn local
   };
 
-  if (items.length === 0) {
+  const decQty = async (id: number, qty: number, unitPrice: number) => {
+    if (qty <= 1) return;
+    setIsBusy(true);
+    try {
+      await update({ id, quantity: qty - 1, unitPrice });
+    } finally {
+      setIsBusy(false);
+    }
+  };
+
+  const incQty = async (id: number, qty: number, unitPrice: number) => {
+    setIsBusy(true);
+    try {
+      await update({ id, quantity: qty + 1, unitPrice });
+    } finally {
+      setIsBusy(false);
+    }
+  };
+
+  const removeOne = async (id: number) => {
+    setIsBusy(true);
+    try {
+      await remove(id);
+    } finally {
+      setIsBusy(false);
+    }
+  };
+
+  if (!items.length) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <motion.div
@@ -51,11 +85,6 @@ const CartPage: React.FC = () => {
       </div>
     );
   }
-
-  // Tính thuế demo 8%
-  const subtotal = getTotalPrice();
-  const tax = subtotal * 0.08;
-  const total = subtotal + tax;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -96,79 +125,88 @@ const CartPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleClearAll}
-                  className="text-red-600 hover:text-red-800 text-sm"
+                  disabled={isBusy}
+                  className="text-red-600 hover:text-red-800 text-sm disabled:opacity-50"
                 >
-                  Clear All
+                  {isBusy ? t("common.processing") : "Clear All"}
                 </button>
               </div>
 
               <div className="space-y-6">
-                {items.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex items-center space-x-4 pb-6 border-b last:border-b-0"
-                  >
-                    {item.imageUrl ? (
-                      <img
-                        src={item.imageUrl}
-                        alt={item.name ?? item.sku}
-                        className="w-20 h-20 object-cover rounded-md"
-                      />
-                    ) : (
-                      <div className="w-20 h-20 bg-gray-100 rounded-md flex items-center justify-center text-gray-400">
-                        N/A
+                {items.map((item) => {
+                  const line =
+                    typeof item.lineTotal === "number"
+                      ? item.lineTotal
+                      : item.unitPrice * item.quantity;
+
+                  return (
+                    <div
+                      key={item.id}
+                      className="flex items-center space-x-4 pb-6 border-b last:border-b-0"
+                    >
+                      {item.imageUrl ? (
+                        <img
+                          src={item.imageUrl}
+                          alt={item.name ?? item.sku}
+                          className="w-20 h-20 object-cover rounded-md"
+                        />
+                      ) : (
+                        <div className="w-20 h-20 bg-gray-100 rounded-md flex items-center justify-center text-gray-400">
+                          N/A
+                        </div>
+                      )}
+
+                      <div className="flex-1">
+                        <h3 className="font-bold text-lg mb-1">
+                          {item.name ?? item.sku}
+                        </h3>
+                        <p className="text-luxury-gold font-bold text-xl">
+                          ${item.unitPrice.toLocaleString()}
+                        </p>
                       </div>
-                    )}
-                    <div className="flex-1">
-                      <h3 className="font-bold text-lg mb-1">
-                        {item.name ?? item.sku}
-                      </h3>
-                      <p className="text-luxury-gold font-bold text-xl">
-                        ${item.unitPrice.toLocaleString()}
-                      </p>
-                    </div>
 
-                    <div className="flex items-center space-x-2">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          updateQuantity(
-                            item.id,
-                            Math.max(1, item.quantity - 1)
-                          )
-                        }
-                        className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100"
-                      >
-                        -
-                      </button>
-                      <span className="w-12 text-center font-medium">
-                        {item.quantity}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          updateQuantity(item.id, item.quantity + 1)
-                        }
-                        className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100"
-                      >
-                        +
-                      </button>
-                    </div>
+                      <div className="flex items-center space-x-2">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            decQty(item.id, item.quantity, item.unitPrice)
+                          }
+                          disabled={isBusy || item.quantity <= 1}
+                          className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 disabled:opacity-40"
+                        >
+                          -
+                        </button>
+                        <span className="w-12 text-center font-medium">
+                          {item.quantity}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            incQty(item.id, item.quantity, item.unitPrice)
+                          }
+                          disabled={isBusy}
+                          className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 disabled:opacity-40"
+                        >
+                          +
+                        </button>
+                      </div>
 
-                    <div className="text-right">
-                      <p className="font-bold text-lg">
-                        ${item.lineTotal.toLocaleString()}
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => removeItem(item.id)} // ✅ dùng removeItem
-                        className="text-red-600 hover:text-red-800 text-sm mt-1"
-                      >
-                        {t("cart.remove")}
-                      </button>
+                      <div className="text-right">
+                        <p className="font-bold text-lg">
+                          ${line.toLocaleString()}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => removeOne(item.id)}
+                          disabled={isBusy}
+                          className="text-red-600 hover:text-red-800 text-sm mt-1 disabled:opacity-50"
+                        >
+                          {t("cart.remove")}
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
@@ -245,59 +283,15 @@ const CartPage: React.FC = () => {
                 <h4 className="font-medium mb-4">{t("cart.whyChoose")}</h4>
                 <div className="space-y-3 text-sm text-gray-600">
                   <div className="flex items-center space-x-2">
-                    <svg
-                      className="w-4 h-4 text-green-600"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
+                    <span>✅</span>
                     <span>Certified Authentic Diamonds</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <svg
-                      className="w-4 h-4 text-green-600"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
+                    <span>✅</span>
                     <span>30-Day Return Policy</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <svg
-                      className="w-4 h-4 text-green-600"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    <span>Free Insured Shipping</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <svg
-                      className="w-4 h-4 text-green-600"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
+                    <span>✅</span>
                     <span>{t("cart.lifetimeWarranty")}</span>
                   </div>
                 </div>
