@@ -25,76 +25,77 @@ public class CartService : ICartService
         cart.Items = (await _uow.CartItems.GetManyAsync(ci => ci.CartId == cart.Id)).ToList();
     }
 
-    // ================== APIs =====================
-
-    // Tạo hoặc lấy giỏ
-    public async Task<CartDto> CreateOrGetAsync(string? cartKey, int? customerId)
+    private async Task<Cart> ResolveOrCreateAsync(string? cartKey, int? customerId, bool isCustomerRole)
     {
         Cart? cart = null;
 
-        if (!string.IsNullOrWhiteSpace(cartKey))
+        if (isCustomerRole)
         {
-            cart = await _uow.Carts.GetByAsync(c => c.CartKey == cartKey);
-        }
-        else if (customerId.HasValue)
-        {
-            cart = await _uow.Carts.GetByAsync(c => c.CustomerId == customerId);
-        }
+            if (!string.IsNullOrWhiteSpace(cartKey))
+                cart = await _uow.Carts.GetByAsync(c => c.CartKey == cartKey);
 
-        if (cart is null)
-        {
-            cart = new Cart
+            if (cart is null)
             {
-                CartKey = string.IsNullOrWhiteSpace(cartKey) ? Guid.NewGuid().ToString("N") : cartKey!,
-                CustomerId = customerId,
-                Total = 0
-            };
-            await _uow.Carts.CreateAsync(cart);
+                cart = new Cart
+                {
+                    CartKey = string.IsNullOrWhiteSpace(cartKey) ? Guid.NewGuid().ToString("N") : cartKey
+                };
+                await _uow.Carts.CreateAsync(cart);
+            } 
+        }
+        else
+        {
+            if (customerId.HasValue)
+                cart = await _uow.Carts.GetByAsync(c => c.CustomerId == customerId.Value);
+
+            if (cart is null)
+            {
+                cart = new Cart { CustomerId = customerId };
+                await _uow.Carts.CreateAsync(cart);
+            }
         }
 
         await LoadItemsAsync(cart);
-        Recalc(cart);                                    // chỉ tính trong RAM, không ghi DB ở GET
+        Recalc(cart);
+        await _uow.Carts.UpdateAsync(cart);
+        await _uow.SaveChangesAsync();
+        return cart;
+    }
+
+
+    // ================== APIs =====================
+
+    // Tạo hoặc lấy giỏ
+    public async Task<CartDto> CreateOrGetAsync(string? cartKey, int? customerId, bool isCustomerRole)
+    {
+        var cart = await ResolveOrCreateAsync(cartKey, customerId, isCustomerRole);
         return cart.ToDto();
     }
 
     // GET theo cartKey (trả ApiResponse<CartDto>)
-    public async Task<ApiResponse<CartDto>> GetAsync(string cartKey)
+    public async Task<ApiResponse<CartDto>> GetAsync(string? cartKey, int? customerId, bool isCustomerRole)
     {
-        var cart = await _uow.Carts.GetByAsync(c => c.CartKey == cartKey);
-        if (cart is null) return ApiResponse<CartDto>.Failure("Cart not found");
-
-        await LoadItemsAsync(cart);
-        Recalc(cart);                                    // không ghi DB ở GET
+        var cart = await ResolveOrCreateAsync(cartKey, customerId, isCustomerRole);
         return ApiResponse<CartDto>.CreateSuccessResponse(cart.ToDto(), "Ok");
     }
 
-    public async Task<ApiResponse<CartDto>> AddItemAsync(string cartKey, AddCartItemDto dto)
+    public async Task<ApiResponse<CartDto>> AddItemAsync(string? cartKey, int? customerId, bool isCustomerRole, AddCartItemDto dto)
     {
-        if (string.IsNullOrWhiteSpace(cartKey))
-            return ApiResponse<CartDto>.Failure("Cart key is required");
-        if (dto is null || string.IsNullOrWhiteSpace(dto.Sku) || dto.Quantity <= 0)
-            return ApiResponse<CartDto>.Failure("Invalid payload");
+        var cart = await ResolveOrCreateAsync(cartKey, customerId, isCustomerRole);
 
-        var cart = await _uow.Carts.GetByAsync(c => c.CartKey == cartKey);
-        if (cart is null) return ApiResponse<CartDto>.Failure("Cart not found");
-
-        await LoadItemsAsync(cart);
-
-        var normSku = dto.Sku.Trim();
-        var existed = cart.Items.FirstOrDefault(i => i.Sku == normSku);
+        var existed = cart.Items.FirstOrDefault(i => i.Sku == dto.Sku);
         if (existed is null)
         {
             var item = new CartItem
             {
                 CartId = cart.Id,
-                Sku = normSku,
+                Sku = dto.Sku,
                 Quantity = dto.Quantity,
                 UnitPrice = dto.UnitPrice,
-                Name = dto.Name ?? string.Empty,
+                Name = dto.Name,
                 ImageUrl = dto.ImageUrl
             };
             await _uow.CartItems.CreateAsync(item);
-            await _uow.SaveChangesAsync();
         }
         else
         {
@@ -103,54 +104,45 @@ public class CartService : ICartService
             await _uow.CartItems.UpdateAsync(existed);
         }
 
-        await LoadItemsAsync(cart);                      // reload để chắc chắn số liệu mới
+        await LoadItemsAsync(cart);
         Recalc(cart);
         await _uow.Carts.UpdateAsync(cart);
         await _uow.SaveChangesAsync();
+
         return ApiResponse<CartDto>.CreateSuccessResponse(cart.ToDto(), "Ok");
     }
 
-    public async Task<ApiResponse<CartDto>> UpdateItemAsync(string cartKey, UpdateCartItemDto dto)
+    public async Task<ApiResponse<CartDto>> UpdateItemAsync(string? cartKey, int? customerId, bool isCustomerRole, UpdateCartItemDto dto)
     {
-        var cart = await _uow.Carts.GetByAsync(c => c.CartKey == cartKey);
-        if (cart is null) return ApiResponse<CartDto>.Failure("Cart not found");
-
-        await LoadItemsAsync(cart);
-
+        var cart = await ResolveOrCreateAsync(cartKey, customerId, isCustomerRole);
         var item = cart.Items.FirstOrDefault(i => i.Id == dto.CartItemId);
         if (item is null) return ApiResponse<CartDto>.Failure("Item not found");
 
-        if (dto.Quantity <= 0)
-        {
-            await _uow.CartItems.DeleteAsync(item);
-        }
-        else
-        {
-            item.Quantity = dto.Quantity;
-            await _uow.CartItems.UpdateAsync(item);
-        }
+        item.Quantity = dto.Quantity;
+        item.UnitPrice = dto.UnitPrice;
+        await _uow.CartItems.UpdateAsync(item);
 
         await LoadItemsAsync(cart);
         Recalc(cart);
         await _uow.Carts.UpdateAsync(cart);
+        await _uow.SaveChangesAsync();
 
         return ApiResponse<CartDto>.CreateSuccessResponse(cart.ToDto(), "Ok");
     }
 
-    public async Task<ApiResponse<CartDto>> RemoveItemAsync(string cartKey, int cartItemId)
-    {
-        var cart = await _uow.Carts.GetByAsync(c => c.CartKey == cartKey);
-        if (cart is null) return ApiResponse<CartDto>.Failure("Cart not found");
 
-        var item = await _uow.CartItems.GetByIdAsync(cartItemId);
-        if (item is null || item.CartId != cart.Id)
-            return ApiResponse<CartDto>.Failure("Item not found");
+    public async Task<ApiResponse<CartDto>> RemoveItemAsync(string? cartKey, int? customerId, bool isCustomerRole, int cartItemId)
+    {
+        var cart = await ResolveOrCreateAsync(cartKey, customerId, isCustomerRole);
+        var item = cart.Items.FirstOrDefault(i => i.Id == cartItemId);
+        if (item is null) return ApiResponse<CartDto>.Failure("Item not found");
 
         await _uow.CartItems.DeleteAsync(item);
 
         await LoadItemsAsync(cart);
         Recalc(cart);
         await _uow.Carts.UpdateAsync(cart);
+        await _uow.SaveChangesAsync();
 
         return ApiResponse<CartDto>.CreateSuccessResponse(cart.ToDto(), "Ok");
     }

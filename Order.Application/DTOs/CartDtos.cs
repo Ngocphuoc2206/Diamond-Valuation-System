@@ -13,10 +13,10 @@ public record CartDto
 }
 public record AddCartItemDto
 {
-    public required string Sku { get; init; }
-    public required int Quantity { get; init; }
-    public required decimal UnitPrice { get; init; }
+    public required string Sku { get; set; }
+    public required int Quantity { get; set; }
+    public required decimal UnitPrice { get; set; }
     public string? Name { get; init; }
     public string? ImageUrl { get; init; }
 }
-public record UpdateCartItemDto(int CartItemId, int Quantity);
+public record UpdateCartItemDto(int CartItemId, int Quantity, decimal UnitPrice);
