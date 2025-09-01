@@ -1,5 +1,6 @@
+// src/pages/ProductDetailPage.tsx
 import React, { useEffect, useMemo, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useCart } from "../context/CartContext";
 import { useLanguage } from "../context/LanguageContext";
@@ -9,9 +10,15 @@ import { useAuth } from "../context/AuthContext";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+// ❌ Bỏ import service thanh toán — tạo payment ở /checkout, không ở PDP
+// import { createPayment } from "../services/payment";
+
 const ProductDetailPage: React.FC = () => {
   const { t } = useLanguage();
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+
+  // ✅ chỉ cần addCartItem (không cần getTotalPrice, cartKey)
   const { add: addCartItem } = useCart();
   const { isAuthenticated } = useAuth();
 
@@ -25,7 +32,6 @@ const ProductDetailPage: React.FC = () => {
   const [adding, setAdding] = useState(false);
   const [addedMsg, setAddedMsg] = useState<string | null>(null);
 
-  // helper lấy ảnh đầu tiên từ nhiều schema khác nhau
   const pickImage = (p: any): string => {
     if (Array.isArray(p?.images)) return p.images[0] ?? "";
     if (typeof p?.images === "string") return p.images;
@@ -42,13 +48,11 @@ const ProductDetailPage: React.FC = () => {
 
     (async () => {
       try {
-        // Chi tiết
         const raw = await getProductById(id);
         const p = (raw as any)?.data ?? raw;
         setProduct(p as Product);
         setSelectedImageIndex(0);
 
-        // Related theo category (nếu có), bỏ chính nó
         const rawList = await getProducts();
         const list = ((rawList as any)?.data ?? rawList ?? []) as Product[];
         const cate = (p as any)?.category ?? "Others";
@@ -69,7 +73,7 @@ const ProductDetailPage: React.FC = () => {
     })();
   }, [id]);
 
-  // Xử lý images (có thể là string hoặc string[]; hoặc imageUrl)
+  // Xử lý images
   const images: string[] = useMemo(() => {
     if (!product) return [];
     const p: any = product;
@@ -83,7 +87,6 @@ const ProductDetailPage: React.FC = () => {
   const inStock = useMemo(() => {
     if (!product) return false;
     const anyProd: any = product;
-    // nếu không có inStock/stock => coi như còn hàng
     if (typeof anyProd.inStock === "boolean") return anyProd.inStock;
     if (anyProd.stock != null) return Number(anyProd.stock) > 0;
     return true;
@@ -94,13 +97,13 @@ const ProductDetailPage: React.FC = () => {
     visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
   };
 
-  // Map đúng payload theo CartContext server-backed
-  const handleAddToCart = async () => {
+  // core add-to-cart logic dùng chung
+  const addToCartCore = async () => {
     if (!isAuthenticated) {
       toast.warning("Vui lòng đăng nhập trước khi thêm vào giỏ hàng!");
-      return;
+      return false;
     }
-    if (!product) return;
+    if (!product) return false;
 
     const price = Number((product as any)?.price ?? 0);
     const imageUrl = images[0] || pickImage(product);
@@ -108,32 +111,50 @@ const ProductDetailPage: React.FC = () => {
 
     if (!sku) {
       setErr("Product is missing SKU. Please contact support.");
-      return;
+      return false;
     }
     if (quantity < 1) {
       setErr("Quantity must be at least 1.");
-      return;
+      return false;
     }
 
+    await addCartItem({
+      sku,
+      quantity,
+      unitPrice: price,
+      name: product.name,
+      imageUrl,
+    });
+
+    setAddedMsg(t("product.addedToCart") ?? "Added to cart!");
+    setTimeout(() => setAddedMsg(null), 2500);
+    return true;
+  };
+
+  // Thêm giỏ hàng (không tạo payment, không redirect)
+  const handleAddToCart = async () => {
     try {
       setAdding(true);
       setErr(null);
-      setAddedMsg(null);
-
-      await addCartItem({
-        sku,
-        quantity,
-        unitPrice: price,
-        name: product.name,
-        imageUrl,
-      });
-
-      setAddedMsg(t("product.addedToCart") ?? "Added to cart!");
-      setTimeout(() => setAddedMsg(null), 2500);
+      await addToCartCore();
     } catch (e: any) {
       setErr(
         e?.response?.data?.message || e?.message || "Failed to add to cart"
       );
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  // Mua ngay: thêm giỏ hàng xong đi tới Checkout
+  const handleBuyNow = async () => {
+    try {
+      setAdding(true);
+      setErr(null);
+      const ok = await addToCartCore();
+      if (ok) navigate("/checkout");
+    } catch (e: any) {
+      setErr(e?.response?.data?.message || e?.message || "Không thể mua ngay");
     } finally {
       setAdding(false);
     }
@@ -204,7 +225,6 @@ const ProductDetailPage: React.FC = () => {
             variants={fadeInUp}
             className="space-y-4"
           >
-            {/* Main Image */}
             <div className="aspect-square bg-white rounded-lg shadow-md overflow-hidden">
               {images[0] ? (
                 <img
@@ -219,7 +239,6 @@ const ProductDetailPage: React.FC = () => {
               )}
             </div>
 
-            {/* Thumbnail Images */}
             {images.length > 1 && (
               <div className="grid grid-cols-4 gap-4">
                 {images.map((image, index) => (
@@ -251,7 +270,6 @@ const ProductDetailPage: React.FC = () => {
             variants={fadeInUp}
             className="space-y-8"
           >
-            {/* Header */}
             <div>
               {(product as any).featured && (
                 <span className="inline-block bg-luxury-gold text-white px-3 py-1 rounded-full text-sm font-medium mb-4">
@@ -275,7 +293,6 @@ const ProductDetailPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Description */}
             <div>
               <h3 className="text-lg font-bold mb-3">Description</h3>
               <p className="text-gray-600 leading-relaxed">
@@ -283,7 +300,6 @@ const ProductDetailPage: React.FC = () => {
               </p>
             </div>
 
-            {/* Diamond Details (nếu có trong dữ liệu) */}
             {(product as any).diamondDetails && (
               <div>
                 <h3 className="text-lg font-bold mb-4">
@@ -334,7 +350,7 @@ const ProductDetailPage: React.FC = () => {
               </div>
             )}
 
-            {/* Quantity and Add to Cart */}
+            {/* Quantity and Actions */}
             <div className="bg-white p-6 rounded-lg shadow-md">
               <div className="space-y-6">
                 <div>
@@ -390,6 +406,7 @@ const ProductDetailPage: React.FC = () => {
                   </button>
                   <button
                     type="button"
+                    onClick={handleBuyNow}
                     className="btn btn-secondary w-full text-lg py-4"
                   >
                     {t("product.buyNow")}
@@ -476,7 +493,7 @@ const ProductDetailPage: React.FC = () => {
         )}
       </div>
 
-      {/* Nếu app của bạn đã có ToastContainer ở layout thì có thể bỏ dòng dưới */}
+      {/* Nếu app có ToastContainer ở layout thì có thể bỏ cái dưới */}
       <ToastContainer position="top-right" autoClose={2500} />
     </div>
   );

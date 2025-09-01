@@ -33,6 +33,10 @@ const CustomerCommunication = lazy(
   () => import("./pages/CustomerCommunication")
 );
 
+// ✅ Payment return & order success
+const PaymentReturnPage = lazy(() => import("./pages/PaymentReturnPage"));
+const OrderSuccessPage = lazy(() => import("./pages/OrderSuccessPage"));
+
 // System pages
 const Forbidden = lazy(() => import("./pages/system/Forbidden"));
 const NotFound = lazy(() => import("./pages/system/NotFound"));
@@ -53,7 +57,7 @@ const AppRouter: React.FC = () => {
     <BrowserRouter>
       <Suspense fallback={<Loading />}>
         <Routes>
-          {/* Redirect root -> / (home) */}
+          {/* Home */}
           <Route
             path="/"
             element={
@@ -63,6 +67,24 @@ const AppRouter: React.FC = () => {
             }
           />
           <Route path="/home" element={<Navigate to="/" replace />} />
+
+          {/* ✅ ĐẶT 2 ROUTE NÀY Ở CẤP CAO NHẤT */}
+          <Route
+            path="/payment/return"
+            element={
+              <MainLayout>
+                <PaymentReturnPage />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/order/success"
+            element={
+              <MainLayout>
+                <OrderSuccessPage />
+              </MainLayout>
+            }
+          />
 
           {/* Auth (chỉ hiển thị khi chưa đăng nhập) */}
           <Route
@@ -82,7 +104,7 @@ const AppRouter: React.FC = () => {
             }
           />
 
-          {/* Public routes bọc bởi MainLayout */}
+          {/* Public routes bọc bởi MainLayout (nhánh có Outlet) */}
           <Route
             element={
               <MainLayout>
@@ -113,10 +135,9 @@ const AppRouter: React.FC = () => {
               </ProtectedRoute>
             }
           >
-            {/* Entry chung: tự chọn dashboard theo role */}
             <Route index element={<RoleBasedDashboard />} />
 
-            {/* ====== NHÁNH ADMIN (admin/manager) ====== */}
+            {/* Admin */}
             <Route
               path="admin"
               element={
@@ -152,17 +173,12 @@ const AppRouter: React.FC = () => {
               />
             </Route>
 
-            {/* ====== NHÁNH STAFF (consulting/valuation/manager) ====== */}
+            {/* Staff */}
             <Route
               path="staff"
               element={
                 <RequireRole
-                  allowed={[
-                    // đổi về role đã chuẩn hoá
-                    "consulting_staff",
-                    "valuation_staff",
-                    "manager",
-                  ]}
+                  allowed={["consulting_staff", "valuation_staff", "manager"]}
                 >
                   <Outlet />
                 </RequireRole>
@@ -171,7 +187,7 @@ const AppRouter: React.FC = () => {
               <Route index element={<StaffDashboard />} />
             </Route>
 
-            {/* ====== NHÁNH CUSTOMER ====== */}
+            {/* Customer */}
             <Route
               path="customer"
               element={
@@ -183,14 +199,14 @@ const AppRouter: React.FC = () => {
               <Route index element={<CustomerDashboard />} />
             </Route>
 
-            {/* Settings: ai đã đăng nhập cũng vào được */}
+            {/* Settings */}
             <Route
               path="settings"
               element={<div className="p-6">Settings</div>}
             />
           </Route>
 
-          {/* System routes */}
+          {/* System */}
           <Route path="/403" element={<Forbidden />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

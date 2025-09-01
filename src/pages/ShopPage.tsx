@@ -1,5 +1,6 @@
+// src/pages/ShopPage.tsx
 import React, { useState, useMemo, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useCart } from "../context/CartContext";
 import { useLanguage } from "../context/LanguageContext";
@@ -9,7 +10,13 @@ import { useAuth } from "../context/AuthContext";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+// ❌ Gỡ bỏ import tạo thanh toán ở Shop (payment tạo ở Checkout)
+// import { createPayment } from "../services/payment";
+
 const ShopPage: React.FC = () => {
+  const navigate = useNavigate();
+
+  // ✅ chỉ cần add vào giỏ hàng
   const { add: addCartItem } = useCart();
   const { t } = useLanguage();
   const { isAuthenticated } = useAuth();
@@ -127,10 +134,10 @@ const ShopPage: React.FC = () => {
     return "";
   };
 
-  const handleAddToCart = async (product: any) => {
+  const addToCartCore = async (product: any) => {
     if (!isAuthenticated) {
       toast.warning("Vui lòng đăng nhập trước khi thêm vào giỏ hàng!");
-      return;
+      return false;
     }
     const imageUrl = pickImage(product);
     const unitPrice = Number(product?.price ?? 0);
@@ -138,21 +145,39 @@ const ShopPage: React.FC = () => {
 
     if (!sku) {
       toast.error("Sản phẩm thiếu SKU. Vui lòng liên hệ hỗ trợ.");
-      return;
+      return false;
     }
 
+    await addCartItem({
+      sku,
+      quantity: 1,
+      unitPrice,
+      name: product?.name,
+      imageUrl,
+    });
+    toast.success(`Đã thêm "${product?.name}" vào giỏ hàng!`);
+    return true;
+  };
+
+  // Thêm giỏ hàng (không tạo payment ở đây)
+  const handleAddToCart = async (product: any) => {
     try {
-      await addCartItem({
-        sku,
-        quantity: 1,
-        unitPrice,
-        name: product?.name,
-        imageUrl,
-      });
-      toast.success(`Đã thêm "${product?.name}" vào giỏ hàng!`);
+      await addToCartCore(product);
     } catch (e: any) {
       toast.error(
         e?.response?.data?.message || e?.message || "Thêm vào giỏ hàng thất bại"
+      );
+    }
+  };
+
+  // Mua ngay: thêm giỏ hàng xong chuyển tới Checkout
+  const handleBuyNow = async (product: any) => {
+    try {
+      const ok = await addToCartCore(product);
+      if (ok) navigate("/checkout");
+    } catch (e: any) {
+      toast.error(
+        e?.response?.data?.message || e?.message || "Không thể mua ngay"
       );
     }
   };
@@ -382,6 +407,13 @@ const ShopPage: React.FC = () => {
                             className="px-4 py-2 bg-luxury-gold text-white rounded-md hover:bg-opacity-90 transition-colors text-sm"
                           >
                             {t("shop.addToCart")}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleBuyNow(product)}
+                            className="px-4 py-2 bg-luxury-navy text-white rounded-md hover:bg-opacity-90 transition-colors text-sm"
+                          >
+                            {t("shop.buyNow") || "Mua ngay"}
                           </button>
                         </div>
                       </div>
