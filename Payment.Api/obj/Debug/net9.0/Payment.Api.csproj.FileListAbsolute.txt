@@ -362,10 +362,10 @@ D:\Diamond-Valuation-Service\PaymentService\Payment.Api\obj\Debug\net9.0\staticw
 D:\Diamond-Valuation-Service\PaymentService\Payment.Api\obj\Debug\net9.0\staticwebassets\msbuild.buildMultiTargeting.Payment.Api.props
 D:\Diamond-Valuation-Service\PaymentService\Payment.Api\obj\Debug\net9.0\staticwebassets\msbuild.buildTransitive.Payment.Api.props
 D:\Diamond-Valuation-Service\PaymentService\Payment.Api\obj\Debug\net9.0\staticwebassets.pack.json
-D:\Diamond-Valuation-Service\PaymentService\Payment.Api\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt
 D:\Diamond-Valuation-Service\PaymentService\Payment.Api\obj\Debug\net9.0\Payment..9F4DFD6A.Up2Date
 D:\Diamond-Valuation-Service\PaymentService\Payment.Api\obj\Debug\net9.0\Payment.Api.dll
 D:\Diamond-Valuation-Service\PaymentService\Payment.Api\obj\Debug\net9.0\refint\Payment.Api.dll
 D:\Diamond-Valuation-Service\PaymentService\Payment.Api\obj\Debug\net9.0\Payment.Api.pdb
 D:\Diamond-Valuation-Service\PaymentService\Payment.Api\obj\Debug\net9.0\Payment.Api.genruntimeconfig.cache
 D:\Diamond-Valuation-Service\PaymentService\Payment.Api\obj\Debug\net9.0\ref\Payment.Api.dll
+D:\Diamond-Valuation-Service\PaymentService\Payment.Api\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt

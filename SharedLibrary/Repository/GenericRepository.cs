@@ -12,72 +12,39 @@ namespace SharedLibrary.Repository
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
-        protected readonly DbContext _context;
-        public GenericRepository(DbContext context)
-        {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
-        }
+        private readonly DbContext _db;
+        private readonly DbSet<T> _dbSet;
 
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public GenericRepository(DbContext db)
         {
-            return await _context.Set<T>().ToListAsync();
-        }
-
-        public async Task<T?> GetByAsync(Expression<Func<T, bool>> predicate)
-        {
-            return await _context.Set<T>().FirstOrDefaultAsync(predicate);
+            _db = db;
+            _dbSet = db.Set<T>();
         }
 
         public async Task<T?> GetByIdAsync(int id)
         {
-            return await _context.Set<T>().FindAsync(id);
+            return await _dbSet.FindAsync(id);
         }
 
-        public async Task<IEnumerable<T>> GetManyAsync(Expression<Func<T, bool>> predicate)
+        public async Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate)
         {
-            return await _context.Set<T>().Where(predicate).ToListAsync();
+            return await _dbSet.FirstOrDefaultAsync(predicate);
         }
 
-        public async Task<ApiResponse<T>> CreateAsync(T entity)
+        public async Task AddAsync(T entity, CancellationToken ct = default)
         {
-            try
-            {
-                await _context.Set<T>().AddAsync(entity);
-                await _context.SaveChangesAsync();
-                return new ApiResponse<T> { Success = true, Data = entity, Message = "Entity created successfully" };
-            }
-            catch (Exception ex)
-            {
-                return new ApiResponse<T> { Success = false, Message = ex.Message };
-            }
+            await _dbSet.AddAsync(entity, ct);
         }
 
-        public async Task<ApiResponse<bool>> DeleteAsync(T entity)
+        public Task UpdateAsync(T entity, CancellationToken ct = default)
         {
-            try
-            {
-                _context.Set<T>().Remove(entity);
-                await _context.SaveChangesAsync();
-                return new ApiResponse<bool> { Success = true, Data = true, Message = "Entity deleted successfully" };
-            }
-            catch (Exception ex)
-            {
-                return new ApiResponse<bool> { Success = false, Message = ex.Message };
-            }
+            _dbSet.Update(entity);
+            return Task.CompletedTask;
         }
 
-        public async Task<ApiResponse<T>> UpdateAsync(T entity)
+        public async Task SaveChangesAsync(CancellationToken ct = default)
         {
-            try
-            {
-                _context.Set<T>().Update(entity);
-                await _context.SaveChangesAsync();
-                return new ApiResponse<T> { Success = true, Data = entity, Message = "Entity updated successfully" };
-            }
-            catch (Exception ex)
-            {
-                return new ApiResponse<T> { Success = false, Message = ex.Message };
-            }
+            await _db.SaveChangesAsync(ct);
         }
     }
 }

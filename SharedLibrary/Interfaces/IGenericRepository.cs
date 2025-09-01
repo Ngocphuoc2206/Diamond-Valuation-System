@@ -8,14 +8,12 @@ using System.Threading.Tasks;
 
 namespace SharedLibrary.Interfaces
 {
-    public interface  IGenericRepository<T>
+    public interface IGenericRepository<T> where T : class
     {
         Task<T?> GetByIdAsync(int id);
-        Task<IEnumerable<T>> GetAllAsync();
-        Task<ApiResponse<T>> CreateAsync(T entity);
-        Task<ApiResponse<T>> UpdateAsync(T entity);
-        Task<ApiResponse<bool>> DeleteAsync(T entity);
-        Task<T?> GetByAsync(Expression<Func<T, bool>> predicate);
-        Task<IEnumerable<T>> GetManyAsync(Expression<Func<T, bool>> predicate);
+        Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate);
+        Task AddAsync(T entity, CancellationToken ct = default);
+        Task UpdateAsync(T entity, CancellationToken ct = default);
+        Task SaveChangesAsync(CancellationToken ct = default);
     }
 }

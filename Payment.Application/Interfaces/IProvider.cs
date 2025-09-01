@@ -1,10 +1,9 @@
 ﻿using Payment.Domain.Entities;
 
-namespace Payment.Domain.Providers;
+namespace Payment.Domain.Services;
 
-public interface IPaymentProvider
+public interface IProvider
 {
-    string Name { get; } // "FAKE"
-    Task<(string redirectUrl, string externalRef)> CreateAsync(Payment.Domain.Entities.Payment p);
-    Task<bool> VerifyWebhookAsync(string rawBody, out string status, out string? extRef, out string? reason);
+    string Name { get; } // "FAKE", "VNPay", ...
+    Task<(string providerRef, string redirectUrl)> CreateAsync(Payment.Domain.Entities.Payment p, CancellationToken ct = default);
 }

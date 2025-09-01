@@ -1,145 +1,139 @@
-﻿using Payment.Application.DTOs;
-using Payment.Domain.Entities;
-using Payment.Domain.Interfaces;
-using Payment.Domain.Providers;
+﻿using Microsoft.Extensions.Logging;
+using Payment.Application.DTOs;
+using Payment.Domain.Enums;
+using Payment.Domain.Services;
 using Payment.Domain.Services.Interfaces;
+using SharedLibrary.Interfaces;
 using SharedLibrary.Response;
 
 namespace Payment.Application.Services;
 
 public class PaymentService : IPaymentService
 {
-    private readonly IUnitOfWork _uow;
-    private readonly IEnumerable<IPaymentProvider> _providers;
+    private readonly IGenericRepository<Domain.Entities.Payment> _repo;
+    private readonly IEnumerable<IProvider> _providers;
+    private readonly ILogger<PaymentService> _logger;
 
-    public PaymentService(IUnitOfWork uow, IEnumerable<IPaymentProvider> providers)
+    public PaymentService(
+        IGenericRepository<Domain.Entities.Payment> repo,
+        IEnumerable<IProvider> providers,
+        ILogger<PaymentService> logger)
     {
-        _uow = uow;
+        _repo = repo;
         _providers = providers;
+        _logger = logger;
     }
 
     public async Task<ApiResponse<PaymentViewDto>> CreateAsync(CreatePaymentDto dto, string idempotencyKey)
     {
-        if (string.IsNullOrWhiteSpace(idempotencyKey))
-            return ApiResponse<PaymentViewDto>.Failure("Missing Idempotency-Key");
-
-        //OrderService để check OrderNo + Amount khớp
-        // validate với OrderService
-
-        var existing = (await _uow.Payments.GetManyAsync(x => x.OrderNo == dto.OrderNo &&
-                                                              (x.Status == PaymentStatus.Processing || x.Status == PaymentStatus.Succeeded)))
-                                                              .OrderByDescending(x => x.Id)
-                                                              .FirstOrDefault();
-        if (existing is not null && existing.IdempotencyKey == idempotencyKey)
+        var p = new Domain.Entities.Payment
         {
-            return ApiResponse<PaymentViewDto>.CreateSuccessResponse(ToView(existing), "Idempotent return");
-        }
-        if (existing is not null && existing.Status == PaymentStatus.Succeeded)
-        {
-            return ApiResponse<PaymentViewDto>.Failure("Order already paid");
-        }
-
-        var provider = _providers.FirstOrDefault(p => p.Name.Equals(dto.Method, StringComparison.OrdinalIgnoreCase));
-        if (provider is null) return ApiResponse<PaymentViewDto>.Failure("Unsupported provider");
-
-        var p = new Payment.Domain.Entities.Payment
-        {
-            OrderNo = dto.OrderNo.Trim(),
+            Method = dto.Method,
             Amount = dto.Amount,
-            Provider = provider.Name,
-            Status = PaymentStatus.Processing,
-            IdempotencyKey = idempotencyKey
+            Currency = dto.Currency,
+            OrderCode = dto.OrderCode,
+            ReturnUrl = dto.ReturnUrl,
+            Status = PaymentStatus.Pending,
+            IdempotencyKey = string.IsNullOrWhiteSpace(idempotencyKey) ? null : idempotencyKey,
+            CreatedAt = DateTime.UtcNow
         };
-        await _uow.Payments.CreateAsync(p);
 
-        // sau khi có Id, tạo redirectUrl + externalRef
-        var (redirectUrl, extRef) = await provider.CreateAsync(p);
-        p.ExternalRef = extRef;
-        await _uow.Payments.UpdateAsync(p);
+        await _repo.AddAsync(p);
+        await _repo.SaveChangesAsync();
 
-        return ApiResponse<PaymentViewDto>.CreateSuccessResponse(ToView(p), redirectUrl);
+        var provider = _providers.FirstOrDefault(x => string.Equals(x.Name, p.Method, StringComparison.OrdinalIgnoreCase));
+        if (provider is null)
+        {
+            p.Status = PaymentStatus.Failed;
+            p.FailureReason = "Provider not found";
+            await _repo.UpdateAsync(p);
+            await _repo.SaveChangesAsync();
+            return ApiResponse<PaymentViewDto>.Failure("Provider not found");
+        }
+
+        var (providerRef, redirectUrl) = await provider.CreateAsync(p);
+        p.ProviderReference = providerRef;
+        p.UpdatedAt = DateTime.UtcNow;
+        await _repo.UpdateAsync(p);
+        await _repo.SaveChangesAsync();
+
+        return ApiResponse<PaymentViewDto>.CreateSuccessResponse(ToView(p, redirectUrl));
     }
 
     public async Task<ApiResponse<PaymentViewDto>> GetAsync(int id)
     {
-        var p = await _uow.Payments.GetByIdAsync(id);
-        if (p is null) return ApiResponse<PaymentViewDto>.Failure("Not found");
-        return ApiResponse<PaymentViewDto>.CreateSuccessResponse(ToView(p), "Ok");
+        var p = await _repo.GetByIdAsync(id);
+        if (p == null) return ApiResponse<PaymentViewDto>.Failure("Not found");
+        return ApiResponse<PaymentViewDto>.CreateSuccessResponse(ToView(p, null));
     }
 
-    public async Task<ApiResponse<bool>> HandleFakeWebhookAsync(FakeWebhookDto dto, string rawBody)
+    public async Task<ApiResponse<PaymentViewDto>> SimulateAsync(int id, string result, string? reason)
     {
-        var p = await _uow.Payments.GetByIdAsync(dto.PaymentId);
-        if (p is null) return ApiResponse<bool>.Failure("Payment not found");
-        if (p.Status is PaymentStatus.Succeeded or PaymentStatus.Failed)
-            return ApiResponse<bool>.CreateSuccessResponse(true, "Already finalized");
+        var p = await _repo.GetByIdAsync(id);
+        if (p == null) return ApiResponse<PaymentViewDto>.Failure("Not found");
 
-        // mock verify
-        var provider = _providers.First(x => x.Name == "FAKE");
-        provider.VerifyWebhookAsync(rawBody, out _, out var extRef, out var reason);
-
-        if (dto.Status.Equals("Succeeded", StringComparison.OrdinalIgnoreCase))
+        switch ((result ?? "").ToLowerInvariant())
         {
-            p.Status = PaymentStatus.Succeeded;
-            p.ExternalRef = dto.ExtRef ?? extRef;
-            p.RawPayload = rawBody;
-            await _uow.Payments.UpdateAsync(p);
-
-            // outbox: PaymentSucceeded { orderNo, paymentId, amount }
-            await _uow.Outbox.CreateAsync(new OutboxMessage
-            {
-                EventType = "PaymentSucceeded",
-                Payload = System.Text.Json.JsonSerializer.Serialize(new { p.Id, p.OrderNo, p.Amount, p.Provider })
-            });
-            return ApiResponse<bool>.CreateSuccessResponse(true, "OK");
+            case "success":
+            case "succeeded":
+            case "paid":
+                p.Status = PaymentStatus.Succeeded;
+                p.FailureReason = null;
+                break;
+            case "canceled":
+            case "cancel":
+                p.Status = PaymentStatus.Canceled;
+                p.FailureReason = reason ?? "User canceled";
+                break;
+            default:
+                p.Status = PaymentStatus.Failed;
+                p.FailureReason = reason ?? "Simulated failure";
+                break;
         }
-        else
-        {
-            p.Status = PaymentStatus.Failed;
-            p.RawPayload = rawBody;
-            await _uow.Payments.UpdateAsync(p);
 
-            await _uow.Outbox.CreateAsync(new OutboxMessage
-            {
-                EventType = "PaymentFailed",
-                Payload = System.Text.Json.JsonSerializer.Serialize(new { p.Id, p.OrderNo, Reason = dto.Reason })
-            });
-            return ApiResponse<bool>.CreateSuccessResponse(true, "Failed");
-        }
+        p.UpdatedAt = DateTime.UtcNow;
+        await _repo.UpdateAsync(p);
+        await _repo.SaveChangesAsync();
+
+        return ApiResponse<PaymentViewDto>.CreateSuccessResponse(ToView(p, null));
     }
 
-    public async Task<ApiResponse<bool>> SimulateAsync(int id, string result, string? reason)
+    public async Task<ApiResponse<bool>> HandleFakeWebhookAsync(FakeWebhookDto dto)
     {
-        var p = await _uow.Payments.GetByIdAsync(id);
-        if (p is null) return ApiResponse<bool>.Failure("Payment not found");
-        if (p.Status is PaymentStatus.Succeeded or PaymentStatus.Failed)
-            return ApiResponse<bool>.CreateSuccessResponse(true, "Already finalized");
+        if (!string.Equals(dto.Provider, "FAKE", StringComparison.OrdinalIgnoreCase))
+            return ApiResponse<bool>.Failure("Unsupported provider");
 
-        if (string.Equals(result, "success", StringComparison.OrdinalIgnoreCase))
+        var p = await _repo.FirstOrDefaultAsync(x => x.ProviderReference == dto.ProviderReference);
+        if (p == null) return ApiResponse<bool>.Failure("Payment not found");
+
+        switch (dto.Event)
         {
-            p.Status = PaymentStatus.Succeeded;
-            p.ExternalRef = p.ExternalRef ?? $"FAKE-{Guid.NewGuid():N}";
-            await _uow.Payments.UpdateAsync(p);
-            await _uow.Outbox.CreateAsync(new OutboxMessage
-            {
-                EventType = "PaymentSucceeded",
-                Payload = System.Text.Json.JsonSerializer.Serialize(new { p.Id, p.OrderNo, p.Amount, p.Provider })
-            });
-            return ApiResponse<bool>.CreateSuccessResponse(true, "OK");
+            case "payment.succeeded":
+                p.Status = PaymentStatus.Succeeded; p.FailureReason = null; break;
+            case "payment.canceled":
+                p.Status = PaymentStatus.Canceled; p.FailureReason = "User canceled"; break;
+            case "payment.failed":
+                p.Status = PaymentStatus.Failed; p.FailureReason = "Gateway failed"; break;
+            default:
+                return ApiResponse<bool>.Failure("Unknown event");
         }
-        else
-        {
-            p.Status = PaymentStatus.Failed;
-            await _uow.Payments.UpdateAsync(p);
-            await _uow.Outbox.CreateAsync(new OutboxMessage
-            {
-                EventType = "PaymentFailed",
-                Payload = System.Text.Json.JsonSerializer.Serialize(new { p.Id, p.OrderNo, Reason = reason })
-            });
-            return ApiResponse<bool>.CreateSuccessResponse(true, "Failed");
-        }
+
+        p.UpdatedAt = DateTime.UtcNow;
+        await _repo.UpdateAsync(p);
+        await _repo.SaveChangesAsync();
+        return ApiResponse<bool>.CreateSuccessResponse(true);
     }
 
-    private static PaymentViewDto ToView(Payment.Domain.Entities.Payment p)
-        => new(p.Id, p.OrderNo, p.Provider, p.Amount, p.Status.ToString(), p.ExternalRef);
+    private static PaymentViewDto ToView(Domain.Entities.Payment p, string? redirect) => new()
+    {
+        Id = p.Id,
+        Method = p.Method,
+        Amount = p.Amount,
+        Currency = p.Currency,
+        OrderCode = p.OrderCode,
+        Status = p.Status.ToString(),
+        FailureReason = p.FailureReason,
+        ProviderReference = p.ProviderReference,
+        RedirectUrl = redirect
+    };
 }

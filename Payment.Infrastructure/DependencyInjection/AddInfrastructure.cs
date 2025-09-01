@@ -4,8 +4,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Payment.Application.Services;
 using Payment.Domain.Entities;
 using Payment.Domain.Interfaces;
+using Payment.Domain.Services;
 using Payment.Domain.Services.Interfaces;
 using Payment.Infrastructure.Data;
+using Payment.Infrastructure.Providers;
 using Payment.Infrastructure.UnitOfWork;
 using SharedLibrary.Interfaces;
 using SharedLibrary.Messaging;
@@ -30,6 +32,8 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork, Uow>();
 
         services.AddScoped<IPaymentService, PaymentService>();
+        services.AddScoped<IProvider, FakePaymentProvider>();
+
         //services.AddSingleton<IEventBus, RabbitMQEventBus>();
         return services;
     }

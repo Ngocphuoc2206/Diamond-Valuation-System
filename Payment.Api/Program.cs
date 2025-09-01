@@ -62,8 +62,6 @@ builder.Services.AddCors(opt =>
 
 var app = builder.Build();
 
-app.UseCors(AllowFE);
-
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<PaymentDbContext>();
@@ -91,6 +89,7 @@ app.UseSwaggerUI(options =>
 });
 
 app.UseRouting();
+app.UseCors(AllowFE);
 app.UseAuthentication();
 app.UseAuthorization();
 
