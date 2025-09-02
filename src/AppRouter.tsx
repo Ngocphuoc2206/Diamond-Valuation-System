@@ -33,7 +33,7 @@ const CustomerCommunication = lazy(
   () => import("./pages/CustomerCommunication")
 );
 
-// ✅ Payment return & order success
+// Payment return & order success
 const PaymentReturnPage = lazy(() => import("./pages/PaymentReturnPage"));
 const OrderSuccessPage = lazy(() => import("./pages/OrderSuccessPage"));
 
@@ -68,7 +68,6 @@ const AppRouter: React.FC = () => {
           />
           <Route path="/home" element={<Navigate to="/" replace />} />
 
-          {/* ✅ ĐẶT 2 ROUTE NÀY Ở CẤP CAO NHẤT */}
           <Route
             path="/payment/return"
             element={

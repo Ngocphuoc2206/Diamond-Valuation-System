@@ -13,7 +13,7 @@ const RoleBasedDashboard: React.FC = () => {
   const norm = (s?: string) =>
     (s ?? "").toLowerCase().replace(/\s+/g, "").replace(/[-_]/g, "");
   const role = (() => {
-    const r = norm(user?.role);
+    const r = norm(user?.roles);
     if (r === "consultingstaff") return "consulting_staff";
     if (r === "valuationstaff") return "valuation_staff";
     return r;

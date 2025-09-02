@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+// src/pages/AdminDashboard.tsx
+import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
 import { Link } from "react-router-dom";
 
-// Tabs (created earlier)
+// Tabs
 import OverviewTab from "./AdminTabs/OverviewTab";
 import UserTab from "./AdminTabs/UsersTab";
 import ValuationTab from "./AdminTabs/ValuationsTab";
@@ -14,9 +15,13 @@ import StaffTab from "./AdminTabs/StaffTab";
 import AnalyticsTab from "./AdminTabs/AnalyticsTab";
 import SettingsTab from "./AdminTabs/SettingsTab";
 
-// ===== Mock / initial data (kept from original) =====
-import { users as initialUsers } from "../data/mockData";
+// Services
+import { UserAPI, type UserDto } from "../services/user";
+import { api } from "../services/apiClient";
+import { normalizeRole, pickUserRole, toBackendRole } from "../utils/role";
+import { normalize } from "zod";
 
+// ===== Mock cho các tab khác (giữ nguyên) =====
 const dashboardStats = {
   totalUsers: 50,
   totalValuations: 2,
@@ -177,21 +182,48 @@ const fadeInUp = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
 };
 
+// ===== Helpers: map BE -> FE =====
+function mapUserFromDto(u: UserDto) {
+  const role = pickUserRole(u.roles || [{ name: (u as any).role ?? "" }]);
+  return {
+    id: String(u.id),
+    name: u.fullName || u.userName || u.email,
+    email: u.email,
+    role, // "consultingstaff" | "valuationstaff" | ...
+    avatar: u.avatarUrl,
+    status: u.status || "active",
+  };
+}
+
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
   const { t } = useLanguage();
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState<
+    | "overview"
+    | "users"
+    | "valuations"
+    | "orders"
+    | "products"
+    | "staff"
+    | "analytics"
+    | "settings"
+  >("overview");
 
-  // ===== State (kept at parent) =====
-  const [users, setUsers] = useState(initialUsers);
+  // ===== State =====
+  const [users, setUsers] = useState<any[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const [userPage, setUserPage] = useState(1);
+  const [userPageSize] = useState(20);
+  const [userTotalPages, setUserTotalPages] = useState(1);
+
   const [orders, setOrders] = useState(mockOrders);
   const [products, setProducts] = useState(mockProducts);
   const [valuations, setValuations] = useState(mockValuations);
   const [staff, setStaff] = useState(mockStaff);
 
-  // UI state for Users
+  // UI state cho Users
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-  const [userFilter, setUserFilter] = useState("all");
+  const [userFilter, setUserFilter] = useState("all"); // all | customer | staff | admin
   const [searchQuery, setSearchQuery] = useState("");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -201,82 +233,142 @@ const AdminDashboard: React.FC = () => {
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [formData, setFormData] = useState<any>({});
   const [showSuccess, setShowSuccess] = useState("");
+  const [showError, setShowError] = useState("");
 
+  // ===== Toast helpers =====
   const showNotification = (message: string) => {
     setShowSuccess(message);
     setTimeout(() => setShowSuccess(""), 3000);
   };
+  const showErrorToast = (message: string) => {
+    setShowError(message);
+    setTimeout(() => setShowError(""), 3500);
+  };
 
-  // ===== Handlers (same logic, callable from tabs) =====
-  const handleUserAction = (action: string, userId?: string) => {
-    switch (action) {
-      case "add":
-        setSelectedItem(null);
-        setFormData({ name: "", email: "", role: "customer", password: "" });
-        setModalType("user");
-        setIsModalOpen(true);
-        break;
-      case "edit": {
-        const userToEdit = users.find((u: any) => u.id === userId);
-        if (userToEdit) {
-          setSelectedItem(userToEdit);
-          setFormData({
-            name: userToEdit.name,
-            email: userToEdit.email,
-            role: userToEdit.role,
-            password: userToEdit.password || "",
-          });
-          setModalType("user");
-          setIsModalOpen(true);
-        }
-        break;
-      }
-      case "suspend":
-        if (confirm("Are you sure you want to suspend this user?")) {
-          setUsers((prev: any[]) =>
-            prev.map((u: any) =>
-              u.id === userId ? { ...u, status: "suspended" } : u
-            )
-          );
-          showNotification("User suspended successfully");
-        }
-        break;
-      case "activate":
-        setUsers((prev: any[]) =>
-          prev.map((u: any) =>
-            u.id === userId ? { ...u, status: "active" } : u
-          )
-        );
-        showNotification("User activated successfully");
-        break;
-      case "delete":
-        if (
-          confirm(
-            "Are you sure you want to delete this user? This action cannot be undone."
-          )
-        ) {
-          setUsers((prev: any[]) => prev.filter((u: any) => u.id !== userId));
-          showNotification("User deleted successfully");
-        }
-        break;
-      case "bulk_action":
-        if (selectedUsers.length > 0) {
-          const action = prompt("Enter action (suspend/activate/delete):");
-          if (
-            action === "delete" &&
-            confirm(`Delete ${selectedUsers.length} users?`)
-          ) {
-            setUsers((prev: any[]) =>
-              prev.filter((u: any) => !selectedUsers.includes(u.id))
-            );
-            setSelectedUsers([]);
-            showNotification(`${selectedUsers.length} users deleted`);
-          }
-        }
-        break;
+  // ===== Load users from BE =====
+  const resolveRoleParam = (filter: string) =>
+    filter === "all" ? undefined : filter;
+
+  const reloadUsers = async (
+    page = userPage,
+    size = userPageSize,
+    q = searchQuery,
+    role = resolveRoleParam(userFilter)
+  ) => {
+    try {
+      setLoadingUsers(true);
+      const res = await UserAPI.list(page, size, q || undefined, role);
+      const payload = (res.data as any)?.data; // { items, page, size, total, totalPages }
+      const items: UserDto[] = payload?.items ?? [];
+      setUsers(items.map(mapUserFromDto));
+      setUserTotalPages(payload?.totalPages ?? 1);
+    } catch (e: any) {
+      console.error(e);
+      showErrorToast(
+        e?.response?.data?.message || e?.message || "Load users failed"
+      );
+    } finally {
+      setLoadingUsers(false);
     }
   };
 
+  useEffect(() => {
+    void reloadUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userPage, userPageSize, userFilter, searchQuery]);
+
+  // ===== Handlers (Users) =====
+  const handleUserAction = async (action: string, userId?: string) => {
+    try {
+      switch (action) {
+        case "add":
+          setSelectedItem(null);
+          setFormData({ name: "", email: "", role: "customer", password: "" });
+          setModalType("user");
+          setIsModalOpen(true);
+          break;
+
+        case "edit": {
+          const userToEdit = users.find((u: any) => u.id === userId);
+          if (userToEdit) {
+            setSelectedItem(userToEdit);
+            setFormData({
+              name: userToEdit.name,
+              email: userToEdit.email,
+              role: userToEdit.role, // string
+            });
+            console.log(userToEdit.role);
+            setModalType("user");
+            setIsModalOpen(true);
+          }
+          break;
+        }
+
+        case "suspend": {
+          const id = Number(userId);
+          if (!Number.isFinite(id)) break;
+          if (confirm("Are you sure you want to suspend this user?")) {
+            await UserAPI.suspend(id);
+            await reloadUsers();
+            showNotification("User suspended");
+          }
+          break;
+        }
+
+        case "activate": {
+          const id = Number(userId);
+          if (!Number.isFinite(id)) break;
+          await UserAPI.activate(id);
+          await reloadUsers();
+          showNotification("User activated");
+          break;
+        }
+
+        case "delete": {
+          const id = Number(userId);
+          if (!Number.isFinite(id)) break;
+          if (
+            confirm(
+              "Are you sure you want to delete this user? This action cannot be undone."
+            )
+          ) {
+            await UserAPI.delete(id);
+            await reloadUsers();
+            showNotification("User deleted");
+          }
+          break;
+        }
+
+        case "bulk_action": {
+          if (selectedUsers.length === 0) break;
+          const act = prompt("Enter action (suspend/activate/delete):") as
+            | "suspend"
+            | "activate"
+            | "delete"
+            | null;
+          if (act) {
+            await UserAPI.bulk({
+              action: act,
+              userIds: selectedUsers
+                .map((x) => Number(x))
+                .filter((n) => Number.isFinite(n)),
+            });
+            setSelectedUsers([]);
+            await reloadUsers();
+            showNotification(`Bulk ${act} done`);
+          }
+          break;
+        }
+      }
+    } catch (err: any) {
+      console.error(err);
+      showErrorToast(
+        err?.response?.data?.message || err?.message || "User action failed"
+      );
+    }
+  };
+
+  // ===== Handlers (Products/Valuations/Orders) — mock giữ nguyên =====
   const handleProductAction = (action: string, productId?: string) => {
     switch (action) {
       case "add":
@@ -415,98 +507,127 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  // ===== Submit modal =====
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (modalType === "user") {
-      if (selectedItem) {
-        setUsers((prev: any[]) =>
-          prev.map((u: any) =>
-            u.id === selectedItem.id
-              ? { ...u, ...formData, id: selectedItem.id }
-              : u
-          )
-        );
-        showNotification("User updated successfully");
-      } else {
-        const newUser = {
-          ...formData,
-          id: `user_${Date.now()}`,
-          avatar:
-            "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face",
-        };
-        setUsers((prev: any[]) => [...prev, newUser]);
-        showNotification("User created successfully");
-      }
-    } else if (modalType === "product") {
-      if (selectedItem) {
-        setProducts((prev) =>
-          prev.map((p) =>
-            p.id === selectedItem.id
-              ? { ...p, ...formData, id: selectedItem.id }
-              : p
-          )
-        );
-        showNotification("Product updated successfully");
-      } else {
-        const newProduct = {
-          ...formData,
-          id: `product_${Date.now()}`,
-          image:
-            "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=40&h=40&fit=crop",
-        };
-        setProducts((prev) => [...prev, newProduct]);
-        showNotification("Product created successfully");
-      }
-    } else if (modalType === "valuation") {
-      if (selectedItem) {
-        setValuations((prev) =>
-          prev.map((v) =>
-            v.id === selectedItem.id
-              ? {
-                  ...v,
-                  assignedTo: formData.assignedTo,
-                  priority: formData.priority,
-                }
-              : v
-          )
-        );
-        showNotification("Valuation reassigned successfully");
-      } else {
-        const newValuation = {
-          ...formData,
-          id: `VAL-2024-${String(Date.now()).slice(-4)}`,
-          status: "pending",
-        };
-        setValuations((prev) => [...prev, newValuation]);
-        showNotification("Valuation request created");
-      }
-    } else if (modalType === "staff") {
-      if (selectedItem) {
-        setStaff((prev) =>
-          prev.map((s) =>
-            s.id === selectedItem.id
-              ? { ...s, ...formData, id: selectedItem.id }
-              : s
-          )
-        );
-        showNotification("Staff updated successfully");
-      } else {
-        const newStaff = {
-          ...formData,
-          id: `STAFF-${String(Date.now()).slice(-3)}`,
-          activeCases: 0,
-          performance: 0,
-          avatar:
-            "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face",
-        };
-        setStaff((prev) => [...prev, newStaff]);
-        showNotification("Staff member added successfully");
-      }
-    }
+    try {
+      if (modalType === "user") {
+        if (selectedItem) {
+          // Cập nhận name, role, email cho user đã có
+          await UserAPI.assignRole({
+            userId: Number(selectedItem.id),
+            role: toBackendRole(normalizeRole(formData.role)),
+            fullName: formData.name,
+            email: formData.email,
+          });
+          console.log(toBackendRole(normalizeRole(formData.role)));
+          showNotification("User updated");
+          await reloadUsers();
+        } else {
+          // Tạo user mới
+          await api.post("/api/auth/register", {
+            userName: formData.email,
+            email: formData.email,
+            password: formData.password || "P@ssw0rd!",
+            fullName: formData.name || formData.email,
+            role: toBackendRole(normalizeRole(formData.role)),
+          });
 
-    setIsModalOpen(false);
-    setSelectedItem(null);
-    setFormData({});
+          // Lấy id user vừa tạo theo email rồi assign role
+          if (formData.role && formData.role !== "customer") {
+            const findRes = await UserAPI.list(1, 1, formData.email);
+            const created = (findRes.data as any)?.data?.items?.[0] as
+              | UserDto
+              | undefined;
+            if (created?.id) {
+              await UserAPI.assignRole({
+                userId: Number(created.id),
+                role: formData.role,
+                fullName: formData.name,
+                email: formData.email,
+              });
+            }
+          }
+
+          showNotification("User created successfully");
+          await reloadUsers();
+        }
+      } else if (modalType === "product") {
+        if (selectedItem) {
+          setProducts((prev) =>
+            prev.map((p) =>
+              p.id === selectedItem.id
+                ? { ...p, ...formData, id: selectedItem.id }
+                : p
+            )
+          );
+          showNotification("Product updated successfully");
+        } else {
+          const newProduct = {
+            ...formData,
+            id: `product_${Date.now()}`,
+            image:
+              "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=40&h=40&fit=crop",
+          };
+          setProducts((prev) => [...prev, newProduct]);
+          showNotification("Product created successfully");
+        }
+      } else if (modalType === "valuation") {
+        if (selectedItem) {
+          setValuations((prev) =>
+            prev.map((v) =>
+              v.id === selectedItem.id
+                ? {
+                    ...v,
+                    assignedTo: formData.assignedTo,
+                    priority: formData.priority,
+                  }
+                : v
+            )
+          );
+          showNotification("Valuation reassigned successfully");
+        } else {
+          const newValuation = {
+            ...formData,
+            id: `VAL-2024-${String(Date.now()).slice(-4)}`,
+            status: "pending",
+          };
+          setValuations((prev) => [...prev, newValuation]);
+          showNotification("Valuation request created");
+        }
+      } else if (modalType === "staff") {
+        if (selectedItem) {
+          setStaff((prev) =>
+            prev.map((s) =>
+              s.id === selectedItem.id
+                ? { ...s, ...formData, id: selectedItem.id }
+                : s
+            )
+          );
+          showNotification("Staff updated successfully");
+        } else {
+          const newStaff = {
+            ...formData,
+            id: `STAFF-${String(Date.now()).slice(-3)}`,
+            activeCases: 0,
+            performance: 0,
+            avatar:
+              "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face",
+          };
+          setStaff((prev) => [...prev, newStaff]);
+          showNotification("Staff member added successfully");
+        }
+      }
+
+      setIsModalOpen(false);
+      setSelectedItem(null);
+      setFormData({});
+    } catch (err: any) {
+      console.error(err);
+      showErrorToast(
+        err?.response?.data?.message || err?.message || "Action failed"
+      );
+    }
   };
 
   const handleInputChange = (
@@ -526,30 +647,32 @@ const AdminDashboard: React.FC = () => {
     showNotification("Settings updated successfully!");
   };
 
-  // ===== Derived data =====
-  const filteredUsers = users.filter((user: any) => {
-    const matchesFilter =
-      userFilter === "all" ||
-      (userFilter === "customer" && user.role === "customer") ||
-      (userFilter === "staff" &&
-        ["consulting_staff", "valuation_staff", "manager"].includes(
-          user.role
-        )) ||
-      (userFilter === "admin" && user.role === "admin");
+  // ===== Derived data (giữ filter client-side; BE đã filter thêm) =====
+  const filteredUsers = useMemo(() => {
+    return users.filter((u: any) => {
+      const matchesFilter =
+        userFilter === "all" ||
+        (userFilter === "customer" && u.role === "customer") ||
+        (userFilter === "staff" &&
+          ["consulting_staff", "valuation_staff", "manager"].includes(
+            u.role
+          )) ||
+        (userFilter === "admin" && u.role === "admin");
 
-    const matchesSearch =
-      !searchQuery ||
-      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase());
-
-    return matchesFilter && matchesSearch;
-  });
+      const q = (searchQuery || "").toLowerCase();
+      const matchesSearch =
+        !q ||
+        u.name?.toLowerCase().includes(q) ||
+        u.email?.toLowerCase().includes(q);
+      return matchesFilter && matchesSearch;
+    });
+  }, [users, userFilter, searchQuery]);
 
   const userStats = {
     customers: users.filter((u: any) => u.role === "customer").length,
-    consultingStaff: users.filter((u: any) => u.role === "consulting_staff")
+    consultingStaff: users.filter((u: any) => u.role === "consultingstaff")
       .length,
-    valuationStaff: users.filter((u: any) => u.role === "valuation_staff")
+    valuationStaff: users.filter((u: any) => u.role === "valuationstaff")
       .length,
     managers: users.filter((u: any) => u.role === "manager").length,
   };
@@ -577,7 +700,7 @@ const AdminDashboard: React.FC = () => {
   };
 
   // ===== Access control =====
-  if (user?.role !== "admin") {
+  if (user?.roles !== "admin") {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -602,12 +725,11 @@ const AdminDashboard: React.FC = () => {
     { id: "staff", label: t("admin.staffManagement"), icon: "👨‍💼" },
     { id: "analytics", label: t("admin.analytics"), icon: "📈" },
     { id: "settings", label: t("admin.systemConfig"), icon: "⚙️" },
-  ];
+  ] as const;
 
   const handleStaffAction = (action: string, staffId?: string) => {
     switch (action) {
       case "add":
-        // mở modal thêm mới staff ...
         console.log("add staff");
         break;
       case "view":
@@ -623,10 +745,15 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Toast */}
+      {/* Toasts */}
       {showSuccess && (
         <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
           {showSuccess}
+        </div>
+      )}
+      {showError && (
+        <div className="fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+          {showError}
         </div>
       )}
 
@@ -709,24 +836,66 @@ const AdminDashboard: React.FC = () => {
                   customerRating: dashboardStats.customerRating,
                 }}
                 recentActivities={recentActivities}
-                onQuickOpen={setActiveTab}
+                onQuickOpen={(id) => setActiveTab(id as any)}
               />
             )}
 
             {activeTab === "users" && (
-              <UserTab
-                t={t}
-                users={users as any}
-                filteredUsers={filteredUsers as any}
-                selectedUsers={selectedUsers}
-                setSelectedUsers={setSelectedUsers}
-                userStats={userStats}
-                userFilter={userFilter}
-                setUserFilter={setUserFilter}
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                handleUserAction={handleUserAction}
-              />
+              <>
+                <UserTab
+                  t={t}
+                  loading={loadingUsers}
+                  users={users as any}
+                  filteredUsers={filteredUsers as any}
+                  selectedUsers={selectedUsers}
+                  setSelectedUsers={setSelectedUsers}
+                  userStats={{
+                    customers: users.filter((u: any) => u.role === "customer")
+                      .length,
+                    consultingStaff: users.filter(
+                      (u: any) => u.role === "consultingstaff"
+                    ).length,
+                    valuationStaff: users.filter(
+                      (u: any) => u.role === "valuationstaff"
+                    ).length,
+                    managers: users.filter((u: any) => u.role === "manager")
+                      .length,
+                  }}
+                  userFilter={userFilter}
+                  setUserFilter={setUserFilter}
+                  searchQuery={searchQuery}
+                  setSearchQuery={setSearchQuery}
+                  handleUserAction={handleUserAction}
+                />
+
+                {/* Phân trang */}
+                <div className="mt-4 flex items-center gap-2">
+                  <button
+                    className="px-3 py-1 rounded border disabled:opacity-50"
+                    disabled={userPage <= 1 || loadingUsers}
+                    onClick={() => setUserPage((p) => Math.max(1, p - 1))}
+                  >
+                    Prev
+                  </button>
+                  <span className="text-sm text-gray-600">
+                    Page {userPage} / {userTotalPages}
+                  </span>
+                  <button
+                    className="px-3 py-1 rounded border disabled:opacity-50"
+                    disabled={loadingUsers || userPage >= userTotalPages}
+                    onClick={() => setUserPage((p) => p + 1)}
+                  >
+                    Next
+                  </button>
+                  <button
+                    className="px-3 py-1 rounded border"
+                    disabled={loadingUsers}
+                    onClick={() => reloadUsers()}
+                  >
+                    Reload
+                  </button>
+                </div>
+              </>
             )}
 
             {activeTab === "valuations" && (
@@ -773,7 +942,7 @@ const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Simple modal (optional – you can replace with your own modal lib) */}
+      {/* Modal chung */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white w-full max-w-lg rounded-lg shadow-lg p-6">
@@ -781,7 +950,7 @@ const AdminDashboard: React.FC = () => {
               {modalType} form
             </h3>
             <form onSubmit={handleFormSubmit} className="space-y-4">
-              {/* Example generic fields – adapt per modalType as needed */}
+              {/* USER FORM */}
               {modalType === "user" && (
                 <>
                   <input
@@ -798,6 +967,16 @@ const AdminDashboard: React.FC = () => {
                     value={formData.email || ""}
                     onChange={handleInputChange}
                   />
+                  {!selectedItem && (
+                    <input
+                      name="password"
+                      type="password"
+                      placeholder="Password (for register)"
+                      className="w-full border rounded px-3 py-2"
+                      value={formData.password || ""}
+                      onChange={handleInputChange}
+                    />
+                  )}
                   <select
                     name="role"
                     className="w-full border rounded px-3 py-2"
@@ -805,14 +984,15 @@ const AdminDashboard: React.FC = () => {
                     onChange={handleInputChange}
                   >
                     <option value="customer">Customer</option>
-                    <option value="consulting_staff">Consulting Staff</option>
-                    <option value="valuation_staff">Valuation Staff</option>
+                    <option value="consultingstaff">Consulting Staff</option>
+                    <option value="valuationstaff">Valuation Staff</option>
                     <option value="manager">Manager</option>
                     <option value="admin">Admin</option>
                   </select>
                 </>
               )}
 
+              {/* PRODUCT FORM */}
               {modalType === "product" && (
                 <>
                   <input
@@ -840,6 +1020,7 @@ const AdminDashboard: React.FC = () => {
                 </>
               )}
 
+              {/* VALUATION FORM */}
               {modalType === "valuation" && (
                 <>
                   <input
@@ -869,6 +1050,7 @@ const AdminDashboard: React.FC = () => {
                 </>
               )}
 
+              {/* STAFF FORM */}
               {modalType === "staff" && (
                 <>
                   <input

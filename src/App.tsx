@@ -1,27 +1,29 @@
-import { lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import './App.css';
-import MainLayout from './layouts/MainLayout';
-import { AuthProvider } from './context/AuthContext';
-import { CartProvider } from './context/CartContext';
-import { LanguageProvider } from './context/LanguageContext';
+import { lazy, Suspense } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import "./App.css";
+import MainLayout from "./layouts/MainLayout";
+import { AuthProvider } from "./context/AuthContext";
+import { CartProvider } from "./context/CartContext";
+import { LanguageProvider } from "./context/LanguageContext";
 
 // Lazy-loaded pages
-const HomePage = lazy(() => import('./pages/HomePage'));
-const ValuationTool = lazy(() => import('./pages/ValuationTool'));
-const KnowledgePage = lazy(() => import('./pages/KnowledgePage'));
-const ShopPage = lazy(() => import('./pages/ShopPage'));
-const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage'));
-const CartPage = lazy(() => import('./pages/CartPage'));
-const CheckoutPage = lazy(() => import('./pages/CheckoutPage'));
-const OrderSuccessPage = lazy(() => import('./pages/OrderSuccessPage')); // 👈 thêm
-const LoginPage = lazy(() => import('./pages/LoginPage'));
-const RegisterPage = lazy(() => import('./pages/RegisterPage'));
-const RoleBasedDashboard = lazy(() => import('./pages/RoleBasedDashboard'));
-const ContactPage = lazy(() => import('./pages/ContactPage'));
-const FAQPage = lazy(() => import('./pages/FAQPage'));
-const ValuationResults = lazy(() => import('./pages/ValuationResults'));
-const CustomerCommunication = lazy(() => import('./pages/CustomerCommunication'));
+const HomePage = lazy(() => import("./pages/HomePage"));
+const ValuationTool = lazy(() => import("./pages/ValuationTool"));
+const KnowledgePage = lazy(() => import("./pages/KnowledgePage"));
+const ShopPage = lazy(() => import("./pages/ShopPage"));
+const ProductDetailPage = lazy(() => import("./pages/ProductDetailPage"));
+const CartPage = lazy(() => import("./pages/CartPage"));
+const CheckoutPage = lazy(() => import("./pages/CheckoutPage"));
+const OrderSuccessPage = lazy(() => import("./pages/OrderSuccessPage")); // 👈 thêm
+const LoginPage = lazy(() => import("./pages/LoginPage"));
+const RegisterPage = lazy(() => import("./pages/RegisterPage"));
+const RoleBasedDashboard = lazy(() => import("./pages/RoleBasedDashboard"));
+const ContactPage = lazy(() => import("./pages/ContactPage"));
+const FAQPage = lazy(() => import("./pages/FAQPage"));
+const ValuationResults = lazy(() => import("./pages/ValuationResults"));
+const CustomerCommunication = lazy(
+  () => import("./pages/CustomerCommunication")
+);
 
 const Loading = () => (
   <div className="flex items-center justify-center min-h-screen">
@@ -83,7 +85,7 @@ function App() {
                   }
                 />
                 <Route
-                  path="/order-success" // 👈 route trang đặt hàng thành công
+                  path="/order-success" // route trang đặt hàng thành công
                   element={
                     <MainLayout>
                       <OrderSuccessPage />
@@ -153,6 +155,6 @@ function App() {
       </AuthProvider>
     </LanguageProvider>
   );
-};
+}
 
 export default App;
