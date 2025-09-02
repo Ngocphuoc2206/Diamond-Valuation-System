@@ -608,7 +608,6 @@ D:\Diamond-Valuation-Service\UserService\UserService.Api\obj\Debug\net9.0\static
 D:\Diamond-Valuation-Service\UserService\UserService.Api\obj\Debug\net9.0\staticwebassets\msbuild.buildMultiTargeting.UserService.Api.props
 D:\Diamond-Valuation-Service\UserService\UserService.Api\obj\Debug\net9.0\staticwebassets\msbuild.buildTransitive.UserService.Api.props
 D:\Diamond-Valuation-Service\UserService\UserService.Api\obj\Debug\net9.0\staticwebassets.pack.json
-D:\Diamond-Valuation-Service\UserService\UserService.Api\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt
 D:\Diamond-Valuation-Service\UserService\UserService.Api\obj\Debug\net9.0\UserServ.B5470E7C.Up2Date
 D:\Diamond-Valuation-Service\UserService\UserService.Api\obj\Debug\net9.0\UserService.Api.dll
 D:\Diamond-Valuation-Service\UserService\UserService.Api\obj\Debug\net9.0\refint\UserService.Api.dll
@@ -616,3 +615,4 @@ D:\Diamond-Valuation-Service\UserService\UserService.Api\obj\Debug\net9.0\UserSe
 D:\Diamond-Valuation-Service\UserService\UserService.Api\obj\Debug\net9.0\UserService.Api.pdb
 D:\Diamond-Valuation-Service\UserService\UserService.Api\obj\Debug\net9.0\UserService.Api.genruntimeconfig.cache
 D:\Diamond-Valuation-Service\UserService\UserService.Api\obj\Debug\net9.0\ref\UserService.Api.dll
+D:\Diamond-Valuation-Service\UserService\UserService.Api\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt

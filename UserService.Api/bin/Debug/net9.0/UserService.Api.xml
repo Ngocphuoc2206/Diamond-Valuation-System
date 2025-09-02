@@ -4,5 +4,11 @@
         <name>UserService.Api</name>
     </assembly>
     <members>
+        <member name="M:UserService.Api.Controllers.UserController.UpdateMe(UserService.Application.DTOs.UpdateProfileDto)">
+            <summary>
+            Cập nhật hồ sơ của người dùng đang đăng nhập
+            PUT /api/user/me
+            </summary>
+        </member>
     </members>
 </doc>

@@ -44,9 +44,16 @@ namespace UserService.Application.Services
             };
             await _uow.UserRepository.CreateAsync(user);
 
-            // Default Role = Customer
-            var role = await _uow.RoleRepository.GetByAsync(r => r.Name == "Customer")
+            //Check role from dto
+            var role = new Role();
+            if (dto.role is null)
+            {
+                // Default Role = Customer
+                role = await _uow.RoleRepository.GetByAsync(r => r.Name == "Customer")
                    ?? (await _uow.RoleRepository.CreateAsync(new Role { Name = "Customer" })).Data!;
+            }
+            else role = await _uow.RoleRepository.GetByAsync(r => r.Name == dto.role)
+                   ?? (await _uow.RoleRepository.CreateAsync(new Role { Name = dto.role })).Data!;
             // GÁN role Customer cho user mới
             await _uow.UserRoleRepository.CreateAsync(new UserRole { UserId = user.Id, RoleId = role.Id });
             return await IssueTokensAsync(user, "register");

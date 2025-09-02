@@ -33,7 +33,7 @@ public static class DbSeeder
                 Email = "admin@diamond.local",
                 PasswordHash = hash,
                 PasswordSalt = salt,
-                IsActive = true,
+                Status = "active",
                 CreatedAt = DateTime.UtcNow
             };
             db.Users.Add(admin);
@@ -69,7 +69,7 @@ public static class DbSeeder
                 FullName = fullName,
                 PasswordHash = hash,
                 PasswordSalt = salt,
-                IsActive = true,
+                Status = "active",
                 CreatedAt = DateTime.UtcNow
             };
             db.Users.Add(u);

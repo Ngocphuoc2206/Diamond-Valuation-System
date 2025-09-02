@@ -17,7 +17,9 @@ namespace UserService.Domain.Entities
         public DateTime? DateOfBirth { get; set; }
         public string PasswordHash { get; set; } = "";
         public string PasswordSalt { get; set; } = "";
-        public bool IsActive { get; set; } = true;
+        public string Status { get; set; } = "active";
+        public DateTime? LastActiveAt { get; set; }
+        public string? AvatarUrl { get; set; }
 
         public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
         public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
