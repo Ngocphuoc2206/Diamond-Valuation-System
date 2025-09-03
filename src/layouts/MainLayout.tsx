@@ -21,7 +21,7 @@ const navigation = [
 const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, user, logout } = useAuth();
 
-  // 👇 Dùng items từ CartContext server-backed
+  // Dùng items từ CartContext server-backed
   const { items } = useCart();
   const itemsCount = useMemo(
     () => items.reduce((sum, it) => sum + (it.quantity ?? 0), 0),
@@ -57,7 +57,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <div className="flex flex-col min-h-screen bg-white">
       {/* ===== Header (sticky) ===== */}
-      <header className="sticky top-0 z-40">
+      <header className="sticky top-0 relative z-[10000] bg-white pointer-events-auto">
         {/* Top bar */}
         <div className="bg-luxury-navy text-white">
           <div className="container-custom h-9 flex items-center justify-between text-[13px]">
@@ -181,7 +181,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                       className="flex items-center text-sm font-medium text-gray-700 hover:text-luxury-gold"
                     >
                       <span className="mr-1">
-                        {user?.name || user?.email || t("nav.account")}
+                        {user?.name || user?.email || t("nav.profile")}
                       </span>
                       <UserIcon className="h-5 w-5" aria-hidden="true" />
                     </button>
@@ -391,13 +391,10 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       </header>
 
       {/* ===== Main content ===== */}
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 relative z-0"> {children} </main>
 
       {/* ===== Footer ===== */}
-      <footer className="bg-gray-900 text-white">
-        {/* ... (phần Footer giữ nguyên như bạn gửi) ... */}
-        {/* Copy nguyên phần footer bạn đang dùng */}
-      </footer>
+      <footer className="bg-gray-900 text-white"></footer>
     </div>
   );
 };

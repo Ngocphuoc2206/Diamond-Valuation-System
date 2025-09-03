@@ -19,7 +19,6 @@ import SettingsTab from "./AdminTabs/SettingsTab";
 import { UserAPI, type UserDto } from "../services/user";
 import { api } from "../services/apiClient";
 import { normalizeRole, pickUserRole, toBackendRole } from "../utils/role";
-import { normalize } from "zod";
 
 // ===== Mock cho các tab khác (giữ nguyên) =====
 const dashboardStats = {
@@ -61,33 +60,6 @@ const mockOrders = [
     status: "processing",
     date: "2024-01-13",
     email: "sarah.w@email.com",
-  },
-];
-
-const mockProducts = [
-  {
-    id: "RING-2024-001",
-    name: "Classic Solitaire Ring",
-    description: "2.5ct Round Brilliant",
-    sku: "RING-2024-001",
-    category: "Engagement Rings",
-    price: 15999,
-    stock: 5,
-    status: "active",
-    image:
-      "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=40&h=40&fit=crop",
-  },
-  {
-    id: "NECK-2024-002",
-    name: "Diamond Tennis Necklace",
-    description: "5ct Total Weight",
-    sku: "NECK-2024-002",
-    category: "Necklaces",
-    price: 12500,
-    stock: 3,
-    status: "active",
-    image:
-      "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=40&h=40&fit=crop",
   },
 ];
 
@@ -217,7 +189,6 @@ const AdminDashboard: React.FC = () => {
   const [userTotalPages, setUserTotalPages] = useState(1);
 
   const [orders, setOrders] = useState(mockOrders);
-  const [products, setProducts] = useState(mockProducts);
   const [valuations, setValuations] = useState(mockValuations);
   const [staff, setStaff] = useState(mockStaff);
 
@@ -297,7 +268,6 @@ const AdminDashboard: React.FC = () => {
               email: userToEdit.email,
               role: userToEdit.role, // string
             });
-            console.log(userToEdit.role);
             setModalType("user");
             setIsModalOpen(true);
           }
@@ -368,52 +338,7 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  // ===== Handlers (Products/Valuations/Orders) — mock giữ nguyên =====
-  const handleProductAction = (action: string, productId?: string) => {
-    switch (action) {
-      case "add":
-        setSelectedItem(null);
-        setFormData({
-          name: "",
-          description: "",
-          sku: "",
-          category: "rings",
-          price: 0,
-          stock: 0,
-          status: "active",
-        });
-        setModalType("product");
-        setIsModalOpen(true);
-        break;
-      case "edit": {
-        const productToEdit = products.find((p) => p.id === productId);
-        if (productToEdit) {
-          setSelectedItem(productToEdit);
-          setFormData(productToEdit);
-          setModalType("product");
-          setIsModalOpen(true);
-        }
-        break;
-      }
-      case "archive":
-        if (confirm("Are you sure you want to archive this product?")) {
-          setProducts((prev) =>
-            prev.map((p) =>
-              p.id === productId ? { ...p, status: "archived" } : p
-            )
-          );
-          showNotification("Product archived successfully");
-        }
-        break;
-      case "activate":
-        setProducts((prev) =>
-          prev.map((p) => (p.id === productId ? { ...p, status: "active" } : p))
-        );
-        showNotification("Product activated successfully");
-        break;
-    }
-  };
-
+  // ===== Handlers cho các tab khác (giữ mock) =====
   const handleValuationAction = (action: string, valuationId?: string) => {
     switch (action) {
       case "add":
@@ -513,14 +438,13 @@ const AdminDashboard: React.FC = () => {
     try {
       if (modalType === "user") {
         if (selectedItem) {
-          // Cập nhận name, role, email cho user đã có
+          // Cập nhật user
           await UserAPI.assignRole({
             userId: Number(selectedItem.id),
             role: toBackendRole(normalizeRole(formData.role)),
             fullName: formData.name,
             email: formData.email,
           });
-          console.log(toBackendRole(normalizeRole(formData.role)));
           showNotification("User updated");
           await reloadUsers();
         } else {
@@ -533,7 +457,7 @@ const AdminDashboard: React.FC = () => {
             role: toBackendRole(normalizeRole(formData.role)),
           });
 
-          // Lấy id user vừa tạo theo email rồi assign role
+          // Assign role nếu không phải customer
           if (formData.role && formData.role !== "customer") {
             const findRes = await UserAPI.list(1, 1, formData.email);
             const created = (findRes.data as any)?.data?.items?.[0] as
@@ -551,26 +475,6 @@ const AdminDashboard: React.FC = () => {
 
           showNotification("User created successfully");
           await reloadUsers();
-        }
-      } else if (modalType === "product") {
-        if (selectedItem) {
-          setProducts((prev) =>
-            prev.map((p) =>
-              p.id === selectedItem.id
-                ? { ...p, ...formData, id: selectedItem.id }
-                : p
-            )
-          );
-          showNotification("Product updated successfully");
-        } else {
-          const newProduct = {
-            ...formData,
-            id: `product_${Date.now()}`,
-            image:
-              "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=40&h=40&fit=crop",
-          };
-          setProducts((prev) => [...prev, newProduct]);
-          showNotification("Product created successfully");
         }
       } else if (modalType === "valuation") {
         if (selectedItem) {
@@ -668,15 +572,6 @@ const AdminDashboard: React.FC = () => {
     });
   }, [users, userFilter, searchQuery]);
 
-  const userStats = {
-    customers: users.filter((u: any) => u.role === "customer").length,
-    consultingStaff: users.filter((u: any) => u.role === "consultingstaff")
-      .length,
-    valuationStaff: users.filter((u: any) => u.role === "valuationstaff")
-      .length,
-    managers: users.filter((u: any) => u.role === "manager").length,
-  };
-
   const orderStats = {
     newOrders: orders.filter((o) => o.status === "new").length,
     processing: orders.filter((o) => o.status === "processing").length,
@@ -692,15 +587,12 @@ const AdminDashboard: React.FC = () => {
     overdue: valuations.filter((v) => v.status === "overdue").length,
   };
 
-  const productStats = {
-    total: products.length,
-    inStock: products.filter((p) => p.stock > 0).length,
-    lowStock: products.filter((p) => p.stock > 0 && p.stock <= 5).length,
-    outOfStock: products.filter((p) => p.stock === 0).length,
-  };
+  // ===== Access control (compat roles là string hoặc mảng) =====
+  const isAdmin = Array.isArray((user as any)?.roles)
+    ? (user as any).roles.includes("admin")
+    : (user as any)?.roles === "admin";
 
-  // ===== Access control =====
-  if (user?.roles !== "admin") {
+  if (!isAdmin) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -783,10 +675,10 @@ const AdminDashboard: React.FC = () => {
               </div>
               <img
                 src={
-                  user?.avatar ||
+                  (user as any)?.avatar ||
                   "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face"
                 }
-                alt={user?.name}
+                alt={(user as any)?.name}
                 className="w-10 h-10 rounded-full border-2 border-luxury-gold"
               />
             </div>
@@ -809,7 +701,7 @@ const AdminDashboard: React.FC = () => {
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
+                    onClick={() => setActiveTab(tab.id as any)}
                     className={`w-full text-left px-4 py-3 rounded-md transition-colors flex items-center space-x-3 ${
                       activeTab === tab.id
                         ? "bg-luxury-gold text-white"
@@ -902,7 +794,12 @@ const AdminDashboard: React.FC = () => {
               <ValuationTab
                 t={t}
                 valuations={valuations as any}
-                valuationStats={valuationStats}
+                valuationStats={{
+                  pending: valuationStats.pending,
+                  inProgress: valuationStats.inProgress,
+                  completed: valuationStats.completed,
+                  overdue: valuationStats.overdue,
+                }}
                 handleValuationAction={handleValuationAction}
               />
             )}
@@ -911,18 +808,20 @@ const AdminDashboard: React.FC = () => {
               <OrderTab
                 t={t}
                 orders={orders as any}
-                orderStats={orderStats}
+                orderStats={{
+                  newOrders: orderStats.newOrders,
+                  processing: orderStats.processing,
+                  shipped: orderStats.shipped,
+                  delivered: orderStats.delivered,
+                  totalRevenue: orderStats.totalRevenue,
+                }}
                 handleOrderAction={handleOrderAction}
               />
             )}
 
             {activeTab === "products" && (
-              <ProductTab
-                t={t}
-                products={products as any}
-                productStats={productStats}
-                handleProductAction={handleProductAction}
-              />
+              // ProductsTab mới tự fetch + CRUD với BE, không cần props
+              <ProductTab />
             )}
 
             {activeTab === "staff" && (
@@ -942,7 +841,7 @@ const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Modal chung */}
+      {/* Modal chung (giữ cho Users/Valuations/Staff) */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white w-full max-w-lg rounded-lg shadow-lg p-6">
@@ -989,34 +888,6 @@ const AdminDashboard: React.FC = () => {
                     <option value="manager">Manager</option>
                     <option value="admin">Admin</option>
                   </select>
-                </>
-              )}
-
-              {/* PRODUCT FORM */}
-              {modalType === "product" && (
-                <>
-                  <input
-                    name="name"
-                    placeholder="Name"
-                    className="w-full border rounded px-3 py-2"
-                    value={formData.name || ""}
-                    onChange={handleInputChange}
-                  />
-                  <input
-                    name="sku"
-                    placeholder="SKU"
-                    className="w-full border rounded px-3 py-2"
-                    value={formData.sku || ""}
-                    onChange={handleInputChange}
-                  />
-                  <input
-                    name="price"
-                    type="number"
-                    placeholder="Price"
-                    className="w-full border rounded px-3 py-2"
-                    value={formData.price ?? 0}
-                    onChange={handleInputChange}
-                  />
                 </>
               )}
 
