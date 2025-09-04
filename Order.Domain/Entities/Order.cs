@@ -1,8 +1,7 @@
-﻿using SharedKernel.Entites;
+﻿using Order.Domain.Enums;
+using SharedKernel.Entites;
 
 namespace Order.Domain.Entities;
-
-public enum OrderStatus { Pending, AwaitingPayment, Paid, Cancelled, Fulfilled }
 
 public class Order : BaseEntity
 {

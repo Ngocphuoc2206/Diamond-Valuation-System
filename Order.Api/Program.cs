@@ -2,6 +2,7 @@
 using Asp.Versioning.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Order.Application.Interfaces;
 using Order.Application.Services;
 using Order.Application.Services.Interfaces;
 using Order.Infrastructure.Data;
