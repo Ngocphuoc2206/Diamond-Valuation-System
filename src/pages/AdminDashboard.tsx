@@ -9,18 +9,18 @@ import { Link } from "react-router-dom";
 import OverviewTab from "./AdminTabs/OverviewTab";
 import UserTab from "./AdminTabs/UsersTab";
 import ValuationTab from "./AdminTabs/ValuationsTab";
-import OrderTab from "./AdminTabs/OrdersTab";
+import OrderTab from "./AdminTabs/OrdersTab"; // <- component tự fetch, không nhận props
 import ProductTab from "./AdminTabs/ProductsTab";
 import StaffTab from "./AdminTabs/StaffTab";
 import AnalyticsTab from "./AdminTabs/AnalyticsTab";
 import SettingsTab from "./AdminTabs/SettingsTab";
 
 // Services
-import { UserAPI, type UserDto } from "../services/user";
+import { UserAPI, AuthAPI, type UserDto } from "../services/user";
 import { api } from "../services/apiClient";
 import { normalizeRole, pickUserRole, toBackendRole } from "../utils/role";
 
-// ===== Mock cho các tab khác (giữ nguyên) =====
+// ===== Mock/Stats mẫu cho các tab khác (giữ nguyên) =====
 const dashboardStats = {
   totalUsers: 50,
   totalValuations: 2,
@@ -32,36 +32,6 @@ const dashboardStats = {
   customerRating: 4.8,
   avgTurnaroundTime: 4.2,
 };
-
-const mockOrders = [
-  {
-    id: "ORD-2024-0098",
-    customer: "Jane Smith",
-    items: 2,
-    total: 3450,
-    status: "delivered",
-    date: "2024-01-15",
-    email: "jane.smith@email.com",
-  },
-  {
-    id: "ORD-2024-0097",
-    customer: "Michael Johnson",
-    items: 1,
-    total: 15999,
-    status: "shipped",
-    date: "2024-01-14",
-    email: "michael.j@email.com",
-  },
-  {
-    id: "ORD-2024-0096",
-    customer: "Sarah Williams",
-    items: 3,
-    total: 8750,
-    status: "processing",
-    date: "2024-01-13",
-    email: "sarah.w@email.com",
-  },
-];
 
 const mockValuations = [
   {
@@ -188,7 +158,6 @@ const AdminDashboard: React.FC = () => {
   const [userPageSize] = useState(20);
   const [userTotalPages, setUserTotalPages] = useState(1);
 
-  const [orders, setOrders] = useState(mockOrders);
   const [valuations, setValuations] = useState(mockValuations);
   const [staff, setStaff] = useState(mockStaff);
 
@@ -199,7 +168,7 @@ const AdminDashboard: React.FC = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState<
-    "user" | "product" | "valuation" | "staff" | "order" | null
+    "user" | "product" | "valuation" | "staff" | null
   >(null);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [formData, setFormData] = useState<any>({});
@@ -228,16 +197,14 @@ const AdminDashboard: React.FC = () => {
   ) => {
     try {
       setLoadingUsers(true);
-      const res = await UserAPI.list(page, size, q || undefined, role);
-      const payload = (res.data as any)?.data; // { items, page, size, total, totalPages }
-      const items: UserDto[] = payload?.items ?? [];
+      // UserAPI.list đã unwrap và trả PagedResult<UserDto>
+      const pageData = await UserAPI.list(page, size, q || undefined, role);
+      const items: UserDto[] = pageData?.items ?? [];
       setUsers(items.map(mapUserFromDto));
-      setUserTotalPages(payload?.totalPages ?? 1);
+      setUserTotalPages(pageData?.totalPages ?? 1);
     } catch (e: any) {
       console.error(e);
-      showErrorToast(
-        e?.response?.data?.message || e?.message || "Load users failed"
-      );
+      showErrorToast(e?.message || "Load users failed");
     } finally {
       setLoadingUsers(false);
     }
@@ -332,13 +299,11 @@ const AdminDashboard: React.FC = () => {
       }
     } catch (err: any) {
       console.error(err);
-      showErrorToast(
-        err?.response?.data?.message || err?.message || "User action failed"
-      );
+      showErrorToast(err?.message || "User action failed");
     }
   };
 
-  // ===== Handlers cho các tab khác (giữ mock) =====
+  // ===== Handlers cho các tab khác (mock giữ nguyên) =====
   const handleValuationAction = (action: string, valuationId?: string) => {
     switch (action) {
       case "add":
@@ -392,53 +357,12 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleOrderAction = (action: string, orderId?: string) => {
-    switch (action) {
-      case "view": {
-        const order = orders.find((o) => o.id === orderId);
-        if (order)
-          alert(
-            `Order Details:\nID: ${order.id}\nCustomer: ${order.customer}\nTotal: $${order.total}\nStatus: ${order.status}`
-          );
-        break;
-      }
-      case "update_status": {
-        const newStatus = prompt(
-          "Enter new status (processing/shipped/delivered):"
-        );
-        if (newStatus) {
-          setOrders((prev) =>
-            prev.map((o) =>
-              o.id === orderId ? { ...o, status: newStatus } : o
-            )
-          );
-          showNotification("Order status updated");
-        }
-        break;
-      }
-      case "export": {
-        const csvData = orders
-          .map((o) => `${o.id},${o.customer},${o.total},${o.status}`)
-          .join("\n");
-        const blob = new Blob([csvData], { type: "text/csv" });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "orders_export.csv";
-        a.click();
-        showNotification("Orders exported successfully");
-        break;
-      }
-    }
-  };
-
-  // ===== Submit modal =====
+  // ===== Settings submit =====
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       if (modalType === "user") {
         if (selectedItem) {
-          // Cập nhật user
           await UserAPI.assignRole({
             userId: Number(selectedItem.id),
             role: toBackendRole(normalizeRole(formData.role)),
@@ -448,21 +372,18 @@ const AdminDashboard: React.FC = () => {
           showNotification("User updated");
           await reloadUsers();
         } else {
-          // Tạo user mới
-          await api.post("/api/auth/register", {
+          // Dùng AuthAPI.register để đồng bộ APIEnvelope
+          await AuthAPI.register({
             userName: formData.email,
             email: formData.email,
             password: formData.password || "P@ssw0rd!",
             fullName: formData.name || formData.email,
-            role: toBackendRole(normalizeRole(formData.role)),
           });
 
-          // Assign role nếu không phải customer
+          // Nếu tạo staff/role khác customer -> gán role
           if (formData.role && formData.role !== "customer") {
             const findRes = await UserAPI.list(1, 1, formData.email);
-            const created = (findRes.data as any)?.data?.items?.[0] as
-              | UserDto
-              | undefined;
+            const created = findRes.items?.[0] as UserDto | undefined;
             if (created?.id) {
               await UserAPI.assignRole({
                 userId: Number(created.id),
@@ -528,9 +449,7 @@ const AdminDashboard: React.FC = () => {
       setFormData({});
     } catch (err: any) {
       console.error(err);
-      showErrorToast(
-        err?.response?.data?.message || err?.message || "Action failed"
-      );
+      showErrorToast(err?.message || "Action failed");
     }
   };
 
@@ -551,16 +470,14 @@ const AdminDashboard: React.FC = () => {
     showNotification("Settings updated successfully!");
   };
 
-  // ===== Derived data (giữ filter client-side; BE đã filter thêm) =====
+  // ===== Derived: filter client-side cho Users =====
   const filteredUsers = useMemo(() => {
     return users.filter((u: any) => {
       const matchesFilter =
         userFilter === "all" ||
         (userFilter === "customer" && u.role === "customer") ||
         (userFilter === "staff" &&
-          ["consulting_staff", "valuation_staff", "manager"].includes(
-            u.role
-          )) ||
+          ["consultingstaff", "valuationstaff", "manager"].includes(u.role)) ||
         (userFilter === "admin" && u.role === "admin");
 
       const q = (searchQuery || "").toLowerCase();
@@ -572,25 +489,15 @@ const AdminDashboard: React.FC = () => {
     });
   }, [users, userFilter, searchQuery]);
 
-  const orderStats = {
-    newOrders: orders.filter((o) => o.status === "new").length,
-    processing: orders.filter((o) => o.status === "processing").length,
-    shipped: orders.filter((o) => o.status === "shipped").length,
-    delivered: orders.filter((o) => o.status === "delivered").length,
-    totalRevenue: orders.reduce((sum, o) => sum + o.total, 0),
-  };
-
-  const valuationStats = {
-    pending: valuations.filter((v) => v.status === "pending").length,
-    inProgress: valuations.filter((v) => v.status === "in_progress").length,
-    completed: valuations.filter((v) => v.status === "completed").length,
-    overdue: valuations.filter((v) => v.status === "overdue").length,
-  };
-
-  // ===== Access control (compat roles là string hoặc mảng) =====
-  const isAdmin = Array.isArray((user as any)?.roles)
-    ? (user as any).roles.includes("admin")
-    : (user as any)?.roles === "admin";
+  // ===== Access control (roles có thể là string hoặc mảng) =====
+  const rawRoles = Array.isArray((user as any)?.roles)
+    ? (user as any).roles
+    : (user as any)?.roles
+    ? [(user as any).roles]
+    : [];
+  const isAdmin = rawRoles.some(
+    (r: any) => String(r).toLowerCase() === "admin"
+  );
 
   if (!isAdmin) {
     return (
@@ -795,34 +702,26 @@ const AdminDashboard: React.FC = () => {
                 t={t}
                 valuations={valuations as any}
                 valuationStats={{
-                  pending: valuationStats.pending,
-                  inProgress: valuationStats.inProgress,
-                  completed: valuationStats.completed,
-                  overdue: valuationStats.overdue,
+                  pending: valuations.filter((v) => v.status === "pending")
+                    .length,
+                  inProgress: valuations.filter(
+                    (v) => v.status === "in_progress"
+                  ).length,
+                  completed: valuations.filter((v) => v.status === "completed")
+                    .length,
+                  overdue: valuations.filter((v) => v.status === "overdue")
+                    .length,
                 }}
                 handleValuationAction={handleValuationAction}
               />
             )}
 
             {activeTab === "orders" && (
-              <OrderTab
-                t={t}
-                orders={orders as any}
-                orderStats={{
-                  newOrders: orderStats.newOrders,
-                  processing: orderStats.processing,
-                  shipped: orderStats.shipped,
-                  delivered: orderStats.delivered,
-                  totalRevenue: orderStats.totalRevenue,
-                }}
-                handleOrderAction={handleOrderAction}
-              />
+              // ✅ Không truyền props, OrdersTab tự fetch + hiển thị customerName
+              <OrderTab />
             )}
 
-            {activeTab === "products" && (
-              // ProductsTab mới tự fetch + CRUD với BE, không cần props
-              <ProductTab />
-            )}
+            {activeTab === "products" && <ProductTab />}
 
             {activeTab === "staff" && (
               <StaffTab
@@ -841,7 +740,7 @@ const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Modal chung (giữ cho Users/Valuations/Staff) */}
+      {/* Modal chung */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white w-full max-w-lg rounded-lg shadow-lg p-6">
@@ -849,7 +748,6 @@ const AdminDashboard: React.FC = () => {
               {modalType} form
             </h3>
             <form onSubmit={handleFormSubmit} className="space-y-4">
-              {/* USER FORM */}
               {modalType === "user" && (
                 <>
                   <input
@@ -891,7 +789,6 @@ const AdminDashboard: React.FC = () => {
                 </>
               )}
 
-              {/* VALUATION FORM */}
               {modalType === "valuation" && (
                 <>
                   <input
@@ -921,7 +818,6 @@ const AdminDashboard: React.FC = () => {
                 </>
               )}
 
-              {/* STAFF FORM */}
               {modalType === "staff" && (
                 <>
                   <input

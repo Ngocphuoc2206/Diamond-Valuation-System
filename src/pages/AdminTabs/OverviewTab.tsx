@@ -1,7 +1,8 @@
 // src/pages/admin/tabs/OverviewTab.tsx
 // ============================
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
+import { getAdminOverview, type AdminOverview } from "../../services/admin";
 
 interface OverviewTabProps {
   t: (key: string) => string;
@@ -26,12 +27,63 @@ const fadeInUp = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
 };
 
+const numberFmt = (n: number | undefined) =>
+  typeof n === "number" ? n.toLocaleString() : "0";
+
 const OverviewTab: React.FC<OverviewTabProps> = ({
   t,
   dashboardStats,
   recentActivities,
   onQuickOpen,
 }) => {
+  // ===== New: tải số liệu thật từ BE =====
+  const [days, setDays] = useState(30);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState<string | null>(null);
+  const [data, setData] = useState<AdminOverview | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      setErr(null);
+      try {
+        const d = await getAdminOverview(days); // GET /api/admin/overview?days=...
+        setData(d);
+      } catch (e: any) {
+        setErr(e?.message || "Failed to load overview");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [days]);
+
+  // ===== Map BE -> UI (fallback về props nếu BE chưa có) =====
+  const totalUsers = useMemo(
+    () => (data?.users as any)?.total ?? dashboardStats.totalUsers,
+    [data, dashboardStats.totalUsers]
+  );
+
+  const totalValuations = useMemo(
+    () => (data?.valuations as any)?.total ?? dashboardStats.totalValuations,
+    [data, dashboardStats.totalValuations]
+  );
+
+  // Ưu tiên tính doanh thu theo khoảng (sum revenueDaily); fallback totalRevenue; cuối cùng props
+  const monthlyRevenue = useMemo(() => {
+    const daily = data?.orders?.revenueDaily as
+      | { date: string; total: number }[]
+      | undefined;
+    if (daily && daily.length) {
+      return daily.reduce((s, x) => s + (Number(x.total) || 0), 0);
+    }
+    if (typeof data?.orders?.totalRevenue === "number") {
+      return data.orders.totalRevenue;
+    }
+    return dashboardStats.monthlyRevenue;
+  }, [data, dashboardStats.monthlyRevenue]);
+
+  const customerRating = dashboardStats.customerRating; // chưa có từ BE → giữ props
+
   return (
     <motion.div
       initial="hidden"
@@ -39,92 +91,122 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
       variants={fadeInUp}
       className="space-y-8"
     >
-      {/* Key Metrics */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">
-                {t("admin.totalUsers")}
-              </p>
-              <p className="text-3xl font-bold text-luxury-navy">
-                {dashboardStats.totalUsers.toLocaleString()}
-              </p>
-            </div>
-            <div className="p-3 bg-blue-100 rounded-full">
-              <span className="text-2xl">👥</span>
-            </div>
-          </div>
-          <div className="mt-4">
-            <span className="text-green-600 text-sm font-medium">
-              ↗ +12% {t("admin.fromLastMonth")}
-            </span>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">
-                {t("admin.totalValuations")}
-              </p>
-              <p className="text-3xl font-bold text-luxury-navy">
-                {dashboardStats.totalValuations.toLocaleString()}
-              </p>
-            </div>
-            <div className="p-3 bg-purple-100 rounded-full">
-              <span className="text-2xl">💎</span>
-            </div>
-          </div>
-          <div className="mt-4">
-            <span className="text-green-600 text-sm font-medium">
-              ↗ +8% {t("admin.fromLastMonth")}
-            </span>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">
-                {t("admin.monthlyRevenue")}
-              </p>
-              <p className="text-3xl font-bold text-luxury-navy">
-                ${"" + dashboardStats.monthlyRevenue.toLocaleString()}
-              </p>
-            </div>
-            <div className="p-3 bg-green-100 rounded-full">
-              <span className="text-2xl">💰</span>
-            </div>
-          </div>
-          <div className="mt-4">
-            <span className="text-green-600 text-sm font-medium">
-              ↗ +15% {t("admin.fromLastMonth")}
-            </span>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">
-                {t("admin.customerRating")}
-              </p>
-              <p className="text-3xl font-bold text-luxury-navy">
-                {dashboardStats.customerRating}/5
-              </p>
-            </div>
-            <div className="p-3 bg-yellow-100 rounded-full">
-              <span className="text-2xl">⭐</span>
-            </div>
-          </div>
-          <div className="mt-4">
-            <span className="text-green-600 text-sm font-medium">
-              ↗ +0.2 {t("admin.fromLastMonth")}
-            </span>
-          </div>
+      {/* Header + Range */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-semibold">{t("admin.overview")}</h2>
+        <div className="flex items-center gap-2">
+          <label className="text-sm text-gray-600">Khoảng:</label>
+          <select
+            value={days}
+            onChange={(e) => setDays(parseInt(e.target.value))}
+            className="border rounded px-2 py-1"
+          >
+            <option value={7}>7 ngày</option>
+            <option value={14}>14 ngày</option>
+            <option value={30}>30 ngày</option>
+            <option value={90}>90 ngày</option>
+          </select>
         </div>
       </div>
+
+      {/* Loading / Error */}
+      {loading && (
+        <div className="bg-white rounded-lg shadow-md p-6">Đang tải...</div>
+      )}
+      {!loading && err && (
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded p-4">
+          {err}
+        </div>
+      )}
+
+      {/* Key Metrics */}
+      {!loading && !err && (
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">
+                  {t("admin.totalUsers")}
+                </p>
+                <p className="text-3xl font-bold text-luxury-navy">
+                  {numberFmt(totalUsers)}
+                </p>
+              </div>
+              <div className="p-3 bg-blue-100 rounded-full">
+                <span className="text-2xl">👥</span>
+              </div>
+            </div>
+            <div className="mt-4">
+              <span className="text-green-600 text-sm font-medium">
+                ↗ +12% {t("admin.fromLastMonth")}
+              </span>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">
+                  {t("admin.totalValuations")}
+                </p>
+                <p className="text-3xl font-bold text-luxury-navy">
+                  {numberFmt(totalValuations)}
+                </p>
+              </div>
+              <div className="p-3 bg-purple-100 rounded-full">
+                <span className="text-2xl">💎</span>
+              </div>
+            </div>
+            <div className="mt-4">
+              <span className="text-green-600 text-sm font-medium">
+                ↗ +8% {t("admin.fromLastMonth")}
+              </span>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">
+                  {t("admin.monthlyRevenue")}
+                </p>
+                <p className="text-3xl font-bold text-luxury-navy">
+                  {"₫" + numberFmt(monthlyRevenue)}
+                </p>
+              </div>
+              <div className="p-3 bg-green-100 rounded-full">
+                <span className="text-2xl">💰</span>
+              </div>
+            </div>
+            <div className="mt-4">
+              <span className="text-green-600 text-sm font-medium">
+                ↗ +15% {t("admin.fromLastMonth")}
+              </span>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">
+                  {t("admin.customerRating")}
+                </p>
+                <p className="text-3xl font-bold text-luxury-navy">
+                  {customerRating}/5
+                </p>
+              </div>
+              <div className="p-3 bg-yellow-100 rounded-full">
+                <span className="text-2xl">⭐</span>
+              </div>
+            </div>
+            <div className="mt-4">
+              <span className="text-green-600 text-sm font-medium">
+                ↗ +0.2 {t("admin.fromLastMonth")}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Quick Actions */}
       <div className="bg-white rounded-lg shadow-md p-6">

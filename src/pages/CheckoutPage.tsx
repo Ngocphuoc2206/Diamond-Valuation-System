@@ -2,21 +2,28 @@
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createPayment } from "../services/payment";
-import {
-  createOrder,
-  createOrderLocal,
-  type CheckoutAddress,
-} from "../services/order";
-// Nếu bạn có CartContext để lấy tổng tiền / item:
+import { checkout } from "../services/order";
 import { useCart } from "../context/CartContext";
+import { getCartKeyForCustomer } from "../utils/cartKey";
+
+// Kiểu địa chỉ chỉ phục vụ form (BE CheckoutDto hiện không dùng các field này)
+type FormAddress = {
+  fullName: string;
+  phone: string;
+  email?: string;
+  line1?: string;
+  city?: string;
+  district?: string;
+  note?: string;
+};
 
 const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
-  const { items, getTotalPrice } = useCart(); // giả định có
-  const total = useMemo(() => getTotalPrice(), [items]);
+  const { items, getTotalPrice } = useCart() as any;
+  const total = useMemo(() => getTotalPrice?.() ?? 0, [items, getTotalPrice]);
 
   const [method, setMethod] = useState<"COD" | "FAKE">("FAKE");
-  const [addr, setAddr] = useState<CheckoutAddress>({
+  const [addr, setAddr] = useState<FormAddress>({
     fullName: "",
     phone: "",
     email: "",
@@ -34,32 +41,30 @@ const CheckoutPage: React.FC = () => {
     setLoading(true);
 
     try {
-      // 1) Tạo mã đơn
-      const orderCode = `ORD-${Date.now().toString(36).toUpperCase()}`;
-
-      // 2) Ghi đơn (BE thật hoặc local tạm)
-      // const order = await createOrder({ orderCode, amount: total, currency: "VND", paymentMethod: method, address: addr });
-      const order = createOrderLocal({
-        orderCode,
-        amount: total,
-        currency: "VND",
+      // 1) Tạo đơn hàng ở OrderService
+      // - Nếu là khách (customer với giỏ local) → truyền CartKey
+      // - Nếu là nhân sự (non-customer) → truyền CustomerId (BE tự lấy từ token nếu bạn sửa controller)
+      const cartKey = getCartKeyForCustomer(); // hoặc lấy từ context bạn đang dùng
+      const order = await checkout({
+        cartKey,
+        shippingFee: 0,
         paymentMethod: method,
-        address: addr,
+        note: addr.note,
       });
 
-      // 3.a) Nếu COD -> không cần FAKE Payment
+      // 2a) COD: điều hướng trang success
       if (method === "COD") {
-        navigate(`/order/success?code=${encodeURIComponent(order.orderCode)}`);
+        navigate(`/order/success?code=${encodeURIComponent(order.orderNo)}`);
         return;
       }
 
-      // 3.b) Nếu FAKE -> tạo Payment rồi redirect
+      // 2b) FAKE: tạo Payment rồi redirect sang cổng giả
       const retUrl = `${window.location.origin}/payment/return`;
       const res = await createPayment({
         method: "FAKE",
-        amount: total,
+        amount: order.totalAmount ?? total, // ưu tiên total từ BE
         currency: "VND",
-        orderCode: order.orderCode,
+        orderCode: order.orderNo, // dùng mã đơn do BE trả về
         returnUrl: retUrl,
       });
 
@@ -67,10 +72,10 @@ const CheckoutPage: React.FC = () => {
         throw new Error(res.message || "Không tạo được thanh toán.");
       }
 
-      // Lưu pid để trang return đọc fallback
+      // Lưu pid để PaymentReturnPage có thể fallback đọc lại
       sessionStorage.setItem("lastPaymentId", String(res.data.id));
 
-      // Điều hướng sang trang FAKE Payment
+      // Redirect sang cổng Fake Payment
       window.location.href = res.data.redirectUrl;
     } catch (ex: any) {
       setErr(ex?.message || "Có lỗi khi xử lý thanh toán.");
@@ -164,7 +169,7 @@ const CheckoutPage: React.FC = () => {
 
           <div className="mt-6 border-t pt-4">
             <p className="font-medium">
-              Tổng tiền: <b>{total.toLocaleString()} VND</b>
+              Tổng tiền: <b>{Number(total).toLocaleString()} VND</b>
             </p>
           </div>
 

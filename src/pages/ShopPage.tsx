@@ -10,13 +10,8 @@ import { useAuth } from "../context/AuthContext";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-// ❌ Gỡ bỏ import tạo thanh toán ở Shop (payment tạo ở Checkout)
-// import { createPayment } from "../services/payment";
-
 const ShopPage: React.FC = () => {
   const navigate = useNavigate();
-
-  // ✅ chỉ cần add vào giỏ hàng
   const { add: addCartItem } = useCart();
   const { t } = useLanguage();
   const { isAuthenticated } = useAuth();

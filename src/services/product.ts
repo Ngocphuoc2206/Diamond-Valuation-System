@@ -42,7 +42,6 @@ export type PagedResult<T> = {
 
 // ===== Helpers (client-side filter/sort/paging vì BE hiện trả List<Product>) =====
 function normalize(p: any): Product {
-  // đảm bảo field đồng nhất FE
   return {
     id: p.id,
     name: p.name,
