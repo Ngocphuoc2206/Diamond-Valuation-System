@@ -1,0 +1,15 @@
+C:\temp\Catalog.Api\bin\SharedKernel.deps.json
+C:\temp\Catalog.Api\bin\SharedKernel.dll
+C:\temp\Catalog.Api\bin\SharedKernel.pdb
+C:\Users\tranq\Catalog.Service\SharedKernel\bin\Debug\net8.0\SharedKernel.deps.json
+C:\Users\tranq\Catalog.Service\SharedKernel\bin\Debug\net8.0\SharedKernel.dll
+C:\Users\tranq\Catalog.Service\SharedKernel\bin\Debug\net8.0\SharedKernel.pdb
+C:\Users\tranq\Catalog.Service\SharedKernel\obj\Debug\net8.0\SharedKernel.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\tranq\Catalog.Service\SharedKernel\obj\Debug\net8.0\SharedKernel.AssemblyInfoInputs.cache
+C:\Users\tranq\Catalog.Service\SharedKernel\obj\Debug\net8.0\SharedKernel.AssemblyInfo.cs
+C:\Users\tranq\Catalog.Service\SharedKernel\obj\Debug\net8.0\SharedKernel.csproj.CoreCompileInputs.cache
+C:\Users\tranq\Catalog.Service\SharedKernel\obj\Debug\net8.0\SharedKernel.sourcelink.json
+C:\Users\tranq\Catalog.Service\SharedKernel\obj\Debug\net8.0\SharedKernel.dll
+C:\Users\tranq\Catalog.Service\SharedKernel\obj\Debug\net8.0\refint\SharedKernel.dll
+C:\Users\tranq\Catalog.Service\SharedKernel\obj\Debug\net8.0\SharedKernel.pdb
+C:\Users\tranq\Catalog.Service\SharedKernel\obj\Debug\net8.0\ref\SharedKernel.dll

@@ -1,0 +1,412 @@
+﻿Folder PATH listing for volume Acer
+Volume serial number is 59ED-7A90
+C:.
+ª   Catalog.sln
+ª   docker-compose.yml
+ª   tree.txt
+ª   
++---Catalog.Api
+ª   ª   appsettings.Development.json
+ª   ª   appsettings.json
+ª   ª   Catalog.Api.csproj
+ª   ª   Catalog.Api.http
+ª   ª   Dockerfile
+ª   ª   Program.cs
+ª   ª   
+ª   +---bin
+ª   ª   +---Debug
+ª   ª       +---net8.0
+ª   ª           ª   appsettings.Development.json
+ª   ª           ª   appsettings.json
+ª   ª           ª   Azure.Core.dll
+ª   ª           ª   Azure.Identity.dll
+ª   ª           ª   Catalog.Api.deps.json
+ª   ª           ª   Catalog.Api.dll
+ª   ª           ª   Catalog.Api.exe
+ª   ª           ª   Catalog.Api.pdb
+ª   ª           ª   Catalog.Api.runtimeconfig.json
+ª   ª           ª   Catalog.Application.dll
+ª   ª           ª   Catalog.Application.pdb
+ª   ª           ª   Catalog.Domain.dll
+ª   ª           ª   Catalog.Domain.pdb
+ª   ª           ª   Catalog.Infrastructure.dll
+ª   ª           ª   Catalog.Infrastructure.pdb
+ª   ª           ª   Microsoft.AspNetCore.OpenApi.dll
+ª   ª           ª   Microsoft.Bcl.AsyncInterfaces.dll
+ª   ª           ª   Microsoft.Data.SqlClient.dll
+ª   ª           ª   Microsoft.EntityFrameworkCore.Abstractions.dll
+ª   ª           ª   Microsoft.EntityFrameworkCore.dll
+ª   ª           ª   Microsoft.EntityFrameworkCore.Relational.dll
+ª   ª           ª   Microsoft.EntityFrameworkCore.SqlServer.dll
+ª   ª           ª   Microsoft.Extensions.Caching.Abstractions.dll
+ª   ª           ª   Microsoft.Extensions.Caching.Memory.dll
+ª   ª           ª   Microsoft.Extensions.Configuration.Abstractions.dll
+ª   ª           ª   Microsoft.Extensions.DependencyInjection.Abstractions.dll
+ª   ª           ª   Microsoft.Extensions.DependencyInjection.dll
+ª   ª           ª   Microsoft.Extensions.Logging.Abstractions.dll
+ª   ª           ª   Microsoft.Extensions.Logging.dll
+ª   ª           ª   Microsoft.Extensions.Options.dll
+ª   ª           ª   Microsoft.Extensions.Primitives.dll
+ª   ª           ª   Microsoft.Identity.Client.dll
+ª   ª           ª   Microsoft.Identity.Client.Extensions.Msal.dll
+ª   ª           ª   Microsoft.IdentityModel.Abstractions.dll
+ª   ª           ª   Microsoft.IdentityModel.JsonWebTokens.dll
+ª   ª           ª   Microsoft.IdentityModel.Logging.dll
+ª   ª           ª   Microsoft.IdentityModel.Protocols.dll
+ª   ª           ª   Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+ª   ª           ª   Microsoft.IdentityModel.Tokens.dll
+ª   ª           ª   Microsoft.OpenApi.dll
+ª   ª           ª   Microsoft.SqlServer.Server.dll
+ª   ª           ª   Microsoft.Win32.SystemEvents.dll
+ª   ª           ª   SharedLibrary.dll
+ª   ª           ª   SharedLibrary.pdb
+ª   ª           ª   Swashbuckle.AspNetCore.Swagger.dll
+ª   ª           ª   Swashbuckle.AspNetCore.SwaggerGen.dll
+ª   ª           ª   Swashbuckle.AspNetCore.SwaggerUI.dll
+ª   ª           ª   System.ClientModel.dll
+ª   ª           ª   System.Configuration.ConfigurationManager.dll
+ª   ª           ª   System.Diagnostics.DiagnosticSource.dll
+ª   ª           ª   System.Drawing.Common.dll
+ª   ª           ª   System.Formats.Asn1.dll
+ª   ª           ª   System.IdentityModel.Tokens.Jwt.dll
+ª   ª           ª   System.IO.Pipelines.dll
+ª   ª           ª   System.Memory.Data.dll
+ª   ª           ª   System.Runtime.Caching.dll
+ª   ª           ª   System.Security.Cryptography.ProtectedData.dll
+ª   ª           ª   System.Security.Permissions.dll
+ª   ª           ª   System.Text.Encodings.Web.dll
+ª   ª           ª   System.Text.Json.dll
+ª   ª           ª   System.Windows.Extensions.dll
+ª   ª           ª   
+ª   ª           +---runtimes
+ª   ª               +---browser
+ª   ª               ª   +---lib
+ª   ª               ª       +---net8.0
+ª   ª               ª               System.Text.Encodings.Web.dll
+ª   ª               ª               
+ª   ª               +---unix
+ª   ª               ª   +---lib
+ª   ª               ª       +---net6.0
+ª   ª               ª               Microsoft.Data.SqlClient.dll
+ª   ª               ª               System.Drawing.Common.dll
+ª   ª               ª               
+ª   ª               +---win
+ª   ª               ª   +---lib
+ª   ª               ª       +---net6.0
+ª   ª               ª               Microsoft.Data.SqlClient.dll
+ª   ª               ª               Microsoft.Win32.SystemEvents.dll
+ª   ª               ª               System.Drawing.Common.dll
+ª   ª               ª               System.Runtime.Caching.dll
+ª   ª               ª               System.Security.Cryptography.ProtectedData.dll
+ª   ª               ª               System.Windows.Extensions.dll
+ª   ª               ª               
+ª   ª               +---win-arm
+ª   ª               ª   +---native
+ª   ª               ª           Microsoft.Data.SqlClient.SNI.dll
+ª   ª               ª           
+ª   ª               +---win-arm64
+ª   ª               ª   +---native
+ª   ª               ª           Microsoft.Data.SqlClient.SNI.dll
+ª   ª               ª           
+ª   ª               +---win-x64
+ª   ª               ª   +---native
+ª   ª               ª           Microsoft.Data.SqlClient.SNI.dll
+ª   ª               ª           
+ª   ª               +---win-x86
+ª   ª                   +---native
+ª   ª                           Microsoft.Data.SqlClient.SNI.dll
+ª   ª                           
+ª   +---Controllers
+ª   ª       ProductsController.cs
+ª   ª       
+ª   +---obj
+ª   ª   ª   Catalog.Api.csproj.nuget.dgspec.json
+ª   ª   ª   Catalog.Api.csproj.nuget.g.props
+ª   ª   ª   Catalog.Api.csproj.nuget.g.targets
+ª   ª   ª   project.assets.json
+ª   ª   ª   project.nuget.cache
+ª   ª   ª   
+ª   ª   +---Debug
+ª   ª       +---net8.0
+ª   ª           ª   .NETCoreApp,Version=v8.0.AssemblyAttributes.cs
+ª   ª           ª   apphost.exe
+ª   ª           ª   Catalog..27BC043B.Up2Date
+ª   ª           ª   Catalog.Api.AssemblyInfo.cs
+ª   ª           ª   Catalog.Api.AssemblyInfoInputs.cache
+ª   ª           ª   Catalog.Api.assets.cache
+ª   ª           ª   Catalog.Api.csproj.AssemblyReference.cache
+ª   ª           ª   Catalog.Api.csproj.CoreCompileInputs.cache
+ª   ª           ª   Catalog.Api.csproj.FileListAbsolute.txt
+ª   ª           ª   Catalog.Api.dll
+ª   ª           ª   Catalog.Api.GeneratedMSBuildEditorConfig.editorconfig
+ª   ª           ª   Catalog.Api.genruntimeconfig.cache
+ª   ª           ª   Catalog.Api.GlobalUsings.g.cs
+ª   ª           ª   Catalog.Api.MvcApplicationPartsAssemblyInfo.cache
+ª   ª           ª   Catalog.Api.MvcApplicationPartsAssemblyInfo.cs
+ª   ª           ª   Catalog.Api.pdb
+ª   ª           ª   staticwebassets.build.json
+ª   ª           ª   
+ª   ª           +---ref
+ª   ª           ª       Catalog.Api.dll
+ª   ª           ª       
+ª   ª           +---refint
+ª   ª           ª       Catalog.Api.dll
+ª   ª           ª       
+ª   ª           +---staticwebassets
+ª   ª                   msbuild.build.Catalog.Api.props
+ª   ª                   msbuild.buildMultiTargeting.Catalog.Api.props
+ª   ª                   msbuild.buildTransitive.Catalog.Api.props
+ª   ª                   
+ª   +---Properties
+ª           launchSettings.json
+ª           
++---Catalog.Application
+ª   ª   Catalog.Application.csproj
+ª   ª   Class1.cs
+ª   ª   
+ª   +---bin
+ª   ª   +---Debug
+ª   ª       +---net8.0
+ª   ª               Catalog.Application.deps.json
+ª   ª               Catalog.Application.dll
+ª   ª               Catalog.Application.pdb
+ª   ª               Catalog.Domain.dll
+ª   ª               Catalog.Domain.pdb
+ª   ª               SharedLibrary.dll
+ª   ª               SharedLibrary.pdb
+ª   ª               
+ª   +---DTOs
+ª   ª       CreateProductDto.cs
+ª   ª       ProductDto.cs
+ª   ª       UpdateProductDto.cs
+ª   ª       
+ª   +---Interfaces
+ª   ª       IProductService.cs
+ª   ª       
+ª   +---obj
+ª   ª   ª   Catalog.Application.csproj.nuget.dgspec.json
+ª   ª   ª   Catalog.Application.csproj.nuget.g.props
+ª   ª   ª   Catalog.Application.csproj.nuget.g.targets
+ª   ª   ª   project.assets.json
+ª   ª   ª   project.nuget.cache
+ª   ª   ª   
+ª   ª   +---Debug
+ª   ª       +---net8.0
+ª   ª           ª   .NETCoreApp,Version=v8.0.AssemblyAttributes.cs
+ª   ª           ª   Catalog..75771DFE.Up2Date
+ª   ª           ª   Catalog.Application.AssemblyInfo.cs
+ª   ª           ª   Catalog.Application.AssemblyInfoInputs.cache
+ª   ª           ª   Catalog.Application.assets.cache
+ª   ª           ª   Catalog.Application.csproj.AssemblyReference.cache
+ª   ª           ª   Catalog.Application.csproj.CoreCompileInputs.cache
+ª   ª           ª   Catalog.Application.csproj.FileListAbsolute.txt
+ª   ª           ª   Catalog.Application.dll
+ª   ª           ª   Catalog.Application.GeneratedMSBuildEditorConfig.editorconfig
+ª   ª           ª   Catalog.Application.GlobalUsings.g.cs
+ª   ª           ª   Catalog.Application.pdb
+ª   ª           ª   Catalog.Application.sourcelink.json
+ª   ª           ª   
+ª   ª           +---ref
+ª   ª           ª       Catalog.Application.dll
+ª   ª           ª       
+ª   ª           +---refint
+ª   ª                   Catalog.Application.dll
+ª   ª                   
+ª   +---Services
+ª           ProductService.cs
+ª           
++---Catalog.Domain
+ª   ª   Catalog.Domain.csproj
+ª   ª   Class1.cs
+ª   ª   
+ª   +---bin
+ª   ª   +---Debug
+ª   ª       +---net8.0
+ª   ª               Catalog.Domain.deps.json
+ª   ª               Catalog.Domain.dll
+ª   ª               Catalog.Domain.pdb
+ª   ª               SharedKernel.dll
+ª   ª               SharedKernel.pdb
+ª   ª               
+ª   +---Entities
+ª   ª       Inventory.cs
+ª   ª       Product.cs
+ª   ª       
+ª   +---obj
+ª   ª   ª   Catalog.Domain.csproj.nuget.dgspec.json
+ª   ª   ª   Catalog.Domain.csproj.nuget.g.props
+ª   ª   ª   Catalog.Domain.csproj.nuget.g.targets
+ª   ª   ª   project.assets.json
+ª   ª   ª   project.nuget.cache
+ª   ª   ª   
+ª   ª   +---Debug
+ª   ª       +---net8.0
+ª   ª           ª   .NETCoreApp,Version=v8.0.AssemblyAttributes.cs
+ª   ª           ª   Catalog..A0AFAC00.Up2Date
+ª   ª           ª   Catalog.Domain.AssemblyInfo.cs
+ª   ª           ª   Catalog.Domain.AssemblyInfoInputs.cache
+ª   ª           ª   Catalog.Domain.assets.cache
+ª   ª           ª   Catalog.Domain.csproj.AssemblyReference.cache
+ª   ª           ª   Catalog.Domain.csproj.CoreCompileInputs.cache
+ª   ª           ª   Catalog.Domain.csproj.FileListAbsolute.txt
+ª   ª           ª   Catalog.Domain.dll
+ª   ª           ª   Catalog.Domain.GeneratedMSBuildEditorConfig.editorconfig
+ª   ª           ª   Catalog.Domain.GlobalUsings.g.cs
+ª   ª           ª   Catalog.Domain.pdb
+ª   ª           ª   Catalog.Domain.sourcelink.json
+ª   ª           ª   
+ª   ª           +---ref
+ª   ª           ª       Catalog.Domain.dll
+ª   ª           ª       
+ª   ª           +---refint
+ª   ª                   Catalog.Domain.dll
+ª   ª                   
+ª   +---Repositories
+ª   ª       IProductRepository.cs
+ª   ª       
+ª   +---ValueObjects
+ª           Carat.cs
+ª           Clarity.cs
+ª           Color.cs
+ª           Cut.cs
+ª           
++---Catalog.Infrastructure
+ª   ª   Catalog.Infrastructure.csproj
+ª   ª   Class1.cs
+ª   ª   
+ª   +---bin
+ª   ª   +---Debug
+ª   ª       +---net8.0
+ª   ª               Catalog.Application.dll
+ª   ª               Catalog.Application.pdb
+ª   ª               Catalog.Domain.dll
+ª   ª               Catalog.Domain.pdb
+ª   ª               Catalog.Infrastructure.deps.json
+ª   ª               Catalog.Infrastructure.dll
+ª   ª               Catalog.Infrastructure.pdb
+ª   ª               Catalog.Infrastructure.runtimeconfig.json
+ª   ª               SharedLibrary.dll
+ª   ª               SharedLibrary.pdb
+ª   ª               
+ª   +---Db
+ª   ª   ª   CatalogDbContext.cs
+ª   ª   ª   CatalogDbContextFactory.cs
+ª   ª   ª   
+ª   ª   +---Migrations
+ª   ª           20250822115617_InitialCreate.cs
+ª   ª           20250822115617_InitialCreate.Designer.cs
+ª   ª           CatalogDbContextModelSnapshot.cs
+ª   ª           
+ª   +---obj
+ª   ª   ª   Catalog.Infrastructure.csproj.EntityFrameworkCore.targets
+ª   ª   ª   Catalog.Infrastructure.csproj.nuget.dgspec.json
+ª   ª   ª   Catalog.Infrastructure.csproj.nuget.g.props
+ª   ª   ª   Catalog.Infrastructure.csproj.nuget.g.targets
+ª   ª   ª   project.assets.json
+ª   ª   ª   project.nuget.cache
+ª   ª   ª   
+ª   ª   +---Debug
+ª   ª       +---net8.0
+ª   ª           ª   .NETCoreApp,Version=v8.0.AssemblyAttributes.cs
+ª   ª           ª   Catalog..168C4A48.Up2Date
+ª   ª           ª   Catalog.Infrastructure.AssemblyInfo.cs
+ª   ª           ª   Catalog.Infrastructure.AssemblyInfoInputs.cache
+ª   ª           ª   Catalog.Infrastructure.assets.cache
+ª   ª           ª   Catalog.Infrastructure.csproj.AssemblyReference.cache
+ª   ª           ª   Catalog.Infrastructure.csproj.CoreCompileInputs.cache
+ª   ª           ª   Catalog.Infrastructure.csproj.FileListAbsolute.txt
+ª   ª           ª   Catalog.Infrastructure.dll
+ª   ª           ª   Catalog.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+ª   ª           ª   Catalog.Infrastructure.genruntimeconfig.cache
+ª   ª           ª   Catalog.Infrastructure.GlobalUsings.g.cs
+ª   ª           ª   Catalog.Infrastructure.pdb
+ª   ª           ª   
+ª   ª           +---ref
+ª   ª           ª       Catalog.Infrastructure.dll
+ª   ª           ª       
+ª   ª           +---refint
+ª   ª                   Catalog.Infrastructure.dll
+ª   ª                   
+ª   +---Repositories
+ª   ª       ProductRepository.cs
+ª   ª       
+ª   +---Storage
+ª           MinioClientAdapter.cs
+ª           
++---SharedKernel
+ª   ª   BaseEntity.cs
+ª   ª   Class1.cs
+ª   ª   SharedKernel.csproj
+ª   ª   
+ª   +---bin
+ª   ª   +---Debug
+ª   ª       +---net8.0
+ª   ª               SharedKernel.deps.json
+ª   ª               SharedKernel.dll
+ª   ª               SharedKernel.pdb
+ª   ª               
+ª   +---obj
+ª       ª   project.assets.json
+ª       ª   project.nuget.cache
+ª       ª   SharedKernel.csproj.nuget.dgspec.json
+ª       ª   SharedKernel.csproj.nuget.g.props
+ª       ª   SharedKernel.csproj.nuget.g.targets
+ª       ª   
+ª       +---Debug
+ª           +---net8.0
+ª               ª   .NETCoreApp,Version=v8.0.AssemblyAttributes.cs
+ª               ª   SharedKernel.AssemblyInfo.cs
+ª               ª   SharedKernel.AssemblyInfoInputs.cache
+ª               ª   SharedKernel.assets.cache
+ª               ª   SharedKernel.csproj.CoreCompileInputs.cache
+ª               ª   SharedKernel.csproj.FileListAbsolute.txt
+ª               ª   SharedKernel.dll
+ª               ª   SharedKernel.GeneratedMSBuildEditorConfig.editorconfig
+ª               ª   SharedKernel.GlobalUsings.g.cs
+ª               ª   SharedKernel.pdb
+ª               ª   SharedKernel.sourcelink.json
+ª               ª   
+ª               +---ref
+ª               ª       SharedKernel.dll
+ª               ª       
+ª               +---refint
+ª                       SharedKernel.dll
+ª                       
++---SharedLibrary
+    ª   Class1.cs
+    ª   SharedLibrary.csproj
+    ª   
+    +---bin
+    ª   +---Debug
+    ª       +---net8.0
+    ª               SharedLibrary.deps.json
+    ª               SharedLibrary.dll
+    ª               SharedLibrary.pdb
+    ª               
+    +---obj
+        ª   project.assets.json
+        ª   project.nuget.cache
+        ª   SharedLibrary.csproj.nuget.dgspec.json
+        ª   SharedLibrary.csproj.nuget.g.props
+        ª   SharedLibrary.csproj.nuget.g.targets
+        ª   
+        +---Debug
+            +---net8.0
+                ª   .NETCoreApp,Version=v8.0.AssemblyAttributes.cs
+                ª   SharedLibrary.AssemblyInfo.cs
+                ª   SharedLibrary.AssemblyInfoInputs.cache
+                ª   SharedLibrary.assets.cache
+                ª   SharedLibrary.csproj.CoreCompileInputs.cache
+                ª   SharedLibrary.csproj.FileListAbsolute.txt
+                ª   SharedLibrary.dll
+                ª   SharedLibrary.GeneratedMSBuildEditorConfig.editorconfig
+                ª   SharedLibrary.GlobalUsings.g.cs
+                ª   SharedLibrary.pdb
+                ª   SharedLibrary.sourcelink.json
+                ª   
+                +---ref
+                ª       SharedLibrary.dll
+                ª       
+                +---refint
+                        SharedLibrary.dll
+                        
