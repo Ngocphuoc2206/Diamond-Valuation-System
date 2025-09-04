@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Diamond.ValuationService.Application")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+627e5c3717a2772f791dee233cdf133d1cf1b0d3")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+138020c5ebf6b848b583fc12a8d6d23ca2931601")]
 [assembly: System.Reflection.AssemblyProductAttribute("Diamond.ValuationService.Application")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Diamond.ValuationService.Application")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
