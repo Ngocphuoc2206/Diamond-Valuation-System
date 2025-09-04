@@ -328,5 +328,24 @@ namespace UserService.Application.Services
         }
 
         #endregion
+
+        public async Task<ApiResponse<MeDto>> GetMeAsync(int userId)
+        {
+            var u = await _unitOfWork.UserRepository.GetByIdAsync(userId);
+            if (u == null) return ApiResponse<MeDto>.Failure("User not found");
+
+            var roleIds = (await _unitOfWork.UserRoleRepository.GetManyAsync(x => x.UserId == userId))
+                            .Select(x => x.RoleId).ToList();
+            var roleNames = new List<string>();
+            foreach (var rid in roleIds)
+            {
+                var r = await _unitOfWork.RoleRepository.GetByIdAsync(rid);
+                if (r != null) roleNames.Add(r.Name);
+            }
+
+            var dto = new MeDto(u.Id, u.UserName, u.Email, roleNames.ToArray(), u.AvatarUrl);
+
+            return ApiResponse<MeDto>.CreateSuccessResponse(dto, "Me");
+        }
     }
 }

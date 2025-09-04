@@ -14,4 +14,5 @@ public interface IUserService
     Task<ApiResponse<bool>> UpdateStatusAsync(int id, string status);
     Task<ApiResponse<bool>> DeleteAsync(int id);
     Task<ApiResponse<int>> BulkAsync(BulkActionDto dto);
+    Task<ApiResponse<MeDto>> GetMeAsync(int userId);
 }

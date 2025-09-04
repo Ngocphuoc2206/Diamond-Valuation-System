@@ -35,6 +35,19 @@ public class UserController : ControllerBase
         return Ok(res);
     }
 
+    [HttpGet("me")]
+    [Authorize]
+    public async Task<IActionResult> GetMe()
+    {
+        var sub = User.FindFirst("uid")?.Value
+                  ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(sub)) return Unauthorized();
+        if (!int.TryParse(sub, out var userId)) return BadRequest("Invalid user id claim");
+
+        var me = await _svc.GetMeAsync(userId);
+        return Ok(me);
+    }
+
     [HttpGet]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetAll([FromQuery] UserQuery q)
