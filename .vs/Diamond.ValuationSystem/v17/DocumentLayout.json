@@ -114,7 +114,11 @@
               "RelativeDocumentMoniker": "Diamond.ValuationService\\Diamond.ValuationService.Api\\appsettings.json",
               "ToolTip": "D:\\Diamond-Valuation-Service\\ValuationRequenst\\Diamond.ValuationService\\Diamond.ValuationService.Api\\appsettings.json",
               "RelativeToolTip": "Diamond.ValuationService\\Diamond.ValuationService.Api\\appsettings.json",
+<<<<<<< HEAD
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAzAAAAAAAAAA==",
+=======
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
+>>>>>>> 2f9831731595b7bbcfb25a33d47d4a5da548bbc6
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
               "WhenOpened": "2025-08-22T11:03:58.292Z",
               "EditorCaption": ""
