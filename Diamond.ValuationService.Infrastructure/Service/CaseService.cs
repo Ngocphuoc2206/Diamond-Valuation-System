@@ -69,7 +69,7 @@ public class CaseService : ICaseService
             _db.ValuationRequests.Add(req);
         }
 
-        // 3) Tạo ValuationCase
+        //Tạo ValuationCase
         var vc = new ValuationCase
         {
             Id = Guid.NewGuid(),

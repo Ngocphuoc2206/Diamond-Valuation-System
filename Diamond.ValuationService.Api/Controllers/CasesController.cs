@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Diamond.ValuationService.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/cases")]
 [Produces("application/json")]
 public class CasesController : ControllerBase
 {

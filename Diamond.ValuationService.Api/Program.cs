@@ -86,6 +86,7 @@ using (var scope = app.Services.CreateScope())
     try
     {
         await db.Database.MigrateAsync();
+        await PriceTableSeeder.SeedAsync(db);
     }
     catch (Exception ex)
     {

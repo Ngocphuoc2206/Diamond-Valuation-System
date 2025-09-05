@@ -1,89 +1,104 @@
 ﻿using Diamond.ValuationService.Application.DTOs;
 using Diamond.ValuationService.Application.Interfaces;
-using Diamond.ValuationService.Application.Services;   // Rules
+using Diamond.ValuationService.Application.Services;
 using Diamond.ValuationService.Domain.Entities;
 using Diamond.ValuationService.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Diamond.ValuationService.Infrastructure.Services;
 
 public class ValuationServiceImpl : IValuationService
 {
     private readonly AppDbContext _db;
-
-    public ValuationServiceImpl(AppDbContext db)
-    {
+    private readonly ILogger<ValuationServiceImpl> _logger;
+    public ValuationServiceImpl(AppDbContext db, ILogger<ValuationServiceImpl> logger) 
+    { 
         _db = db;
+        _logger = logger;
     }
+
+    private static string NormOrigin(string? v)
+        => (v ?? "Natural").Trim().Equals("lab-grown", StringComparison.OrdinalIgnoreCase) ? "Lab-Grown" : "Natural";
+
+    private static string NormShape(string? v) => (v ?? "").Trim();
+    private static string NormColor(string? v)
+        => string.IsNullOrWhiteSpace(v) || v == "N-Z" || v == "Fancy" || v == "Unknown" ? "G" : v!.Trim().ToUpperInvariant();
+    private static string NormClarity(string? v) => (v ?? "VS1").Trim().ToUpperInvariant();
+
+    // Nếu cần dùng: Cut/Polish/Symmetry/Fluorescence mapping "Very Good" -> "VeryGood"
+    private static string JoinWords(string? v) => string.IsNullOrWhiteSpace(v) ? "" : v!.Replace(" ", "");
 
     public async Task<EstimateResponseDto> EstimateAsync(EstimateRequestDto dto, CancellationToken ct = default)
     {
-        // --- Validate nhanh ---
+        _logger.LogInformation(
+          "Estimate request => Origin:{Origin}, Shape:{Shape}, Color:{Color}, Clarity:{Clarity}, Carat:{Carat}",
+          dto.Origin, dto.Shape, dto.Color, dto.Clarity, dto.Carat
+        );
         if (dto.Carat <= 0) throw new ArgumentException("Carat phải > 0");
         if (string.IsNullOrWhiteSpace(dto.Shape)) throw new ArgumentException("Shape không hợp lệ");
-        if (string.IsNullOrWhiteSpace(dto.Color)) throw new ArgumentException("Color không hợp lệ");
-        if (string.IsNullOrWhiteSpace(dto.Clarity)) throw new ArgumentException("Clarity không hợp lệ");
 
-        // 1) Tìm base price theo bảng giá
+        var origin = NormOrigin(dto.Origin);
+        var shape = NormShape(dto.Shape);
+        var color = NormColor(dto.Color);
+        var clarity = NormClarity(dto.Clarity);
+
+        // 1) tìm base row theo bảng giá
         var baseRow = await _db.PriceTable
-            .Where(p => p.Origin == dto.Origin
-                        && p.Shape == dto.Shape
-                        && p.Color == dto.Color
-                        && p.Clarity == dto.Clarity
-                        && dto.Carat >= p.CaratFrom && dto.Carat <= p.CaratTo)
+            .Where(p => p.Origin == origin
+                     && p.Shape == shape
+                     && p.Color == color
+                     && p.Clarity == clarity
+                     && dto.Carat >= p.CaratFrom
+                     && dto.Carat <= p.CaratTo)
             .OrderByDescending(p => p.EffectiveDate)
             .FirstOrDefaultAsync(ct);
 
         if (baseRow is null)
             throw new InvalidOperationException("Không tìm thấy dòng bảng giá phù hợp cho tiêu chí nhập vào.");
 
-        var basePpc = baseRow.BasePricePerCarat;
+        // Tính hệ số
+        var cutMul = Rules.CutMultiplier(JoinWords(dto.Cut));
+        var finishMul = Rules.FinishMultiplier(JoinWords(dto.Polish), JoinWords(dto.Symmetry));
+        var fluorMul = Rules.FluorescencePenalty(dto.Fluorescence ?? "None");
+        var proportion = Rules.ProportionAdjustment(dto.TablePercent, dto.DepthPercent);
 
-        // 2) Áp hệ số điều chỉnh
-        var factor = Rules.CutMultiplier(dto.Cut)
-                    * Rules.FinishMultiplier(dto.Polish, dto.Symmetry)
-                    * Rules.FluorescencePenalty(dto.Fluorescence)
-                    * Rules.ProportionAdjustment(dto.TablePercent, dto.DepthPercent);
+        var pricePerCt = Math.Round(baseRow.BasePricePerCarat * cutMul * finishMul * fluorMul * proportion, 2);
+        var total = Math.Round(pricePerCt * dto.Carat, 2);
 
-        var pricePerCarat = Math.Round(basePpc * factor, 2);
-        var total = Math.Round(pricePerCarat * dto.Carat, 2);
-
-        // 3) Lưu request + result
         var req = new ValuationRequest
         {
-            // NHẬN RequestId từ Request Service nếu có
-            Id = dto.ExternalRequestId ?? Guid.NewGuid(),
             CertificateNo = dto.CertificateNo,
-            CustomerName = dto.CustomerName,
             Spec = new DiamondSpec
             {
-                Origin = dto.Origin,
-                Shape = dto.Shape,
+                Origin = origin,
+                Shape = shape,
                 Carat = dto.Carat,
-                Color = dto.Color,
-                Clarity = dto.Clarity,
-                Cut = dto.Cut,
-                Polish = dto.Polish,
-                Symmetry = dto.Symmetry,
-                Fluorescence = dto.Fluorescence,
+                Color = color,
+                Clarity = clarity,
+                Cut = JoinWords(dto.Cut ?? "Excellent"),
+                Polish = JoinWords(dto.Polish ?? "Excellent"),
+                Symmetry = JoinWords(dto.Symmetry ?? "Excellent"),
+                Fluorescence = dto.Fluorescence ?? "None",
                 TablePercent = dto.TablePercent,
                 DepthPercent = dto.DepthPercent,
                 Measurements = dto.Measurements ?? ""
-            }
+            },
+            CustomerName = dto.CustomerName
         };
-        _db.ValuationRequests.Add(req);
 
         var res = new ValuationResult
         {
             RequestId = req.Id,
-            PricePerCarat = pricePerCarat,
+            PricePerCarat = pricePerCt,
             TotalPrice = total,
             Currency = "USD",
-            AlgorithmVersion = "1.0.0",
-            Notes = ""
+            AlgorithmVersion = "1.0",
+            ValuatedAt = DateTime.UtcNow
         };
-        _db.ValuationResults.Add(res);
 
+        _db.ValuationRequests.Add(req);
+        _db.ValuationResults.Add(res);
         await _db.SaveChangesAsync(ct);
 
         return new EstimateResponseDto
