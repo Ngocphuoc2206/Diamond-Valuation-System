@@ -1,24 +1,34 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { useForm, FormProvider, useFormContext } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useLanguage } from '../context/LanguageContext';
-import { createDiamondFormSchema, type DiamondFormValues } from '../utils/validation';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { useForm, FormProvider, useFormContext } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useLanguage } from "../context/LanguageContext";
+import {
+  createDiamondFormSchema,
+  type DiamondFormValues,
+} from "../utils/validation";
 
-// Form Steps Components
+// ====== API services (đã có sẵn từ phần trước) ======
+import {
+  estimate as apiEstimate,
+  createValuationCase as apiCreateCase,
+} from "../services/valuation";
+
+// ---------- Step 1 ----------
 const Step1Certificate: React.FC = () => {
-  const { control, register, formState: { errors } } = useFormContext<DiamondFormValues>();
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext<DiamondFormValues>();
   const { t } = useLanguage();
   const [hasCertificate, setHasCertificate] = useState(false);
-  
+
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-serif font-bold">{t('step1.title')}</h2>
-      <p className="text-gray-600">
-        {t('step1.description')}
-      </p>
-      
+      <h2 className="text-2xl font-serif font-bold">{t("step1.title")}</h2>
+      <p className="text-gray-600">{t("step1.description")}</p>
+
       <div className="mb-6">
         <div className="flex items-center space-x-2">
           <input
@@ -29,67 +39,81 @@ const Step1Certificate: React.FC = () => {
             checked={hasCertificate}
           />
           <label htmlFor="hasCertificate" className="font-medium">
-            {t('step1.hasCertificate')}
+            {t("step1.hasCertificate")}
           </label>
         </div>
       </div>
-      
+
       {hasCertificate && (
         <>
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="certificateNumber" className="block mb-1 font-medium">
-                {t('step1.certificateNumber')}
+              <label
+                htmlFor="certificateNumber"
+                className="block mb-1 font-medium"
+              >
+                {t("step1.certificateNumber")}
               </label>
               <input
                 id="certificateNumber"
                 type="text"
-                {...register('certificateNumber')}
+                {...register("certificateNumber")}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
-                placeholder={t('placeholder.certificateNumber')}
+                placeholder={t("placeholder.certificateNumber")}
               />
               {errors.certificateNumber && (
-                <p className="text-red-600 text-sm mt-1">{errors.certificateNumber.message}</p>
+                <p className="text-red-600 text-sm mt-1">
+                  {errors.certificateNumber.message}
+                </p>
               )}
             </div>
-            
+
             <div>
-              <label htmlFor="certificateType" className="block mb-1 font-medium">
-                {t('step1.certificateType')}
+              <label
+                htmlFor="certificateType"
+                className="block mb-1 font-medium"
+              >
+                {t("step1.certificateType")}
               </label>
               <select
                 id="certificateType"
-                {...register('certificateType')}
+                {...register("certificateType")}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
               >
-                <option value="">{t('common.select')} laboratory</option>
-                <option value="GIA">GIA (Gemological Institute of America)</option>
-                <option value="IGI">IGI (International Gemological Institute)</option>
+                <option value="">{t("common.select")} laboratory</option>
+                <option value="GIA">
+                  GIA (Gemological Institute of America)
+                </option>
+                <option value="IGI">
+                  IGI (International Gemological Institute)
+                </option>
                 <option value="AGS">AGS (American Gem Society)</option>
                 <option value="HRD">HRD (Hoge Raad voor Diamant)</option>
-                <option value="GSI">GSI (Gemological Science International)</option>
-                <option value="EGL">EGL (European Gemological Laboratory)</option>
-                <option value="Other">{t('common.other')}</option>
+                <option value="GSI">
+                  GSI (Gemological Science International)
+                </option>
+                <option value="EGL">
+                  EGL (European Gemological Laboratory)
+                </option>
+                <option value="Other">{t("common.other")}</option>
               </select>
             </div>
           </div>
-          
-          <p className="text-sm text-gray-600 mt-4">
-            {t('step1.note')}
-          </p>
+
+          <p className="text-sm text-gray-600 mt-4">{t("step1.note")}</p>
         </>
       )}
-      
+
       <div>
         <label htmlFor="origin" className="block mb-1 font-medium">
-          {t('step1.origin')}
+          {t("step1.origin")}
         </label>
         <select
           id="origin"
-          {...register('origin')}
+          {...register("origin")}
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
         >
-          <option value="">{t('common.unknown')}/Not sure</option>
+          <option value="">{t("common.unknown")}/Not sure</option>
           <option value="South Africa">South Africa</option>
           <option value="Botswana">Botswana</option>
           <option value="Russia">Russia</option>
@@ -97,35 +121,38 @@ const Step1Certificate: React.FC = () => {
           <option value="Australia">Australia</option>
           <option value="Angola">Angola</option>
           <option value="Namibia">Namibia</option>
-          <option value="Other">{t('common.other')}</option>
+          <option value="Other">{t("common.other")}</option>
         </select>
       </div>
     </div>
   );
 };
 
+// ---------- Step 2 ----------
 const Step2Basics: React.FC = () => {
-  const { register, formState: { errors } } = useFormContext<DiamondFormValues>();
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext<DiamondFormValues>();
   const { t } = useLanguage();
-  
+
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-serif font-bold">{t('step2.title')}</h2>
-      <p className="text-gray-600">
-        {t('step2.description')}
-      </p>
-      
+      <h2 className="text-2xl font-serif font-bold">{t("step2.title")}</h2>
+      <p className="text-gray-600">{t("step2.description")}</p>
+
       <div className="grid md:grid-cols-2 gap-6">
         <div>
           <label htmlFor="shape" className="block mb-1 font-medium">
-            {t('step2.shape')} <span className="text-red-600">{t('common.required')}</span>
+            {t("step2.shape")}{" "}
+            <span className="text-red-600">{t("common.required")}</span>
           </label>
           <select
             id="shape"
-            {...register('shape')}
+            {...register("shape")}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
           >
-            <option value="">{t('common.select')} shape</option>
+            <option value="">{t("common.select")} shape</option>
             <option value="Round">Round</option>
             <option value="Princess">Princess</option>
             <option value="Cushion">Cushion</option>
@@ -136,86 +163,96 @@ const Step2Basics: React.FC = () => {
             <option value="Radiant">Radiant</option>
             <option value="Asscher">Asscher</option>
             <option value="Heart">Heart</option>
-            <option value="Other">{t('common.other')}</option>
+            <option value="Other">{t("common.other")}</option>
           </select>
           {errors.shape && (
             <p className="text-red-600 text-sm mt-1">{errors.shape.message}</p>
           )}
         </div>
-        
+
         <div>
           <label htmlFor="caratWeight" className="block mb-1 font-medium">
-            {t('step2.caratWeight')} <span className="text-red-600">{t('common.required')}</span>
+            {t("step2.caratWeight")}{" "}
+            <span className="text-red-600">{t("common.required")}</span>
           </label>
           <input
             id="caratWeight"
             type="text"
-            {...register('caratWeight')}
+            {...register("caratWeight")}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
-            placeholder={t('placeholder.carat')}
+            placeholder={t("placeholder.carat")}
           />
           {errors.caratWeight && (
-            <p className="text-red-600 text-sm mt-1">{errors.caratWeight.message}</p>
+            <p className="text-red-600 text-sm mt-1">
+              {errors.caratWeight.message}
+            </p>
           )}
         </div>
       </div>
-      
+
       <div className="rounded-lg bg-gray-50 p-4">
-        <h3 className="text-sm font-medium text-gray-700 mb-2">{t('step2.shapeGuide')}</h3>
+        <h3 className="text-sm font-medium text-gray-700 mb-2">
+          {t("step2.shapeGuide")}
+        </h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2">
-          {['Round', 'Princess', 'Cushion', 'Emerald', 'Oval', 'Pear'].map((shape) => (
-            <div key={shape} className="text-center">
-              <div className="bg-white p-2 rounded shadow-sm mb-1">
-                {shape === 'Round' && (
-                  <div className="w-12 h-12 bg-gray-200 rounded-full mx-auto"></div>
-                )}
-                {shape === 'Princess' && (
-                  <div className="w-12 h-12 bg-gray-200 rotate-45 mx-auto"></div>
-                )}
-                {shape === 'Cushion' && (
-                  <div className="w-12 h-12 bg-gray-200 rounded-lg mx-auto"></div>
-                )}
-                {shape === 'Emerald' && (
-                  <div className="w-12 h-10 bg-gray-200 mx-auto"></div>
-                )}
-                {shape === 'Oval' && (
-                  <div className="w-10 h-12 bg-gray-200 rounded-full mx-auto"></div>
-                )}
-                {shape === 'Pear' && (
-                  <div className="w-10 h-12 bg-gray-200 rounded-full rounded-tr-none mx-auto"></div>
-                )}
+          {["Round", "Princess", "Cushion", "Emerald", "Oval", "Pear"].map(
+            (shape) => (
+              <div key={shape} className="text-center">
+                <div className="bg-white p-2 rounded shadow-sm mb-1">
+                  {shape === "Round" && (
+                    <div className="w-12 h-12 bg-gray-200 rounded-full mx-auto"></div>
+                  )}
+                  {shape === "Princess" && (
+                    <div className="w-12 h-12 bg-gray-200 rotate-45 mx-auto"></div>
+                  )}
+                  {shape === "Cushion" && (
+                    <div className="w-12 h-12 bg-gray-200 rounded-lg mx-auto"></div>
+                  )}
+                  {shape === "Emerald" && (
+                    <div className="w-12 h-10 bg-gray-200 mx-auto"></div>
+                  )}
+                  {shape === "Oval" && (
+                    <div className="w-10 h-12 bg-gray-200 rounded-full mx-auto"></div>
+                  )}
+                  {shape === "Pear" && (
+                    <div className="w-10 h-12 bg-gray-200 rounded-full rounded-tr-none mx-auto"></div>
+                  )}
+                </div>
+                <span className="text-xs">{shape}</span>
               </div>
-              <span className="text-xs">{shape}</span>
-            </div>
-          ))}
+            )
+          )}
         </div>
       </div>
     </div>
   );
 };
 
+// ---------- Step 3 ----------
 const Step3ColorClarity: React.FC = () => {
-  const { register, formState: { errors } } = useFormContext<DiamondFormValues>();
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext<DiamondFormValues>();
   const { t } = useLanguage();
-  
+
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-serif font-bold">{t('step3.title')}</h2>
-      <p className="text-gray-600">
-        {t('step3.description')}
-      </p>
-      
+      <h2 className="text-2xl font-serif font-bold">{t("step3.title")}</h2>
+      <p className="text-gray-600">{t("step3.description")}</p>
+
       <div className="grid md:grid-cols-2 gap-6">
         <div>
           <label htmlFor="color" className="block mb-1 font-medium">
-            {t('step3.colorGrade')} <span className="text-red-600">{t('common.required')}</span>
+            {t("step3.colorGrade")}{" "}
+            <span className="text-red-600">{t("common.required")}</span>
           </label>
           <select
             id="color"
-            {...register('color')}
+            {...register("color")}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
           >
-            <option value="">{t('common.select')} color grade</option>
+            <option value="">{t("common.select")} color grade</option>
             <option value="D">D (Colorless)</option>
             <option value="E">E (Colorless)</option>
             <option value="F">F (Colorless)</option>
@@ -228,12 +265,12 @@ const Step3ColorClarity: React.FC = () => {
             <option value="M">M (Faint)</option>
             <option value="N-Z">N-Z (Very Light to Light)</option>
             <option value="Fancy">Fancy Color</option>
-            <option value="Unknown">{t('common.unknown')}</option>
+            <option value="Unknown">{t("common.unknown")}</option>
           </select>
           {errors.color && (
             <p className="text-red-600 text-sm mt-1">{errors.color.message}</p>
           )}
-          
+
           <div className="mt-3">
             <div className="w-full h-10 bg-gradient-to-r from-white via-yellow-100 to-yellow-300 rounded-md mt-2"></div>
             <div className="flex justify-between text-xs text-gray-600 mt-1">
@@ -242,40 +279,51 @@ const Step3ColorClarity: React.FC = () => {
             </div>
           </div>
         </div>
-        
+
         <div>
           <label htmlFor="clarity" className="block mb-1 font-medium">
-            {t('step3.clarityGrade')} <span className="text-red-600">{t('common.required')}</span>
+            {t("step3.clarityGrade")}{" "}
+            <span className="text-red-600">{t("common.required")}</span>
           </label>
           <select
             id="clarity"
-            {...register('clarity')}
+            {...register("clarity")}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
           >
-            <option value="">{t('common.select')} clarity grade</option>
+            <option value="">{t("common.select")} clarity grade</option>
             <option value="FL">FL (Flawless)</option>
             <option value="IF">IF (Internally Flawless)</option>
-            <option value="VVS1">VVS1 (Very Very Slightly Included 1)</option>
-            <option value="VVS2">VVS2 (Very Very Slightly Included 2)</option>
-            <option value="VS1">VS1 (Very Slightly Included 1)</option>
-            <option value="VS2">VS2 (Very Slightly Included 2)</option>
-            <option value="SI1">SI1 (Slightly Included 1)</option>
-            <option value="SI2">SI2 (Slightly Included 2)</option>
-            <option value="I1">I1 (Included 1)</option>
-            <option value="I2">I2 (Included 2)</option>
-            <option value="I3">I3 (Included 3)</option>
-            <option value="Unknown">{t('common.unknown')}</option>
+            <option value="VVS1">VVS1</option>
+            <option value="VVS2">VVS2</option>
+            <option value="VS1">VS1</option>
+            <option value="VS2">VS2</option>
+            <option value="SI1">SI1</option>
+            <option value="SI2">SI2</option>
+            <option value="I1">I1</option>
+            <option value="I2">I2</option>
+            <option value="I3">I3</option>
+            <option value="Unknown">{t("common.unknown")}</option>
           </select>
           {errors.clarity && (
-            <p className="text-red-600 text-sm mt-1">{errors.clarity.message}</p>
+            <p className="text-red-600 text-sm mt-1">
+              {errors.clarity.message}
+            </p>
           )}
-          
+
           <div className="mt-3">
             <div className="w-full h-10 flex">
-              <div className="flex-grow h-full bg-gray-100 rounded-l-md flex items-center justify-center text-xs">FL-VVS</div>
-              <div className="flex-grow h-full bg-gray-200 flex items-center justify-center text-xs">VS</div>
-              <div className="flex-grow h-full bg-gray-300 flex items-center justify-center text-xs">SI</div>
-              <div className="flex-grow h-full bg-gray-400 rounded-r-md flex items-center justify-center text-xs">I</div>
+              <div className="flex-grow h-full bg-gray-100 rounded-l-md flex items-center justify-center text-xs">
+                FL-VVS
+              </div>
+              <div className="flex-grow h-full bg-gray-200 flex items-center justify-center text-xs">
+                VS
+              </div>
+              <div className="flex-grow h-full bg-gray-300 flex items-center justify-center text-xs">
+                SI
+              </div>
+              <div className="flex-grow h-full bg-gray-400 rounded-r-md flex items-center justify-center text-xs">
+                I
+              </div>
             </div>
             <div className="flex justify-between text-xs text-gray-600 mt-1">
               <span>FL (Perfect)</span>
@@ -284,150 +332,234 @@ const Step3ColorClarity: React.FC = () => {
           </div>
         </div>
       </div>
-      
+
       <div className="bg-luxury-gold bg-opacity-10 p-4 rounded-md mt-4">
-        <h3 className="text-luxury-gold font-medium mb-2">{t('step3.didYouKnow')}</h3>
-        <p className="text-sm">
-          {t('step3.didYouKnowText')}
-        </p>
+        <h3 className="text-luxury-gold font-medium mb-2">
+          {t("step3.didYouKnow")}
+        </h3>
+        <p className="text-sm">{t("step3.didYouKnowText")}</p>
       </div>
     </div>
   );
 };
 
+// ---------- Step 4 ----------
 const Step4Cut: React.FC = () => {
-  const { register, formState: { errors } } = useFormContext<DiamondFormValues>();
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext<DiamondFormValues>();
   const { t } = useLanguage();
-  
+
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-serif font-bold">{t('step4.title')}</h2>
-      <p className="text-gray-600">{t('step4.description')}</p>
-      
+      <h2 className="text-2xl font-serif font-bold">{t("step4.title")}</h2>
+      <p className="text-gray-600">{t("step4.description")}</p>
+
       <div className="grid md:grid-cols-2 gap-6">
         <div>
           <label htmlFor="cut" className="block mb-1 font-medium">
-            {t('step4.cutGrade')} <span className="text-red-600">{t('common.required')}</span>
+            {t("step4.cutGrade")}{" "}
+            <span className="text-red-600">{t("common.required")}</span>
           </label>
-          <select id="cut" {...register('cut')} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold">
-            <option value="">{t('common.select')} cut grade</option>
+          <select
+            id="cut"
+            {...register("cut")}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
+          >
+            <option value="">{t("common.select")} cut grade</option>
             <option value="Excellent">Excellent</option>
             <option value="Very Good">Very Good</option>
             <option value="Good">Good</option>
             <option value="Fair">Fair</option>
             <option value="Poor">Poor</option>
-            <option value="Unknown">{t('common.unknown')}</option>
+            <option value="Unknown">{t("common.unknown")}</option>
           </select>
-          {errors.cut && <p className="text-red-600 text-sm mt-1">{errors.cut.message}</p>}
+          {errors.cut && (
+            <p className="text-red-600 text-sm mt-1">{errors.cut.message}</p>
+          )}
         </div>
-        
+
         <div>
           <label htmlFor="polish" className="block mb-1 font-medium">
-            {t('step4.polish')} <span className="text-red-600">{t('common.required')}</span>
+            {t("step4.polish")}{" "}
+            <span className="text-red-600">{t("common.required")}</span>
           </label>
-          <select id="polish" {...register('polish')} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold">
-            <option value="">{t('common.select')} polish grade</option>
+          <select
+            id="polish"
+            {...register("polish")}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
+          >
+            <option value="">{t("common.select")} polish grade</option>
             <option value="Excellent">Excellent</option>
             <option value="Very Good">Very Good</option>
             <option value="Good">Good</option>
             <option value="Fair">Fair</option>
             <option value="Poor">Poor</option>
-            <option value="Unknown">{t('common.unknown')}</option>
+            <option value="Unknown">{t("common.unknown")}</option>
           </select>
-          {errors.polish && <p className="text-red-600 text-sm mt-1">{errors.polish.message}</p>}
+          {errors.polish && (
+            <p className="text-red-600 text-sm mt-1">{errors.polish.message}</p>
+          )}
         </div>
       </div>
-      
+
       <div className="grid md:grid-cols-2 gap-6">
         <div>
           <label htmlFor="symmetry" className="block mb-1 font-medium">
-            {t('step4.symmetry')} <span className="text-red-600">{t('common.required')}</span>
+            {t("step4.symmetry")}{" "}
+            <span className="text-red-600">{t("common.required")}</span>
           </label>
-          <select id="symmetry" {...register('symmetry')} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold">
-            <option value="">{t('common.select')} symmetry grade</option>
+          <select
+            id="symmetry"
+            {...register("symmetry")}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
+          >
+            <option value="">{t("common.select")} symmetry grade</option>
             <option value="Excellent">Excellent</option>
             <option value="Very Good">Very Good</option>
             <option value="Good">Good</option>
             <option value="Fair">Fair</option>
             <option value="Poor">Poor</option>
-            <option value="Unknown">{t('common.unknown')}</option>
+            <option value="Unknown">{t("common.unknown")}</option>
           </select>
-          {errors.symmetry && <p className="text-red-600 text-sm mt-1">{errors.symmetry.message}</p>}
+          {errors.symmetry && (
+            <p className="text-red-600 text-sm mt-1">
+              {errors.symmetry.message}
+            </p>
+          )}
         </div>
-        
+
         <div>
           <label htmlFor="fluorescence" className="block mb-1 font-medium">
-            {t('step4.fluorescence')} <span className="text-red-600">{t('common.required')}</span>
+            {t("step4.fluorescence")}{" "}
+            <span className="text-red-600">{t("common.required")}</span>
           </label>
-          <select id="fluorescence" {...register('fluorescence')} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold">
-            <option value="">{t('common.select')} fluorescence</option>
+          <select
+            id="fluorescence"
+            {...register("fluorescence")}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
+          >
+            <option value="">{t("common.select")} fluorescence</option>
             <option value="None">None</option>
             <option value="Faint">Faint</option>
             <option value="Medium">Medium</option>
             <option value="Strong">Strong</option>
             <option value="Very Strong">Very Strong</option>
-            <option value="Unknown">{t('common.unknown')}</option>
+            <option value="Unknown">{t("common.unknown")}</option>
           </select>
-          {errors.fluorescence && <p className="text-red-600 text-sm mt-1">{errors.fluorescence.message}</p>}
+          {errors.fluorescence && (
+            <p className="text-red-600 text-sm mt-1">
+              {errors.fluorescence.message}
+            </p>
+          )}
         </div>
       </div>
     </div>
   );
 };
 
+// ---------- Step 5 ----------
 const Step5Measurements: React.FC = () => {
   const { register } = useFormContext<DiamondFormValues>();
   const { t } = useLanguage();
-  
+
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-serif font-bold">{t('step5.title')}</h2>
-      <p className="text-gray-600">{t('step5.description')}</p>
-      
+      <h2 className="text-2xl font-serif font-bold">{t("step5.title")}</h2>
+      <p className="text-gray-600">{t("step5.description")}</p>
+
       <div className="grid md:grid-cols-3 gap-6">
         <div>
-          <label htmlFor="length" className="block mb-1 font-medium">{t('step5.length')}</label>
-          <input id="length" type="text" {...register('length')} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold" placeholder={t('placeholder.length')} />
+          <label htmlFor="length" className="block mb-1 font-medium">
+            {t("step5.length")}
+          </label>
+          <input
+            id="length"
+            type="text"
+            {...register("length")}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
+            placeholder={t("placeholder.length")}
+          />
         </div>
         <div>
-          <label htmlFor="width" className="block mb-1 font-medium">{t('step5.width')}</label>
-          <input id="width" type="text" {...register('width')} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold" placeholder={t('placeholder.width')} />
+          <label htmlFor="width" className="block mb-1 font-medium">
+            {t("step5.width")}
+          </label>
+          <input
+            id="width"
+            type="text"
+            {...register("width")}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
+            placeholder={t("placeholder.width")}
+          />
         </div>
         <div>
-          <label htmlFor="depth" className="block mb-1 font-medium">{t('step5.depth')}</label>
-          <input id="depth" type="text" {...register('depth')} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold" placeholder={t('placeholder.depth')} />
+          <label htmlFor="depth" className="block mb-1 font-medium">
+            {t("step5.depth")}
+          </label>
+          <input
+            id="depth"
+            type="text"
+            {...register("depth")}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
+            placeholder={t("placeholder.depth")}
+          />
         </div>
       </div>
     </div>
   );
 };
 
+// ---------- Step 6 ----------
 const Step6Additional: React.FC = () => {
   const { register } = useFormContext<DiamondFormValues>();
   const { t } = useLanguage();
   const [hasSettings, setHasSettings] = useState(false);
-  
+
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-serif font-bold">{t('step6.title')}</h2>
-      <p className="text-gray-600">{t('step6.description')}</p>
-      
+      <h2 className="text-2xl font-serif font-bold">{t("step6.title")}</h2>
+      <p className="text-gray-600">{t("step6.description")}</p>
+
       <div className="space-y-4">
         <div className="flex items-center space-x-2">
-          <input type="checkbox" id="hasInclusions" className="h-4 w-4 text-luxury-gold focus:ring-luxury-gold" {...register('hasInclusions')} />
-          <label htmlFor="hasInclusions" className="font-medium">{t('step6.hasInclusions')}</label>
+          <input
+            type="checkbox"
+            id="hasInclusions"
+            className="h-4 w-4 text-luxury-gold focus:ring-luxury-gold"
+            {...register("hasInclusions")}
+          />
+          <label htmlFor="hasInclusions" className="font-medium">
+            {t("step6.hasInclusions")}
+          </label>
         </div>
-        
+
         <div className="flex items-center space-x-2">
-          <input type="checkbox" id="hasSettings" className="h-4 w-4 text-luxury-gold focus:ring-luxury-gold" {...register('hasSettings')} onChange={(e) => setHasSettings(e.target.checked)} checked={hasSettings} />
-          <label htmlFor="hasSettings" className="font-medium">{t('step6.hasSettings')}</label>
+          <input
+            type="checkbox"
+            id="hasSettings"
+            className="h-4 w-4 text-luxury-gold focus:ring-luxury-gold"
+            {...register("hasSettings")}
+            onChange={(e) => setHasSettings(e.target.checked)}
+            checked={hasSettings}
+          />
+          <label htmlFor="hasSettings" className="font-medium">
+            {t("step6.hasSettings")}
+          </label>
         </div>
-        
+
         {hasSettings && (
           <div className="pl-6 mt-3">
-            <label htmlFor="settingMaterial" className="block mb-1 font-medium">{t('step6.settingMaterial')}</label>
-            <select id="settingMaterial" {...register('settingMaterial')} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold">
-              <option value="">{t('common.select')} material</option>
+            <label htmlFor="settingMaterial" className="block mb-1 font-medium">
+              {t("step6.settingMaterial")}
+            </label>
+            <select
+              id="settingMaterial"
+              {...register("settingMaterial")}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
+            >
+              <option value="">{t("common.select")} material</option>
               <option value="Platinum">Platinum</option>
               <option value="18K White Gold">18K White Gold</option>
               <option value="18K Yellow Gold">18K Yellow Gold</option>
@@ -436,269 +568,312 @@ const Step6Additional: React.FC = () => {
               <option value="14K Yellow Gold">14K Yellow Gold</option>
               <option value="14K Rose Gold">14K Rose Gold</option>
               <option value="Silver">Silver</option>
-              <option value="Other">{t('common.other')}</option>
+              <option value="Other">{t("common.other")}</option>
             </select>
           </div>
         )}
-        
+
         <div className="mt-4">
-          <label htmlFor="additionalNotes" className="block mb-1 font-medium">{t('step6.additionalNotes')}</label>
-          <textarea id="additionalNotes" rows={4} {...register('additionalNotes')} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold" placeholder={t('step6.notesPlaceholder')}></textarea>
+          <label htmlFor="additionalNotes" className="block mb-1 font-medium">
+            {t("step6.additionalNotes")}
+          </label>
+          <textarea
+            id="additionalNotes"
+            rows={4}
+            {...register("additionalNotes")}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
+            placeholder={t("step6.notesPlaceholder")}
+          ></textarea>
         </div>
       </div>
     </div>
   );
 };
 
+// ---------- Step 7 ----------
 const Step7Contact: React.FC = () => {
-  const { register, formState: { errors } } = useFormContext<DiamondFormValues>();
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext<DiamondFormValues>();
   const { t } = useLanguage();
-  
+
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-serif font-bold">{t('step7.title')}</h2>
-      <p className="text-gray-600">{t('step7.description')}</p>
-      
+      <h2 className="text-2xl font-serif font-bold">{t("step7.title")}</h2>
+      <p className="text-gray-600">{t("step7.description")}</p>
+
       <div className="grid md:grid-cols-2 gap-6">
         <div>
-          <label htmlFor="fullName" className="block mb-1 font-medium">{t('step7.fullName')} <span className="text-red-600">{t('common.required')}</span></label>
-          <input id="fullName" type="text" {...register('fullName')} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold" placeholder={t('placeholder.fullName')} />
-          {errors.fullName && <p className="text-red-600 text-sm mt-1">{errors.fullName.message}</p>}
+          <label htmlFor="fullName" className="block mb-1 font-medium">
+            {t("step7.fullName")}{" "}
+            <span className="text-red-600">{t("common.required")}</span>
+          </label>
+          <input
+            id="fullName"
+            type="text"
+            {...register("fullName")}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
+            placeholder={t("placeholder.fullName")}
+          />
+          {errors.fullName && (
+            <p className="text-red-600 text-sm mt-1">
+              {errors.fullName.message}
+            </p>
+          )}
         </div>
-        
+
         <div>
-          <label htmlFor="email" className="block mb-1 font-medium">{t('step7.email')} <span className="text-red-600">{t('common.required')}</span></label>
-          <input id="email" type="email" {...register('email')} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold" placeholder={t('placeholder.emailFormat')} />
-          {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>}
+          <label htmlFor="email" className="block mb-1 font-medium">
+            {t("step7.email")}{" "}
+            <span className="text-red-600">{t("common.required")}</span>
+          </label>
+          <input
+            id="email"
+            type="email"
+            {...register("email")}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
+            placeholder={t("placeholder.emailFormat")}
+          />
+          {errors.email && (
+            <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>
+          )}
         </div>
       </div>
-      
+
       <div className="grid md:grid-cols-2 gap-6">
         <div>
-          <label htmlFor="phone" className="block mb-1 font-medium">{t('step7.phone')} <span className="text-red-600">{t('common.required')}</span></label>
-          <input id="phone" type="tel" {...register('phone')} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold" placeholder={t('placeholder.phoneFormat')} />
-          {errors.phone && <p className="text-red-600 text-sm mt-1">{errors.phone.message}</p>}
+          <label htmlFor="phone" className="block mb-1 font-medium">
+            {t("step7.phone")}{" "}
+            <span className="text-red-600">{t("common.required")}</span>
+          </label>
+          <input
+            id="phone"
+            type="tel"
+            {...register("phone")}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
+            placeholder={t("placeholder.phoneFormat")}
+          />
+          {errors.phone && (
+            <p className="text-red-600 text-sm mt-1">{errors.phone.message}</p>
+          )}
         </div>
-        
+
         <div>
-          <label htmlFor="preferredContact" className="block mb-1 font-medium">{t('step7.preferredContact')} <span className="text-red-600">{t('common.required')}</span></label>
-          <select id="preferredContact" {...register('preferredContact')} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold">
-            <option value="">{t('common.select')} contact method</option>
+          <label htmlFor="preferredContact" className="block mb-1 font-medium">
+            {t("step7.preferredContact")}{" "}
+            <span className="text-red-600">{t("common.required")}</span>
+          </label>
+          <select
+            id="preferredContact"
+            {...register("preferredContact")}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
+          >
+            <option value="">{t("common.select")} contact method</option>
             <option value="Email">Email</option>
             <option value="Phone">Phone</option>
             <option value="Either">Either</option>
           </select>
-          {errors.preferredContact && <p className="text-red-600 text-sm mt-1">{errors.preferredContact.message}</p>}
+          {errors.preferredContact && (
+            <p className="text-red-600 text-sm mt-1">
+              {errors.preferredContact.message}
+            </p>
+          )}
         </div>
       </div>
-      
+
       <div className="mt-4">
         <div className="flex items-center space-x-2">
-          <input type="checkbox" id="agreement" className="h-4 w-4 text-luxury-gold focus:ring-luxury-gold" />
-          <label htmlFor="agreement" className="text-sm">{t('step7.agreement')} <a href="/terms" className="text-luxury-gold hover:underline">{t('step7.terms')}</a> and <a href="/privacy" className="text-luxury-gold hover:underline">{t('step7.privacy')}</a></label>
+          <input
+            type="checkbox"
+            id="agreement"
+            className="h-4 w-4 text-luxury-gold focus:ring-luxury-gold"
+          />
+          <label htmlFor="agreement" className="text-sm">
+            {t("step7.agreement")}{" "}
+            <a href="/terms" className="text-luxury-gold hover:underline">
+              {t("step7.terms")}
+            </a>{" "}
+            and{" "}
+            <a href="/privacy" className="text-luxury-gold hover:underline">
+              {t("step7.privacy")}
+            </a>
+          </label>
         </div>
       </div>
     </div>
   );
 };
 
+// ====== PAGE ======
 const ValuationTool: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
+
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<DiamondFormValues>();
-  const [estimatedValue, setEstimatedValue] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showEstimate, setShowEstimate] = useState(false);
-  
+
+  // Kết quả từ BE
+  const [estimateRes, setEstimateRes] = useState<{
+    totalPrice: number;
+    currency: string;
+    requestId: string;
+  } | null>(null);
+
+  const [caseId, setCaseId] = useState<string | null>(null);
   const totalSteps = 7;
-  
-  // Initialize form methods
+
   const methods = useForm<DiamondFormValues>({
     resolver: zodResolver(createDiamondFormSchema(t)),
-    mode: 'onChange',
+    mode: "onChange",
   });
-  
-  const { handleSubmit, trigger, formState } = methods;
-  
-  // Function to go to next step
+
+  const { handleSubmit, trigger } = methods;
+
+  // Điều hướng step + validate từng bước
   const nextStep = async () => {
-    // Validate fields for current step
     let isValid = true;
-    
     switch (currentStep) {
-      case 1:
-        // Step 1 has no required fields
-        break;
       case 2:
-        isValid = await trigger(['shape', 'caratWeight']);
+        isValid = await trigger(["shape", "caratWeight"]);
         break;
       case 3:
-        isValid = await trigger(['color', 'clarity']);
+        isValid = await trigger(["color", "clarity"]);
         break;
       case 4:
-        isValid = await trigger(['cut', 'polish', 'symmetry', 'fluorescence']);
-        break;
-      case 5:
-        // Step 5 has no required fields
-        break;
-      case 6:
-        // Step 6 has no required fields
+        isValid = await trigger(["cut", "polish", "symmetry", "fluorescence"]);
         break;
       case 7:
-        isValid = await trigger(['fullName', 'email', 'phone', 'preferredContact']);
+        isValid = await trigger([
+          "fullName",
+          "email",
+          "phone",
+          "preferredContact",
+        ]);
         break;
+      default:
+        isValid = true;
     }
-    
+
     if (isValid) {
-      // If we're on the last step, calculate estimate
       if (currentStep === totalSteps) {
         handleSubmit(onSubmit)();
-      } else {
-        setCurrentStep((prev) => prev + 1);
-      }
+      } else setCurrentStep((s) => s + 1);
     }
   };
-  
-  // Function to go back to previous step
-  const prevStep = () => {
-    setCurrentStep((prev) => prev - 1);
+
+  const prevStep = () => setCurrentStep((s) => s - 1);
+
+  // Helpers
+  const toNum = (v?: string) => {
+    if (!v) return undefined;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : undefined;
   };
-  
-  // Submit function - Enhanced to create actual valuation request
-  const onSubmit = (data: DiamondFormValues) => {
+
+  // ===== Submit: gọi BE Estimate thay cho mock =====
+  const onSubmit = async (data: DiamondFormValues) => {
     setFormData(data);
     setIsSubmitting(true);
-    
-    // Create valuation request in the system
-    setTimeout(() => {
-      // Generate unique request ID
-      const requestId = `VAL-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`;
-      
-      // Simple mock calculation for demo purposes
-      const caratWeight = parseFloat(data.caratWeight) || 0;
-      let basePrice = 0;
-      
-      // Base price by color
-      switch (data.color) {
-        case 'D': basePrice = 20000; break;
-        case 'E': basePrice = 18000; break;
-        case 'F': basePrice = 16000; break;
-        case 'G': basePrice = 14000; break;
-        case 'H': basePrice = 12000; break;
-        case 'I': basePrice = 10000; break;
-        case 'J': basePrice = 8000; break;
-        default: basePrice = 5000;
-      }
-      
-      // Multiply by carat with progressive scaling
-      let pricePerCarat = basePrice;
-      if (caratWeight > 1) pricePerCarat *= 1.2;
-      if (caratWeight > 2) pricePerCarat *= 1.3;
-      
-      // Clarity modifier
-      let clarityMultiplier = 1;
-      switch (data.clarity) {
-        case 'FL': clarityMultiplier = 2; break;
-        case 'IF': clarityMultiplier = 1.8; break;
-        case 'VVS1': clarityMultiplier = 1.6; break;
-        case 'VVS2': clarityMultiplier = 1.5; break;
-        case 'VS1': clarityMultiplier = 1.4; break;
-        case 'VS2': clarityMultiplier = 1.3; break;
-        case 'SI1': clarityMultiplier = 1.2; break;
-        case 'SI2': clarityMultiplier = 1.1; break;
-        default: clarityMultiplier = 1;
-      }
-      
-      // Cut modifier
-      let cutMultiplier = 1;
-      switch (data.cut) {
-        case 'Excellent': cutMultiplier = 1.2; break;
-        case 'Very Good': cutMultiplier = 1.1; break;
-        case 'Good': cutMultiplier = 1; break;
-        case 'Fair': cutMultiplier = 0.9; break;
-        case 'Poor': cutMultiplier = 0.8; break;
-        default: cutMultiplier = 1;
-      }
-      
-      const estimatedValue = Math.round(pricePerCarat * caratWeight * clarityMultiplier * cutMultiplier);
-      
-      // Create the valuation request object
-      const newValuationRequest = {
-        id: requestId,
+
+    try {
+      const measurements =
+        data.length && data.width && data.depth
+          ? `${data.length}-${data.width}x${data.depth}mm`
+          : undefined;
+
+      const res = await apiEstimate({
+        certificateNo: data.certificateNumber || undefined,
+        origin: data.origin || "Natural",
+        shape: data.shape!,
+        carat: toNum(data.caratWeight) ?? 0,
+        color: data.color!,
+        clarity: data.clarity!,
+        cut: data.cut!,
+        polish: data.polish!,
+        symmetry: data.symmetry!,
+        fluorescence: data.fluorescence!,
+        tablePercent: undefined, // nếu bạn có field Table% thì map vào đây
+        depthPercent: undefined, // nếu có field Depth% (%)
+        measurements,
         customerName: data.fullName,
-        customerEmail: data.email,
-        customerPhone: data.phone,
-        submittedDate: new Date().toISOString().split('T')[0],
-        status: 'new_request' as const,
-        priority: 'normal' as const,
-        diamondType: `${data.shape} Cut`,
-        caratWeight: `${data.caratWeight}ct`,
-        estimatedValue: `$${estimatedValue.toLocaleString()}`,
-        notes: 'Customer valuation request submitted through online form',
-        customerNotes: data.additionalNotes || 'No additional notes provided',
-        preferredContact: data.preferredContact,
-        diamondDetails: {
-          shape: data.shape,
-          caratWeight: parseFloat(data.caratWeight),
-          color: data.color,
-          clarity: data.clarity,
-          cut: data.cut,
-          polish: data.polish,
-          symmetry: data.symmetry,
-          fluorescence: data.fluorescence,
-          hasInclusions: data.hasInclusions,
-          hasSettings: data.hasSettings,
-          settingMaterial: data.settingMaterial,
-          certificateNumber: data.certificateNumber,
-          certificateType: data.certificateType,
-          origin: data.origin,
-          measurements: data.length && data.width && data.depth ? {
-            length: parseFloat(data.length),
-            width: parseFloat(data.width),
-            depth: parseFloat(data.depth)
-          } : undefined
-        },
-        communicationLog: [{
-          date: new Date().toISOString().split('T')[0],
-          type: 'system' as const,
-          from: 'System',
-          message: `Valuation request submitted online by ${data.fullName}`
-        }],
-        timeline: [{
-          date: new Date().toISOString().split('T')[0],
-          status: 'new_request' as const,
-          user: data.fullName,
-          notes: 'Initial valuation request submitted through online form'
-        }]
-      };
-      
-      // In a real application, you would send this to your backend API
-      // For now, we'll store it in localStorage to simulate the request creation
-      try {
-        const existingRequests = JSON.parse(localStorage.getItem('customerValuationRequests') || '[]');
-        existingRequests.push(newValuationRequest);
-        localStorage.setItem('customerValuationRequests', JSON.stringify(existingRequests));
-        
-        console.log('Valuation request created:', newValuationRequest);
-      } catch (error) {
-        console.error('Error saving valuation request:', error);
-      }
-      
-      setEstimatedValue(estimatedValue);
-      setIsSubmitting(false);
+      });
+
+      setEstimateRes({
+        totalPrice: res.totalPrice,
+        currency: res.currency,
+        requestId: res.requestId,
+      });
+
       setShowEstimate(true);
-    }, 2000);
+    } catch (err: any) {
+      // Có thể hiển thị toast
+      console.error("Estimate error", err?.response?.data || err);
+      alert(
+        err?.response?.data?.message ||
+          err?.message ||
+          "Estimate failed. Please try again."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
-  
-  // Animation variants
+
+  // ===== Tạo hồ sơ chính thức từ requestId =====
+  const createOfficialCase = async () => {
+    if (!estimateRes?.requestId || !formData) return;
+
+    try {
+      const measurements =
+        formData.length && formData.width && formData.depth
+          ? `${formData.length}-${formData.width}x${formData.depth}mm`
+          : undefined;
+
+      const created = await apiCreateCase({
+        fullName: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        preferredMethod: formData.preferredContact || "Email",
+
+        certificateNo: formData.certificateNumber || undefined,
+        origin: formData.origin || "Natural",
+        shape: formData.shape!,
+        carat: toNum(formData.caratWeight) ?? 0,
+        color: formData.color!,
+        clarity: formData.clarity!,
+        cut: formData.cut!,
+        polish: formData.polish!,
+        symmetry: formData.symmetry!,
+        fluorescence: formData.fluorescence!,
+        tablePercent: undefined,
+        depthPercent: undefined,
+        measurements,
+        existingRequestId: estimateRes.requestId,
+        notes: formData.additionalNotes,
+      });
+
+      setCaseId(created.caseId);
+      // navigate(`/valuation/cases/${created.caseId}`);
+    } catch (err: any) {
+      console.error("Create case error", err?.response?.data || err);
+      alert(
+        err?.response?.data?.message ||
+          err?.message ||
+          "Create case failed. Please try again."
+      );
+    }
+  };
+
+  // Anim
   const fadeIn = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { duration: 0.5 } },
-    exit: { opacity: 0, transition: { duration: 0.2 } }
+    exit: { opacity: 0, transition: { duration: 0.2 } },
   };
-  
-  // Render step content
+
+  // Render step
   const renderStepContent = (step: number) => {
     switch (step) {
       case 1:
@@ -719,7 +894,7 @@ const ValuationTool: React.FC = () => {
         return <Step1Certificate />;
     }
   };
-  
+
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="container-custom">
@@ -727,31 +902,39 @@ const ValuationTool: React.FC = () => {
           {/* Header */}
           <div className="text-center mb-10">
             <h1 className="text-4xl md:text-5xl font-serif font-bold mb-4">
-              {t('valuation.title')} <span className="text-luxury-gold">{t('valuation.titleHighlight')}</span> {t('valuation.tool')}
+              {t("valuation.title")}{" "}
+              <span className="text-luxury-gold">
+                {t("valuation.titleHighlight")}
+              </span>{" "}
+              {t("valuation.tool")}
             </h1>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              {t('valuation.description')}
+              {t("valuation.description")}
             </p>
           </div>
-          
-          {/* Progress steps */}
+
+          {/* Progress */}
           {!showEstimate && (
             <div className="mb-10">
               <div className="flex items-center justify-between mb-2">
-                <div className="text-sm font-medium text-gray-500">{t('valuation.step')} {currentStep} {t('valuation.of')} {totalSteps}</div>
                 <div className="text-sm font-medium text-gray-500">
-                  {Math.round((currentStep / totalSteps) * 100)}{t('valuation.complete')}
+                  {t("valuation.step")} {currentStep} {t("valuation.of")}{" "}
+                  {totalSteps}
+                </div>
+                <div className="text-sm font-medium text-gray-500">
+                  {Math.round((currentStep / totalSteps) * 100)}
+                  {t("valuation.complete")}
                 </div>
               </div>
               <div className="h-2 bg-gray-200 rounded-full">
-                <div 
-                  className="h-2 bg-luxury-gold rounded-full transition-all duration-300" 
+                <div
+                  className="h-2 bg-luxury-gold rounded-full transition-all duration-300"
                   style={{ width: `${(currentStep / totalSteps) * 100}%` }}
                 ></div>
               </div>
             </div>
           )}
-          
+
           {!showEstimate ? (
             <FormProvider {...methods}>
               <form onSubmit={handleSubmit(onSubmit)}>
@@ -764,21 +947,30 @@ const ValuationTool: React.FC = () => {
                 >
                   <div className="bg-white shadow-md rounded-lg p-6 md:p-8">
                     {renderStepContent(currentStep)}
-                    
+
                     <div className="flex justify-between mt-10">
                       <button
                         type="button"
                         onClick={prevStep}
-                        className={`btn btn-secondary ${currentStep === 1 ? 'opacity-0 pointer-events-none' : ''}`}
+                        className={`btn btn-secondary ${
+                          currentStep === 1
+                            ? "opacity-0 pointer-events-none"
+                            : ""
+                        }`}
                       >
-                        {t('valuation.previous')}
+                        {t("valuation.previous")}
                       </button>
                       <button
                         type="button"
                         onClick={nextStep}
                         className="btn btn-primary"
+                        disabled={isSubmitting}
                       >
-                        {currentStep < totalSteps ? t('valuation.continue') : t('valuation.getEstimate')}
+                        {currentStep < totalSteps
+                          ? t("valuation.continue")
+                          : isSubmitting
+                          ? t("results.calculating")
+                          : t("valuation.getEstimate")}
                       </button>
                     </div>
                   </div>
@@ -795,39 +987,53 @@ const ValuationTool: React.FC = () => {
               {isSubmitting ? (
                 <div className="text-center py-12">
                   <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-luxury-gold mx-auto"></div>
-                  <p className="mt-4 text-lg">{t('results.calculating')}</p>
+                  <p className="mt-4 text-lg">{t("results.calculating")}</p>
                 </div>
               ) : (
                 <div className="text-center">
                   <div className="mb-4">
                     <div className="inline-block p-4 bg-luxury-gold bg-opacity-10 rounded-full">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-12 h-12 text-luxury-gold">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" />
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className="w-12 h-12 text-luxury-gold"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z"
+                        />
                       </svg>
                     </div>
                   </div>
-                  
-                  <h2 className="text-3xl font-serif font-bold mb-2">{t('results.estimatedValue')}</h2>
-                  <p className="text-gray-600 mb-6">{t('results.basedOn')}</p>
-                  
+
+                  <h2 className="text-3xl font-serif font-bold mb-2">
+                    {t("results.estimatedValue")}
+                  </h2>
+                  <p className="text-gray-600 mb-6">{t("results.basedOn")}</p>
+
                   <div className="py-4 px-8 bg-gray-50 rounded-lg inline-block mb-8">
                     <span className="block text-5xl font-bold text-luxury-gold">
-                      ${estimatedValue?.toLocaleString()}
+                      {estimateRes
+                        ? `${estimateRes.totalPrice.toLocaleString()} ${
+                            estimateRes.currency
+                          }`
+                        : "--"}
                     </span>
-                    <span className="text-gray-500 text-sm">{t('results.marketValue')}</span>
+                    <span className="text-gray-500 text-sm">
+                      {t("results.marketValue")}
+                    </span>
                   </div>
-                  
-                  <div className="max-w-lg mx-auto text-left mb-8">
-                    <div className="bg-luxury-gold bg-opacity-10 p-4 rounded-md">
-                      <p className="text-sm">
-                        <strong>{t('results.importantNote')}</strong> {t('results.noteText')}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="grid md:grid-cols-2 gap-4">
+
+                  {/* Summary + Next steps */}
+                  <div className="grid md:grid-cols-2 gap-4 text-left">
                     <div>
-                      <h3 className="text-lg font-bold mb-2 text-left">Your Diamond Summary</h3>
+                      <h3 className="text-lg font-bold mb-2">
+                        Your Diamond Summary
+                      </h3>
                       <table className="w-full text-left text-sm">
                         <tbody>
                           <tr className="border-b">
@@ -853,55 +1059,64 @@ const ValuationTool: React.FC = () => {
                         </tbody>
                       </table>
                     </div>
-                    
-                    <div className="text-left">
+
+                    <div>
                       <h3 className="text-lg font-bold mb-2">Next Steps</h3>
                       <p className="text-sm text-gray-600 mb-4">
-                        Your valuation request has been submitted successfully! A member of our team will contact you at {formData?.email} within 24 hours.
+                        {t("results.noteText")}
                       </p>
-                      
-                      <div className="bg-green-50 p-4 rounded-lg mb-4">
-                        <h4 className="font-medium text-green-800 mb-2">✅ Request Submitted Successfully</h4>
-                        <p className="text-sm text-green-700">
-                          Reference ID: VAL-{new Date().getFullYear()}-{String(Date.now()).slice(-6)}
-                        </p>
-                      </div>
-                      
-                      <div className="flex space-x-4">
-                        <button 
-                          onClick={() => navigate('/dashboard')}
-                          className="btn btn-primary"
-                        >
-                          Track Your Request
-                        </button>
-                        <button 
-                          onClick={() => navigate('/valuation-results')}
-                          className="btn btn-secondary"
-                        >
-                          View Sample Results
-                        </button>
-                        <button 
-                          onClick={() => {
-                            setShowEstimate(false);
-                            setCurrentStep(1);
-                            setFormData(undefined);
-                          }}
-                          className="btn btn-secondary"
-                        >
-                          New Request
-                        </button>
-                      </div>
+
+                      {caseId ? (
+                        <div className="bg-emerald-50 p-4 rounded-lg mb-4 text-emerald-800">
+                          ✅ {t("results.requestSubmitted")} — ID:{" "}
+                          <b>{caseId}</b>
+                        </div>
+                      ) : (
+                        <div className="flex flex-wrap gap-3">
+                          <button
+                            onClick={createOfficialCase}
+                            className="btn btn-primary"
+                          >
+                            {t("valuation.submitOfficial")}
+                          </button>
+                          <button
+                            onClick={() => navigate("/dashboard")}
+                            className="btn btn-secondary"
+                          >
+                            {t("valuation.trackRequest")}
+                          </button>
+                          <button
+                            onClick={() => {
+                              setShowEstimate(false);
+                              setCurrentStep(1);
+                              setFormData(undefined);
+                              setEstimateRes(null);
+                              setCaseId(null);
+                            }}
+                            className="btn btn-secondary"
+                          >
+                            {t("valuation.newRequest")}
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
               )}
             </motion.div>
           )}
-          
+
           {!showEstimate && (
             <div className="mt-8 text-center text-sm text-gray-500">
               <p>
-                {t('valuation.help')} <button onClick={() => navigate('/contact')} className="text-luxury-gold hover:underline bg-transparent border-none cursor-pointer">{t('valuation.contactExperts')}</button>.
+                {t("valuation.help")}{" "}
+                <button
+                  onClick={() => navigate("/contact")}
+                  className="text-luxury-gold hover:underline bg-transparent border-none cursor-pointer"
+                >
+                  {t("valuation.contactExperts")}
+                </button>
+                .
               </p>
             </div>
           )}
