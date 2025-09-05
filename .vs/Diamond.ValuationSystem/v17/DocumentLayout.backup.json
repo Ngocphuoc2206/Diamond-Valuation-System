@@ -83,15 +83,14 @@
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "Diamond.ValuationService.Api",
+              "Title": "Diamond.ValuationService.Api.csproj",
               "DocumentMoniker": "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Api\\Diamond.ValuationService.Api.csproj",
               "RelativeDocumentMoniker": "Diamond.ValuationService\\Diamond.ValuationService.Api\\Diamond.ValuationService.Api.csproj",
               "ToolTip": "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Api\\Diamond.ValuationService.Api.csproj",
               "RelativeToolTip": "Diamond.ValuationService\\Diamond.ValuationService.Api\\Diamond.ValuationService.Api.csproj",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-08-22T12:11:36.961Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-08-22T12:11:36.961Z"
             },
             {
               "$type": "Document",
@@ -113,7 +112,7 @@
               "RelativeDocumentMoniker": "Diamond.ValuationService\\Diamond.ValuationService.Api\\appsettings.json",
               "ToolTip": "E:\\Diamond-Valuation-Service\\Diamond.ValuationService\\Diamond.ValuationService.Api\\appsettings.json",
               "RelativeToolTip": "Diamond.ValuationService\\Diamond.ValuationService.Api\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAABaAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
               "WhenOpened": "2025-08-22T11:03:58.292Z",
               "EditorCaption": ""
@@ -260,8 +259,7 @@
               "RelativeToolTip": "Diamond.ValuationService\\Diamond.ValuationService.Application\\Diamond.ValuationService.Application.csproj",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-08-20T09:11:11.531Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-08-20T09:11:11.531Z"
             },
             {
               "$type": "Document",
@@ -273,8 +271,7 @@
               "RelativeToolTip": "Diamond.ValuationService\\Diamond.ValuationService.Domain\\Diamond.ValuationService.Domain.csproj",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-08-20T09:08:34.687Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-08-20T09:08:34.687Z"
             }
           ]
         }
