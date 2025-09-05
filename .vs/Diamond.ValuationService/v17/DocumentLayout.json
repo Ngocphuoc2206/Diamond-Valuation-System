@@ -3,12 +3,12 @@
   "WorkspaceRootPath": "D:\\Diamond-Valuation-Service\\ValuationRequestService\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{3DDD826A-9700-1C7E-3BD4-90E5AEF76DF6}|Diamond.ValuationService.Infrastructure\\Diamond.ValuationService.Infrastructure.csproj|d:\\diamond-valuation-service\\valuationrequestservice\\diamond.valuationservice.infrastructure\\service\\valuationserviceimpl.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{3DDD826A-9700-1C7E-3BD4-90E5AEF76DF6}|Diamond.ValuationService.Infrastructure\\Diamond.ValuationService.Infrastructure.csproj|solutionrelative:diamond.valuationservice.infrastructure\\service\\valuationserviceimpl.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{3DDD826A-9700-1C7E-3BD4-90E5AEF76DF6}|Diamond.ValuationService.Infrastructure\\Diamond.ValuationService.Infrastructure.csproj|d:\\diamond-valuation-service\\valuationrequestservice\\diamond.valuationservice.infrastructure\\service\\caseservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{3DDD826A-9700-1C7E-3BD4-90E5AEF76DF6}|Diamond.ValuationService.Infrastructure\\Diamond.ValuationService.Infrastructure.csproj|solutionrelative:diamond.valuationservice.infrastructure\\service\\caseservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3DDD826A-9700-1C7E-3BD4-90E5AEF76DF6}|Diamond.ValuationService.Infrastructure\\Diamond.ValuationService.Infrastructure.csproj|d:\\diamond-valuation-service\\valuationrequestservice\\diamond.valuationservice.infrastructure\\service\\valuationserviceimpl.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3DDD826A-9700-1C7E-3BD4-90E5AEF76DF6}|Diamond.ValuationService.Infrastructure\\Diamond.ValuationService.Infrastructure.csproj|solutionrelative:diamond.valuationservice.infrastructure\\service\\valuationserviceimpl.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A5ADC281-FE01-00CC-E9E0-1B659B8EBA69}|Diamond.ValuationService.Api\\Diamond.ValuationService.Api.csproj|d:\\diamond-valuation-service\\valuationrequestservice\\diamond.valuationservice.api\\controllers\\valuationscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -30,7 +30,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Bookmark",
@@ -42,7 +42,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "ValuationServiceImpl.cs",
               "DocumentMoniker": "D:\\Diamond-Valuation-Service\\ValuationRequestService\\Diamond.ValuationService.Infrastructure\\Service\\ValuationServiceImpl.cs",
               "RelativeDocumentMoniker": "Diamond.ValuationService.Infrastructure\\Service\\ValuationServiceImpl.cs",
@@ -55,7 +55,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "CaseService.cs",
               "DocumentMoniker": "D:\\Diamond-Valuation-Service\\ValuationRequestService\\Diamond.ValuationService.Infrastructure\\Service\\CaseService.cs",
               "RelativeDocumentMoniker": "Diamond.ValuationService.Infrastructure\\Service\\CaseService.cs",
@@ -76,8 +76,7 @@
               "RelativeToolTip": "Diamond.ValuationService.Api\\Controllers\\ValuationsController.cs",
               "ViewState": "AgIAAAgAAAAAAAAAAAA9wBMAAAAuAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-05T04:52:47.622Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-05T04:52:47.622Z"
             },
             {
               "$type": "Document",
@@ -101,8 +100,7 @@
               "RelativeToolTip": "Diamond.ValuationService.Api\\Program.cs",
               "ViewState": "AgIAAEoAAAAAAAAAAAAqwGIAAAAVAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-05T04:10:52.084Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-05T04:10:52.084Z"
             }
           ]
         }
