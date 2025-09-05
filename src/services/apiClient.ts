@@ -22,6 +22,8 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   if (tokens?.accessToken) {
     config.headers = config.headers ?? {};
     config.headers.Authorization = `Bearer ${tokens.accessToken}`;
+  } else if (config.headers) {
+    delete (config.headers as any).Authorization;
   }
   return config;
 });

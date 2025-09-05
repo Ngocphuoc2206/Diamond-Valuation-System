@@ -9,11 +9,65 @@ import {
   type DiamondFormValues,
 } from "../utils/validation";
 
-// ====== API services (đã có sẵn từ phần trước) ======
+// ====== API services ======
 import {
   estimate as apiEstimate,
   createValuationCase as apiCreateCase,
 } from "../services/valuation";
+
+/** ==================== Helpers chuẩn hoá gửi BE ==================== */
+
+/** Origin: chỉ "Natural" | "Lab-Grown" */
+function normalizeOrigin(v?: string) {
+  if (!v) return "Natural";
+  const s = v.trim().toLowerCase();
+  if (s.includes("lab")) return "Lab-Grown";
+  if (s === "natural") return "Natural";
+  return "Natural";
+}
+
+/** FE dropdown có khoảng trắng, BE thường lưu liền chữ */
+const mapGradeNoSpace = (v?: string) => {
+  if (!v) return v ?? "";
+  return v.replace(/\s+/g, "");
+};
+const mapCut = (v?: string) =>
+  ((
+    {
+      Excellent: "Excellent",
+      "Very Good": "VeryGood",
+      Good: "Good",
+      Fair: "Fair",
+      Poor: "Poor",
+    } as const
+  )[v || ""] || mapGradeNoSpace(v));
+const mapPolish = mapCut;
+const mapSymmetry = mapCut;
+const mapFluor = (v?: string) =>
+  ((
+    {
+      None: "None",
+      Faint: "Faint",
+      Medium: "Medium",
+      Strong: "Strong",
+      "Very Strong": "VeryStrong",
+    } as const
+  )[v || ""] ||
+  v ||
+  "None");
+
+/** Color chỉ cho phép D..M ở BE seed mặc định */
+const DISALLOWED_COLORS = new Set(["N-Z", "Fancy", "Unknown"]);
+const isColorAllowed = (c?: string) => !!c && !DISALLOWED_COLORS.has(c);
+
+/** parse số hỗ trợ dấu phẩy */
+const toNum = (v?: string) => {
+  if (!v) return undefined;
+  const n = Number(String(v).replace(",", "."));
+  return Number.isFinite(n) ? n : undefined;
+};
+
+/** ==================== UI Steps ==================== */
 
 // ---------- Step 1 ----------
 const Step1Certificate: React.FC = () => {
@@ -81,20 +135,12 @@ const Step1Certificate: React.FC = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
               >
                 <option value="">{t("common.select")} laboratory</option>
-                <option value="GIA">
-                  GIA (Gemological Institute of America)
-                </option>
-                <option value="IGI">
-                  IGI (International Gemological Institute)
-                </option>
-                <option value="AGS">AGS (American Gem Society)</option>
-                <option value="HRD">HRD (Hoge Raad voor Diamant)</option>
-                <option value="GSI">
-                  GSI (Gemological Science International)
-                </option>
-                <option value="EGL">
-                  EGL (European Gemological Laboratory)
-                </option>
+                <option value="GIA">GIA</option>
+                <option value="IGI">IGI</option>
+                <option value="AGS">AGS</option>
+                <option value="HRD">HRD</option>
+                <option value="GSI">GSI</option>
+                <option value="EGL">EGL</option>
                 <option value="Other">{t("common.other")}</option>
               </select>
             </div>
@@ -104,6 +150,7 @@ const Step1Certificate: React.FC = () => {
         </>
       )}
 
+      {/* Origin Natural / Lab-Grown */}
       <div>
         <label htmlFor="origin" className="block mb-1 font-medium">
           {t("step1.origin")}
@@ -114,14 +161,8 @@ const Step1Certificate: React.FC = () => {
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
         >
           <option value="">{t("common.unknown")}/Not sure</option>
-          <option value="South Africa">South Africa</option>
-          <option value="Botswana">Botswana</option>
-          <option value="Russia">Russia</option>
-          <option value="Canada">Canada</option>
-          <option value="Australia">Australia</option>
-          <option value="Angola">Angola</option>
-          <option value="Namibia">Namibia</option>
-          <option value="Other">{t("common.other")}</option>
+          <option value="Natural">Natural</option>
+          <option value="Lab-Grown">Lab-Grown</option>
         </select>
       </div>
     </div>
@@ -253,6 +294,7 @@ const Step3ColorClarity: React.FC = () => {
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
           >
             <option value="">{t("common.select")} color grade</option>
+            {/* Chỉ hiển thị D..M; các lựa chọn không có pricing row bị disable */}
             <option value="D">D (Colorless)</option>
             <option value="E">E (Colorless)</option>
             <option value="F">F (Colorless)</option>
@@ -263,9 +305,15 @@ const Step3ColorClarity: React.FC = () => {
             <option value="K">K (Faint)</option>
             <option value="L">L (Faint)</option>
             <option value="M">M (Faint)</option>
-            <option value="N-Z">N-Z (Very Light to Light)</option>
-            <option value="Fancy">Fancy Color</option>
-            <option value="Unknown">{t("common.unknown")}</option>
+            <option value="N-Z" disabled>
+              N-Z (Not supported)
+            </option>
+            <option value="Fancy" disabled>
+              Fancy Color (Not supported)
+            </option>
+            <option value="Unknown" disabled>
+              Unknown (Not supported)
+            </option>
           </select>
           {errors.color && (
             <p className="text-red-600 text-sm mt-1">{errors.color.message}</p>
@@ -278,6 +326,10 @@ const Step3ColorClarity: React.FC = () => {
               <span>Z (Light)</span>
             </div>
           </div>
+          <p className="text-xs text-amber-700 mt-2">
+            * Để tính giá, vui lòng chọn màu từ D đến M. Các lựa chọn N-Z /
+            Fancy / Unknown hiện chưa hỗ trợ.
+          </p>
         </div>
 
         <div>
@@ -291,8 +343,8 @@ const Step3ColorClarity: React.FC = () => {
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold"
           >
             <option value="">{t("common.select")} clarity grade</option>
-            <option value="FL">FL (Flawless)</option>
-            <option value="IF">IF (Internally Flawless)</option>
+            <option value="FL">FL</option>
+            <option value="IF">IF</option>
             <option value="VVS1">VVS1</option>
             <option value="VVS2">VVS2</option>
             <option value="VS1">VS1</option>
@@ -302,7 +354,9 @@ const Step3ColorClarity: React.FC = () => {
             <option value="I1">I1</option>
             <option value="I2">I2</option>
             <option value="I3">I3</option>
-            <option value="Unknown">{t("common.unknown")}</option>
+            <option value="Unknown" disabled>
+              Unknown (Not supported)
+            </option>
           </select>
           {errors.clarity && (
             <p className="text-red-600 text-sm mt-1">
@@ -373,7 +427,9 @@ const Step4Cut: React.FC = () => {
             <option value="Good">Good</option>
             <option value="Fair">Fair</option>
             <option value="Poor">Poor</option>
-            <option value="Unknown">{t("common.unknown")}</option>
+            <option value="Unknown" disabled>
+              Unknown (Not supported)
+            </option>
           </select>
           {errors.cut && (
             <p className="text-red-600 text-sm mt-1">{errors.cut.message}</p>
@@ -396,7 +452,9 @@ const Step4Cut: React.FC = () => {
             <option value="Good">Good</option>
             <option value="Fair">Fair</option>
             <option value="Poor">Poor</option>
-            <option value="Unknown">{t("common.unknown")}</option>
+            <option value="Unknown" disabled>
+              Unknown (Not supported)
+            </option>
           </select>
           {errors.polish && (
             <p className="text-red-600 text-sm mt-1">{errors.polish.message}</p>
@@ -421,7 +479,9 @@ const Step4Cut: React.FC = () => {
             <option value="Good">Good</option>
             <option value="Fair">Fair</option>
             <option value="Poor">Poor</option>
-            <option value="Unknown">{t("common.unknown")}</option>
+            <option value="Unknown" disabled>
+              Unknown (Not supported)
+            </option>
           </select>
           {errors.symmetry && (
             <p className="text-red-600 text-sm mt-1">
@@ -446,7 +506,9 @@ const Step4Cut: React.FC = () => {
             <option value="Medium">Medium</option>
             <option value="Strong">Strong</option>
             <option value="Very Strong">Very Strong</option>
-            <option value="Unknown">{t("common.unknown")}</option>
+            <option value="Unknown" disabled>
+              Unknown (Not supported)
+            </option>
           </select>
           {errors.fluorescence && (
             <p className="text-red-600 text-sm mt-1">
@@ -713,6 +775,7 @@ const ValuationTool: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<DiamondFormValues>();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [creatingCase, setCreatingCase] = useState(false);
   const [showEstimate, setShowEstimate] = useState(false);
 
   // Kết quả từ BE
@@ -730,7 +793,7 @@ const ValuationTool: React.FC = () => {
     mode: "onChange",
   });
 
-  const { handleSubmit, trigger } = methods;
+  const { handleSubmit, trigger, getValues } = methods;
 
   // Điều hướng step + validate từng bước
   const nextStep = async () => {
@@ -766,17 +829,44 @@ const ValuationTool: React.FC = () => {
 
   const prevStep = () => setCurrentStep((s) => s - 1);
 
-  // Helpers
-  const toNum = (v?: string) => {
-    if (!v) return undefined;
-    const n = Number(v);
-    return Number.isFinite(n) ? n : undefined;
+  /** Guard chung trước khi call API */
+  const canSubmitToAPI = () => {
+    const v = getValues();
+    // Color phải thuộc D..M
+    if (!isColorAllowed(v.color)) {
+      alert("Màu (Color) hiện chỉ hỗ trợ từ D đến M. Vui lòng chọn lại.");
+      return false;
+    }
+    // Carat > 0 và parse được (hỗ trợ dấu phẩy)
+    const c = toNum(v.caratWeight);
+    if (!c || c <= 0) {
+      alert(
+        "Carat không hợp lệ. Vui lòng nhập số lớn hơn 0 (có thể dùng dấu phẩy)."
+      );
+      return false;
+    }
+    // Shape/Clarity phải có
+    if (!v.shape || !v.clarity) {
+      alert("Vui lòng chọn đầy đủ Shape và Clarity.");
+      return false;
+    }
+    return true;
   };
 
-  // ===== Submit: gọi BE Estimate thay cho mock =====
+  // ===== Submit: Estimate =====
   const onSubmit = async (data: DiamondFormValues) => {
+    if (!canSubmitToAPI()) return;
+
     setFormData(data);
     setIsSubmitting(true);
+
+    console.log("Estimate payload", {
+      origin: normalizeOrigin(data.origin),
+      shape: data.shape,
+      color: data.color,
+      clarity: data.clarity,
+      carat: toNum(data.caratWeight),
+    });
 
     try {
       const measurements =
@@ -786,17 +876,17 @@ const ValuationTool: React.FC = () => {
 
       const res = await apiEstimate({
         certificateNo: data.certificateNumber || undefined,
-        origin: data.origin || "Natural",
+        origin: normalizeOrigin(data.origin),
         shape: data.shape!,
         carat: toNum(data.caratWeight) ?? 0,
-        color: data.color!,
+        color: data.color!, // đã guard D..M
         clarity: data.clarity!,
-        cut: data.cut!,
-        polish: data.polish!,
-        symmetry: data.symmetry!,
-        fluorescence: data.fluorescence!,
-        tablePercent: undefined, // nếu bạn có field Table% thì map vào đây
-        depthPercent: undefined, // nếu có field Depth% (%)
+        cut: mapCut(data.cut!),
+        polish: mapPolish(data.polish!),
+        symmetry: mapSymmetry(data.symmetry!),
+        fluorescence: mapFluor(data.fluorescence!),
+        tablePercent: undefined,
+        depthPercent: undefined,
         measurements,
         customerName: data.fullName,
       });
@@ -809,7 +899,6 @@ const ValuationTool: React.FC = () => {
 
       setShowEstimate(true);
     } catch (err: any) {
-      // Có thể hiển thị toast
       console.error("Estimate error", err?.response?.data || err);
       alert(
         err?.response?.data?.message ||
@@ -823,8 +912,10 @@ const ValuationTool: React.FC = () => {
 
   // ===== Tạo hồ sơ chính thức từ requestId =====
   const createOfficialCase = async () => {
-    if (!estimateRes?.requestId || !formData) return;
+    if (!estimateRes?.requestId || !formData || creatingCase) return;
 
+    // Không cần guard color nữa vì đã guard khi estimate.
+    setCreatingCase(true);
     try {
       const measurements =
         formData.length && formData.width && formData.depth
@@ -838,15 +929,15 @@ const ValuationTool: React.FC = () => {
         preferredMethod: formData.preferredContact || "Email",
 
         certificateNo: formData.certificateNumber || undefined,
-        origin: formData.origin || "Natural",
+        origin: normalizeOrigin(formData.origin),
         shape: formData.shape!,
         carat: toNum(formData.caratWeight) ?? 0,
         color: formData.color!,
         clarity: formData.clarity!,
-        cut: formData.cut!,
-        polish: formData.polish!,
-        symmetry: formData.symmetry!,
-        fluorescence: formData.fluorescence!,
+        cut: mapCut(formData.cut!),
+        polish: mapPolish(formData.polish!),
+        symmetry: mapSymmetry(formData.symmetry!),
+        fluorescence: mapFluor(formData.fluorescence!),
         tablePercent: undefined,
         depthPercent: undefined,
         measurements,
@@ -863,6 +954,8 @@ const ValuationTool: React.FC = () => {
           err?.message ||
           "Create case failed. Please try again."
       );
+    } finally {
+      setCreatingCase(false);
     }
   };
 
@@ -1076,8 +1169,11 @@ const ValuationTool: React.FC = () => {
                           <button
                             onClick={createOfficialCase}
                             className="btn btn-primary"
+                            disabled={creatingCase}
                           >
-                            {t("valuation.submitOfficial")}
+                            {creatingCase
+                              ? t("results.calculating")
+                              : t("valuation.submitOfficial")}
                           </button>
                           <button
                             onClick={() => navigate("/dashboard")}

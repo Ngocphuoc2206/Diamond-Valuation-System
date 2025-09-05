@@ -33,6 +33,9 @@ const CustomerCommunication = lazy(
   () => import("./pages/CustomerCommunication")
 );
 
+// ✅ Thêm trang chi tiết hồ sơ
+const CaseDetailPage = lazy(() => import("./pages/CaseDetailPage"));
+
 // Payment return & order success
 const PaymentReturnPage = lazy(() => import("./pages/PaymentReturnPage"));
 const OrderSuccessPage = lazy(() => import("./pages/OrderSuccessPage"));
@@ -115,7 +118,12 @@ const AppRouter: React.FC = () => {
             <Route path="/shop/product/:id" element={<ProductDetailPage />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
+
+            {/* Định giá */}
             <Route path="/valuation" element={<ValuationTool />} />
+            {/* ✅ Route chi tiết hồ sơ */}
+            <Route path="/valuation/cases/:id" element={<CaseDetailPage />} />
+
             <Route path="/knowledge" element={<KnowledgePage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/faq" element={<FAQPage />} />

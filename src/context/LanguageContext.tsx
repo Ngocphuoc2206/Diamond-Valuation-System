@@ -177,6 +177,9 @@ const enTranslations: Record<string, string> = {
   "valuation.getEstimate": "Get Estimate",
   "valuation.help": "Need help with the valuation form?",
   "valuation.contactExperts": "Contact our experts",
+  "valuation.submitOfficial": "Submit official request",
+  "valuation.trackRequest": "Track request",
+  "valuation.newRequest": "New request",
 
   // Valuation Form Steps
   "step1.title": "Diamond Identity",
@@ -1226,6 +1229,9 @@ const viTranslations: Record<string, string> = {
   "valuation.getEstimate": "Nhận Ước Tính",
   "valuation.help": "Cần hỗ trợ với biểu mẫu định giá?",
   "valuation.contactExperts": "Liên hệ chuyên gia",
+  "valuation.submitOfficial": "Gửi yêu cầu chính thức",
+  "valuation.trackRequest": "Theo dõi yêu cầu",
+  "valuation.newRequest": "Tạo yêu cầu mới",
 
   // Valuation Form Steps
   "step1.title": "Nhận Dạng Kim Cương",
