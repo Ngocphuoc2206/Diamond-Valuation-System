@@ -98,7 +98,7 @@ public class OrdersController : ControllerBase
         [FromHeader(Name = "X-Timestamp")] string? timestamp,
         [FromServices] IConfiguration config)
     {
-        // 1) Verify HMAC
+        // Verify HMAC
         var secret = config["Integrations:Payment:Secret"]; // cấu hình trong appsettings hoặc env
         if (string.IsNullOrWhiteSpace(secret) || string.IsNullOrWhiteSpace(signature) || string.IsNullOrWhiteSpace(timestamp))
             return Unauthorized("Missing signature");
