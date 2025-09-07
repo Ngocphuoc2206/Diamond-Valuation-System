@@ -29,7 +29,7 @@ builder.Services.AddHealthChecks();
 
 // ===== JWT Authentication =====
 // LƯU Ý: key/issuer/audience phải TRÙNG với nơi phát hành token (UserService)
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "Dev_Key_ChangeMe";
+var jwtKey = builder.Configuration["Jwt:SecretKey"] ?? builder.Configuration["Jwt:Key"] ?? "Dev_Key_ChangeMe";
 var jwtIssuer = builder.Configuration["Jwt:Issuer"];
 var jwtAudience = builder.Configuration["Jwt:Audience"];
 
