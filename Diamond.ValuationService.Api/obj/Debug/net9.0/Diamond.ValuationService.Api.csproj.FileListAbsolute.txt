@@ -704,7 +704,9 @@ D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Ap
 D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Api\bin\Debug\net9.0\Diamond.ValuationService.Api.pdb
 D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Api\bin\Debug\net9.0\Azure.Core.dll
 D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Api\bin\Debug\net9.0\Azure.Identity.dll
+D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Api\bin\Debug\net9.0\FluentValidation.dll
 D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Api\bin\Debug\net9.0\Humanizer.dll
+D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Api\bin\Debug\net9.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Api\bin\Debug\net9.0\Microsoft.AspNetCore.OpenApi.dll
 D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Api\bin\Debug\net9.0\Microsoft.Bcl.AsyncInterfaces.dll
 D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Api\bin\Debug\net9.0\Microsoft.Build.Locator.dll
@@ -744,6 +746,7 @@ D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Ap
 D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Api\bin\Debug\net9.0\Microsoft.Win32.SystemEvents.dll
 D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Api\bin\Debug\net9.0\Mono.TextTemplating.dll
 D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Api\bin\Debug\net9.0\QuestPDF.dll
+D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Api\bin\Debug\net9.0\RabbitMQ.Client.dll
 D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Api\bin\Debug\net9.0\Swashbuckle.AspNetCore.Swagger.dll
 D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Api\bin\Debug\net9.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Api\bin\Debug\net9.0\Swashbuckle.AspNetCore.SwaggerUI.dll
@@ -874,9 +877,11 @@ D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Ap
 D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Api\bin\Debug\net9.0\Diamond.ValuationService.Application.dll
 D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Api\bin\Debug\net9.0\Diamond.ValuationService.Domain.dll
 D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Api\bin\Debug\net9.0\Diamond.ValuationService.Infrastructure.dll
+D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Api\bin\Debug\net9.0\SharedLibrary.dll
 D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Api\bin\Debug\net9.0\Diamond.ValuationService.Application.pdb
 D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Api\bin\Debug\net9.0\Diamond.ValuationService.Domain.pdb
 D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Api\bin\Debug\net9.0\Diamond.ValuationService.Infrastructure.pdb
+D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Api\bin\Debug\net9.0\SharedLibrary.pdb
 D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Api\obj\Debug\net9.0\Diamond.ValuationService.Api.csproj.AssemblyReference.cache
 D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Api\obj\Debug\net9.0\Diamond.ValuationService.Api.GeneratedMSBuildEditorConfig.editorconfig
 D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Api\obj\Debug\net9.0\Diamond.ValuationService.Api.AssemblyInfoInputs.cache

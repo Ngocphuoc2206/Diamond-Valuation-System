@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Diamond.ValuationService.Domain.Entities;
 
 public class Contact
@@ -8,6 +10,7 @@ public class Contact
     public string Phone { get; set; } = null!;
     public string PreferredMethod { get; set; } = null!; // Email | Phone | Zalo | ...
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
+    public int? UserId { get; set; }
+    [JsonIgnore]
     public ICollection<ValuationCase> Cases { get; set; } = new List<ValuationCase>();
 }

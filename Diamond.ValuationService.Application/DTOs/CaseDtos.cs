@@ -1,3 +1,4 @@
+using Diamond.ValuationService.Domain.Entities;
 using System.ComponentModel.DataAnnotations;
 
 namespace Diamond.ValuationService.Application.DTOs;
@@ -17,7 +18,7 @@ public record class CreateCaseRequestDto
     [StringLength(50)]
     public string PreferredMethod { get; init; } = "Email";
 
-    public int? UserId { get; init; } // nếu có login
+    public int? UserId { get; set; } // nếu có login
 
     // ===== Kim cương =====
     public string? CertificateNo { get; init; }
@@ -55,4 +56,30 @@ public record class UpdateCaseStatusDto
 {
     [Required, StringLength(50)]
     public string Status { get; init; } = default!;
+}
+
+public record CaseListItemDto(
+    Guid Id,
+    string Status,
+    int Progress,
+    string? ConsultantName,
+    decimal? EstimatedValue,
+    DateTime CreatedAt
+);
+
+public class CaseDetailDto
+{
+    public Guid Id { get; set; }
+    public string Status { get; set; } = default!;
+    public int Progress { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+
+    public DiamondInfoDto Diamond { get; set; } = new();
+    public ContactDto Contact { get; set; } = new();
+
+    public string? ConsultantName { get; set; }
+    public decimal? EstimatedValue { get; set; }
+    public decimal? MarketValue { get; set; }
+    public decimal? InsuranceValue { get; set; }
 }

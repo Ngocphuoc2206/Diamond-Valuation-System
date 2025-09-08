@@ -2,6 +2,8 @@
 using Diamond.ValuationService.Infrastructure.Data;
 using Diamond.ValuationService.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+using SharedLibrary.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,15 +14,42 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// JWT/Auth từ SharedLibrary (đảm bảo đã config section "Jwt")
+builder.Services.AddSharedLibrary(builder.Configuration);
+
 // ------------------------------
 // DI services nghiệp vụ
 // ------------------------------
 builder.Services.AddScoped<IValuationService, ValuationServiceImpl>();
 builder.Services.AddScoped<ICaseService, CaseService>();
 
+//Swagger + Bearer Authentication
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Valuation API", Version = "v1" });
+
+    var scheme = new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Nhập: Bearer {your JWT token}"
+    };
+    c.AddSecurityDefinition("Bearer", scheme);
+
+    // Áp dụng scheme cho tất cả operation → Swagger UI tự gửi header
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        { scheme, Array.Empty<string>() }
+    });
+});
+
+
 // ------------------------------
 // Connection string
-// Ưu tiên: appsettings.* -> ENV (ConnectionStrings__ValuationConnection) -> default docker
+// Ưu tiên: appsettings.* -> ENV (ConnectionStrings__ValuationConnection)
 // ------------------------------
 string GetConnectionString()
 {
@@ -57,6 +86,8 @@ builder.Services.AddCors(o => o.AddPolicy("FE",
           .AllowAnyMethod()
           .AllowCredentials()
 ));
+
+builder.Services.AddAuthorization();
 
 // ------------------------------
 // Build app
@@ -97,6 +128,9 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 await app.RunAsync();

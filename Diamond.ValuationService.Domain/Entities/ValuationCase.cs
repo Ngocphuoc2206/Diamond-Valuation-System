@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Diamond.ValuationService.Domain.Entities;
 
 public class ValuationCase
@@ -23,12 +25,16 @@ public class ValuationCase
 
     // ===== Liên hệ =====
     public Guid ContactId { get; set; }
+    [JsonIgnore]
     public Contact Contact { get; set; } = null!;      
     public int? UserId { get; set; }                                 
     public Guid? RequestId { get; set; }
+    [JsonIgnore]
     public ValuationRequest? Request { get; set; }
 
     // ===== Staff phụ trách =====
-    public int? AssigneeId { get; set; }     
+    public int? AssigneeId { get; set; }
+    [JsonIgnore]
     public ValuationResult? Result { get; set; }
+    public decimal? EstimatedValue { get; set; }
 }

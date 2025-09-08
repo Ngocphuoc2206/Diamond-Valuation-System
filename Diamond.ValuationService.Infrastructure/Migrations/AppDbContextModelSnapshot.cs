@@ -51,6 +51,9 @@ namespace Diamond.ValuationService.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.ToTable("Contacts");
@@ -193,6 +196,9 @@ namespace Diamond.ValuationService.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<decimal?>("EstimatedValue")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Fluorescence")
                         .IsRequired()

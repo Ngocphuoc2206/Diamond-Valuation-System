@@ -9,6 +9,7 @@ COPY Diamond.ValuationService.Api/*.csproj ./Diamond.ValuationService.Api/
 COPY Diamond.ValuationService.Application/*.csproj ./Diamond.ValuationService.Application/
 COPY Diamond.ValuationService.Domain/*.csproj ./Diamond.ValuationService.Domain/
 COPY Diamond.ValuationService.Infrastructure/*.csproj ./Diamond.ValuationService.Infrastructure/
+COPY SharedLibrary/SharedLibrary.csproj SharedLibrary/
 COPY *.sln ./
 
 RUN dotnet restore Diamond.ValuationService.Api/Diamond.ValuationService.Api.csproj

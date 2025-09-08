@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "MCZZN2cC7Yo=",
+  "success": true,
+  "projectFilePath": "D:\\Diamond-Valuation-Service\\OrderService\\SharedKernel\\SharedKernel.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\fluentvalidation\\12.0.0\\fluentvalidation.12.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
