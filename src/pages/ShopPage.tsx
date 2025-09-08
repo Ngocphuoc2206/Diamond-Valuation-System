@@ -435,7 +435,6 @@ const ShopPage: React.FC = () => {
                   onClick={() => {
                     setSelectedCategory("all");
                     setSortBy("featured");
-                    // reset về “vô hạn” để không lọc mất dữ liệu
                     setPriceRange([0, Number.MAX_SAFE_INTEGER]);
                   }}
                   className="btn btn-primary"

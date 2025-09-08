@@ -1,5 +1,5 @@
 // src/pages/CustomerDashboard.tsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -14,6 +14,13 @@ import {
   type MyOrderSummary,
 } from "../services/order";
 
+// 🔗 NEW: service thật cho valuation cases
+import {
+  getMyCases,
+  type CaseListItem,
+  type PagedResult,
+} from "../services/valuation";
+
 type ValuationStatus =
   | "submitted"
   | "consultant_assigned"
@@ -26,29 +33,6 @@ type ValuationStatus =
   | "results_sent"
   | "customer_received"
   | "completed";
-
-interface CustomerValuationRequest {
-  id: string;
-  submittedDate: string;
-  status: ValuationStatus;
-  diamondType: string;
-  caratWeight: string;
-  estimatedValue?: string;
-  actualValue?: string;
-  consultantName?: string;
-  lastUpdate: string;
-  notes?: string;
-  priority: "low" | "normal" | "high" | "urgent";
-  receiptNumber?: string;
-  results?: {
-    marketValue: number;
-    insuranceValue: number;
-    retailValue: number;
-    certificationDetails: string;
-    condition: string;
-    report?: string;
-  };
-}
 
 interface CustomerNotification {
   id: string;
@@ -71,32 +55,40 @@ const CustomerDashboard: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showNotification, setShowNotification] = useState("");
 
-  // ==== Dữ liệu thật từ BE ====
+  // ==== Dữ liệu thật từ BE (overview/orders) ====
   const [me, setMe] = useState<MeDto | null>(null);
   const [recentOrders, setRecentOrders] = useState<MyOrderBrief[]>([]);
   const [summary, setSummary] = useState<MyOrderSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
 
-  // Valuation (mock – sẽ nối API sau)
-  const [customerRequests, setCustomerRequests] = useState<
-    CustomerValuationRequest[]
-  >([]);
-  const [selectedRequest, setSelectedRequest] =
-    useState<CustomerValuationRequest | null>(null);
+  // ==== NEW: Dữ liệu valuation thật từ BE (/api/cases/mine) ====
+  const [casesPage, setCasesPage] = useState<PagedResult<CaseListItem> | null>(
+    null
+  );
+  const [casesLoading, setCasesLoading] = useState(false);
+  const [casesError, setCasesError] = useState<string | null>(null);
+  const [casePage, setCasePage] = useState(1);
+  const casePageSize = 10;
+  const [caseStatus, setCaseStatus] = useState<string | undefined>(undefined);
+
+  // Modal xem chi tiết (nếu sau này bạn muốn dùng, hiện tại bảng “View” điều hướng sang trang chi tiết)
+  const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
 
   const [notifications, setNotifications] = useState<CustomerNotification[]>(
     []
   ); // mock
 
+  // Load Dashboard summary (me + orders)
   useEffect(() => {
     let mounted = true;
     (async () => {
       try {
+        setLoading(true);
         const [meDto, orders, sum] = await Promise.all([
-          UserAPI.me(), // -> MeDto
-          getMyRecentOrders(5), // -> MyOrderBrief[]
-          getMyOrderSummary().catch(() => null), // -> MyOrderSummary | null (fallback nếu BE chưa có)
+          UserAPI.me(),
+          getMyRecentOrders(5),
+          getMyOrderSummary().catch(() => null),
         ]);
         if (!mounted) return;
         setMe(meDto);
@@ -114,13 +106,53 @@ const CustomerDashboard: React.FC = () => {
     };
   }, []);
 
+  // Load valuation cases khi mở tab hoặc đổi trang/lọc
+  useEffect(() => {
+    if (activeTab !== "valuations") return;
+    let mounted = true;
+    (async () => {
+      try {
+        setCasesLoading(true);
+        setCasesError(null);
+        const data = await getMyCases(casePage, casePageSize, caseStatus);
+        if (!mounted) return;
+        setCasesPage(data);
+      } catch (e: any) {
+        if (!mounted) return;
+        setCasesError(
+          e?.response?.data?.message || e?.message || "Load failed"
+        );
+      } finally {
+        if (mounted) setCasesLoading(false);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [activeTab, casePage, caseStatus]);
+
   const fadeInUp = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
   };
 
+  // ===== Helpers: hỗ trợ status enum mới (BE) + fallback enum cũ =====
   const getStatusColor = (status: string) => {
     switch (status) {
+      // enum BE
+      case "YeuCau":
+        return "bg-blue-100 text-blue-800";
+      case "LienHe":
+        return "bg-indigo-100 text-indigo-800";
+      case "BienLai":
+        return "bg-green-100 text-green-800";
+      case "DinhGia":
+        return "bg-yellow-100 text-yellow-800";
+      case "KetQua":
+        return "bg-emerald-100 text-emerald-800";
+      case "Complete":
+        return "bg-gray-100 text-gray-800";
+      // fallback cũ
       case "submitted":
         return "bg-blue-100 text-blue-800";
       case "consultant_assigned":
@@ -146,6 +178,20 @@ const CustomerDashboard: React.FC = () => {
 
   const getStatusText = (status: string) => {
     switch (status) {
+      // enum BE
+      case "YeuCau":
+        return "Request Submitted";
+      case "LienHe":
+        return "Contacted";
+      case "BienLai":
+        return "Receipt Created";
+      case "DinhGia":
+        return "Valuation In Progress";
+      case "KetQua":
+        return "Results Ready";
+      case "Complete":
+        return "Process Complete";
+      // fallback cũ
       case "submitted":
         return "Request Submitted";
       case "consultant_assigned":
@@ -184,8 +230,18 @@ const CustomerDashboard: React.FC = () => {
     }
   };
 
+  // Progress theo enum BE
   const getProgressPercentage = (status: string) => {
-    const statusProgress: Record<string, number> = {
+    const mapNew = {
+      YeuCau: 10,
+      LienHe: 25,
+      BienLai: 40,
+      DinhGia: 65,
+      KetQua: 85,
+      Complete: 100,
+    } as const;
+
+    const mapOld = {
       submitted: 10,
       consultant_assigned: 20,
       customer_contacted: 30,
@@ -195,8 +251,9 @@ const CustomerDashboard: React.FC = () => {
       valuation_completed: 85,
       results_sent: 95,
       completed: 100,
-    };
-    return statusProgress[status] ?? 0;
+    } as const;
+
+    return (mapNew as any)[status] ?? (mapOld as any)[status] ?? 0;
   };
 
   const markNotificationAsRead = (notificationId: string) => {
@@ -225,52 +282,31 @@ const CustomerDashboard: React.FC = () => {
     setTimeout(() => setShowNotification(""), 3000);
   };
 
-  // ======= Fallbacks khi chưa có /mine/summary =======
-  const fallbackInProgress = recentOrders.filter(
-    (o) => o.status === "Pending" || o.status === "AwaitingPayment"
-  ).length;
-  const fallbackCompleted = recentOrders.filter(
-    (o) => o.status === "Paid" || o.status === "Fulfilled"
-  ).length;
-  const fallbackTotalAmount = recentOrders.reduce(
-    (s, o) => s + (o.total || 0),
-    0
+  // ======= Fallbacks khi chưa có /mine/summary (giữ nguyên logic cũ) =======
+  const fallbackInProgress = useMemo(
+    () =>
+      recentOrders.filter(
+        (o) => o.status === "Pending" || o.status === "AwaitingPayment"
+      ).length,
+    [recentOrders]
+  );
+  const fallbackCompleted = useMemo(
+    () =>
+      recentOrders.filter(
+        (o) => o.status === "Paid" || o.status === "Fulfilled"
+      ).length,
+    [recentOrders]
+  );
+  const fallbackTotalAmount = useMemo(
+    () => recentOrders.reduce((s, o) => s + (o.total || 0), 0),
+    [recentOrders]
   );
 
-  // Giá trị hiển thị cho 4 thẻ
-  const cardTotalOrders =
-    summary?.totalOrders ??
-    (customerRequests.length || recentOrders.length || 0);
-  const cardInProgress =
-    summary?.inProgress ??
-    (customerRequests.length
-      ? customerRequests.filter(
-          (r) => !["completed", "results_sent"].includes(r.status)
-        ).length
-      : fallbackInProgress);
-  const cardCompleted =
-    summary?.completed ??
-    (customerRequests.length
-      ? customerRequests.filter((r) =>
-          ["completed", "results_sent", "valuation_completed"].includes(
-            r.status
-          )
-        ).length
-      : fallbackCompleted);
-  const cardTotalAmount =
-    summary?.totalAmount ??
-    (customerRequests.length
-      ? customerRequests.reduce(
-          (sum, r) =>
-            sum +
-            parseFloat(
-              r.actualValue?.replace(/[,$]/g, "") ||
-                r.estimatedValue?.replace(/[,$]/g, "") ||
-                "0"
-            ),
-          0
-        )
-      : fallbackTotalAmount);
+  // Giá trị hiển thị cho 4 thẻ (nếu sau này bạn muốn lấy từ summary valuation riêng thì thay ở đây)
+  const cardTotalOrders = summary?.totalOrders ?? recentOrders.length ?? 0;
+  const cardInProgress = summary?.inProgress ?? fallbackInProgress;
+  const cardCompleted = summary?.completed ?? fallbackCompleted;
+  const cardTotalAmount = summary?.totalAmount ?? fallbackTotalAmount;
 
   if (loading) {
     return (
@@ -338,9 +374,9 @@ const CustomerDashboard: React.FC = () => {
                 </button>
                 <div className="relative">
                   <span className="text-2xl">🔔</span>
-                  {unreadCount > 0 && (
+                  {notifications.length > 0 && (
                     <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {unreadCount}
+                      {notifications.filter((n) => !n.read).length}
                     </span>
                   )}
                 </div>
@@ -359,7 +395,7 @@ const CustomerDashboard: React.FC = () => {
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => setActiveTab(tab.id as any)}
                   className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
                     activeTab === tab.id
                       ? "border-luxury-gold text-luxury-gold"
@@ -442,7 +478,7 @@ const CustomerDashboard: React.FC = () => {
                       Tổng giá trị
                     </p>
                     <p className="text-2xl font-bold text-luxury-gold">
-                      ${cardTotalAmount.toLocaleString()}
+                      ${(summary?.totalAmount ?? 0).toLocaleString()}
                     </p>
                   </div>
                 </div>
@@ -513,7 +549,7 @@ const CustomerDashboard: React.FC = () => {
           </motion.div>
         )}
 
-        {/* Valuations (UI, sẽ nối API sau) */}
+        {/* Valuations (REAL API) */}
         {activeTab === "valuations" && (
           <motion.div
             initial="hidden"
@@ -524,142 +560,172 @@ const CustomerDashboard: React.FC = () => {
             <div className="bg-white rounded-lg shadow-sm">
               <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                 <h3 className="text-lg font-semibold">My Valuation Requests</h3>
-                <button
-                  onClick={() => navigate("/valuation")}
-                  className="btn btn-primary"
-                >
-                  New Request
-                </button>
+                <div className="flex items-center gap-3">
+                  {/* Filter status theo enum BE */}
+                  <select
+                    className="border rounded px-2 py-1 text-sm"
+                    value={caseStatus ?? ""}
+                    onChange={(e) => {
+                      setCasePage(1);
+                      setCaseStatus(e.target.value || undefined);
+                    }}
+                  >
+                    <option value="">All Status</option>
+                    <option value="YeuCau">Yêu Cầu</option>
+                    <option value="LienHe">Liên Hệ</option>
+                    <option value="BienLai">Biên Lai</option>
+                    <option value="DinhGia">Định Giá</option>
+                    <option value="KetQua">Kết Quả</option>
+                    <option value="Complete">Hoàn tất</option>
+                  </select>
+
+                  <button
+                    onClick={() => navigate("/valuation")}
+                    className="btn btn-primary"
+                  >
+                    New Request
+                  </button>
+                </div>
               </div>
+
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Request
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Progress
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Consultant
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Value
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {customerRequests.length === 0 && (
-                      <tr>
-                        <td
-                          colSpan={6}
-                          className="px-6 py-8 text-center text-sm text-gray-500"
-                        >
-                          Chưa có yêu cầu định giá. Nhấn{" "}
-                          <button
-                            className="text-blue-600 hover:underline"
-                            onClick={() => navigate("/valuation")}
-                          >
-                            New Request
-                          </button>{" "}
-                          để bắt đầu.
-                        </td>
-                      </tr>
-                    )}
-                    {customerRequests.map((request) => (
-                      <tr key={request.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">
-                              {request.id}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {request.diamondType} - {request.caratWeight}
-                            </div>
-                            <div className="text-xs text-gray-400">
-                              Submitted: {request.submittedDate}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                              request.status
-                            )}`}
-                          >
-                            {getStatusText(request.status)}
-                          </span>
-                          <div
-                            className={`text-xs mt-1 px-2 py-1 rounded ${getPriorityColor(
-                              request.priority
-                            )}`}
-                          >
-                            {request.priority.toUpperCase()}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div
-                              className="bg-luxury-gold h-2 rounded-full transition-all duration-500"
-                              style={{
-                                width: `${getProgressPercentage(
-                                  request.status
-                                )}%`,
-                              }}
-                            />
-                          </div>
-                          <div className="text-xs text-gray-500 mt-1">
-                            {getProgressPercentage(request.status)}% Complete
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {request.consultantName || "Not Assigned"}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">
-                            {request.actualValue ||
-                              request.estimatedValue ||
-                              "TBD"}
-                          </div>
-                          {request.actualValue &&
-                            request.estimatedValue !== request.actualValue && (
-                              <div className="text-xs text-gray-500">
-                                Est: {request.estimatedValue}
+                {casesLoading ? (
+                  <div className="p-6 text-sm text-gray-500">Loading…</div>
+                ) : casesError ? (
+                  <div className="p-6 text-sm text-red-600">{casesError}</div>
+                ) : !casesPage || casesPage.items.length === 0 ? (
+                  <div className="p-6 text-sm text-gray-500">
+                    Chưa có yêu cầu định giá. Nhấn{" "}
+                    <button
+                      className="text-blue-600 hover:underline"
+                      onClick={() => navigate("/valuation")}
+                    >
+                      New Request
+                    </button>{" "}
+                    để bắt đầu.
+                  </div>
+                ) : (
+                  <>
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Case
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Status
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Progress
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Consultant
+                          </th>
+                          <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Value
+                          </th>
+                          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {casesPage.items.map((it) => (
+                          <tr key={it.id} className="hover:bg-gray-50">
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm font-medium text-gray-900">
+                                {it.id}
                               </div>
-                            )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                          <button
-                            onClick={() => {
-                              setSelectedRequest(request);
-                              setIsModalOpen(true);
-                            }}
-                            className="text-luxury-gold hover:text-luxury-navy"
-                          >
-                            View
-                          </button>
-                          {request.status === "valuation_completed" && (
-                            <button
-                              onClick={() =>
-                                notify("Certificate downloaded successfully!")
-                              }
-                              className="text-green-600 hover:text-green-900"
-                            >
-                              Download
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                              <div className="text-xs text-gray-400">
+                                Created:{" "}
+                                {new Date(it.createdAt).toLocaleString()}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span
+                                className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                                  it.status
+                                )}`}
+                              >
+                                {getStatusText(it.status)}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="w-full bg-gray-200 rounded-full h-2">
+                                <div
+                                  className="bg-luxury-gold h-2 rounded-full transition-all duration-500"
+                                  style={{ width: `${it.progress}%` }}
+                                />
+                              </div>
+                              <div className="text-xs text-gray-500 mt-1">
+                                {it.progress}% Complete
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {it.consultantName ?? "Not Assigned"}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-right">
+                              <div className="text-sm font-medium text-gray-900">
+                                {it.estimatedValue != null
+                                  ? it.estimatedValue.toLocaleString()
+                                  : "TBD"}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-center space-x-2">
+                              <button
+                                onClick={() => navigate(`/case/${it.id}`)}
+                                className="text-luxury-gold hover:text-luxury-navy"
+                              >
+                                View
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+
+                    {/* Pagination */}
+                    <div className="flex items-center justify-between p-4">
+                      <div className="text-sm">
+                        Tổng: {casesPage.total} · Trang {casesPage.page}/
+                        {casesPage.totalPages ??
+                          Math.ceil(casesPage.total / casesPage.pageSize)}
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          className="border rounded px-3 py-1 disabled:opacity-50"
+                          onClick={() => setCasePage((p) => Math.max(1, p - 1))}
+                          disabled={(casesPage.page ?? 1) <= 1}
+                        >
+                          Prev
+                        </button>
+                        <button
+                          className="border rounded px-3 py-1 disabled:opacity-50"
+                          onClick={() =>
+                            setCasePage((p) =>
+                              Math.min(
+                                (casesPage.totalPages ??
+                                  Math.ceil(
+                                    casesPage.total / casesPage.pageSize
+                                  )) ||
+                                  1,
+                                p + 1
+                              )
+                            )
+                          }
+                          disabled={
+                            (casesPage.totalPages ??
+                              Math.ceil(
+                                casesPage.total / casesPage.pageSize
+                              )) <= (casesPage.page ?? 1)
+                          }
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </motion.div>
@@ -814,13 +880,13 @@ const CustomerDashboard: React.FC = () => {
         )}
       </div>
 
-      {/* Valuation Details Modal */}
-      {isModalOpen && selectedRequest && (
+      {/* (Tuỳ chọn) Modal xem chi tiết valuation nếu muốn show inline */}
+      {isModalOpen && selectedCaseId && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold">
-                Valuation Details - {selectedRequest.id}
+                Valuation Details - {selectedCaseId}
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -829,158 +895,9 @@ const CustomerDashboard: React.FC = () => {
                 ✕
               </button>
             </div>
-
-            <div className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <h4 className="font-medium mb-3">Current Status</h4>
-                  <div className="space-y-3">
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                        selectedRequest.status
-                      )}`}
-                    >
-                      {getStatusText(selectedRequest.status)}
-                    </span>
-                    <div className="w-full bg-gray-200 rounded-full h-3">
-                      <div
-                        className="bg-luxury-gold h-3 rounded-full transition-all duration-500"
-                        style={{
-                          width: `${getProgressPercentage(
-                            selectedRequest.status
-                          )}%`,
-                        }}
-                      />
-                    </div>
-                    <p className="text-sm text-gray-600">
-                      {getProgressPercentage(selectedRequest.status)}% Complete
-                    </p>
-                  </div>
-                </div>
-                <div>
-                  <h4 className="font-medium mb-3">Request Information</h4>
-                  <div className="space-y-2 text-sm">
-                    <p>
-                      <strong>Submitted:</strong>{" "}
-                      {selectedRequest.submittedDate}
-                    </p>
-                    <p>
-                      <strong>Last Update:</strong> {selectedRequest.lastUpdate}
-                    </p>
-                    <p>
-                      <strong>Consultant:</strong>{" "}
-                      {selectedRequest.consultantName || "Not assigned"}
-                    </p>
-                    <p>
-                      <strong>Receipt #:</strong>{" "}
-                      {selectedRequest.receiptNumber || "Not generated"}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <h4 className="font-medium mb-3">Diamond Details</h4>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <div className="grid md:grid-cols-3 gap-4 text-sm">
-                    <p>
-                      <strong>Type:</strong> {selectedRequest.diamondType}
-                    </p>
-                    <p>
-                      <strong>Carat Weight:</strong>{" "}
-                      {selectedRequest.caratWeight}
-                    </p>
-                    <p>
-                      <strong>Priority:</strong>{" "}
-                      <span
-                        className={`px-2 py-1 rounded text-xs ${getPriorityColor(
-                          selectedRequest.priority
-                        )}`}
-                      >
-                        {selectedRequest.priority.toUpperCase()}
-                      </span>
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {selectedRequest.results && (
-                <div>
-                  <h4 className="font-medium mb-3">Valuation Results</h4>
-                  <div className="bg-green-50 p-4 rounded-lg">
-                    <div className="grid md:grid-cols-3 gap-4 text-sm">
-                      <p>
-                        <strong>Market Value:</strong> $
-                        {selectedRequest.results.marketValue.toLocaleString()}
-                      </p>
-                      <p>
-                        <strong>Insurance Value:</strong> $
-                        {selectedRequest.results.insuranceValue.toLocaleString()}
-                      </p>
-                      <p>
-                        <strong>Retail Value:</strong> $
-                        {selectedRequest.results.retailValue.toLocaleString()}
-                      </p>
-                      <p>
-                        <strong>Condition:</strong>{" "}
-                        {selectedRequest.results.condition}
-                      </p>
-                      <p className="md:col-span-2">
-                        <strong>Certification:</strong>{" "}
-                        {selectedRequest.results.certificationDetails}
-                      </p>
-                    </div>
-                    {selectedRequest.results.report && (
-                      <div className="mt-4">
-                        <p className="text-sm">
-                          <strong>Report:</strong>{" "}
-                          {selectedRequest.results.report}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {selectedRequest.notes && (
-                <div>
-                  <h4 className="font-medium mb-3">Notes</h4>
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="text-sm">{selectedRequest.notes}</p>
-                  </div>
-                </div>
-              )}
-
-              <div className="flex space-x-4">
-                {selectedRequest.status === "valuation_completed" && (
-                  <>
-                    <button
-                      onClick={() => {
-                        notify("Certificate downloaded successfully!");
-                        setIsModalOpen(false);
-                      }}
-                      className="btn btn-primary"
-                    >
-                      Download Certificate
-                    </button>
-                    <button
-                      onClick={() => {
-                        notify("Report downloaded successfully!");
-                        setIsModalOpen(false);
-                      }}
-                      className="btn btn-secondary"
-                    >
-                      Download Report
-                    </button>
-                  </>
-                )}
-                <button
-                  onClick={() => setIsModalOpen(false)}
-                  className="btn btn-secondary"
-                >
-                  Close
-                </button>
-              </div>
+            {/* Bạn có thể gọi getCaseDetail(selectedCaseId) để render chi tiết ở đây */}
+            <div className="text-sm text-gray-600">
+              (Coming soon) Inline case detail…
             </div>
           </div>
         </div>

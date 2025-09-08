@@ -9,6 +9,15 @@ import { useLanguage } from "../context/LanguageContext";
 import { UserAPI, type MeDto } from "../services/user";
 import { getMyRecentOrders, type MyOrderBrief } from "../services/order";
 
+// 🔗 Valuation services
+import {
+  getMyCases,
+  getCaseDetail, // NEW: lấy chi tiết case
+  type CaseListItem,
+  type CaseDetail, // NEW: type chi tiết
+  type PagedResult,
+} from "../services/valuation";
+
 type ValuationStatus =
   | "submitted"
   | "consultant_assigned"
@@ -21,29 +30,6 @@ type ValuationStatus =
   | "results_sent"
   | "customer_received"
   | "completed";
-
-interface CustomerValuationRequest {
-  id: string;
-  submittedDate: string;
-  status: ValuationStatus;
-  diamondType: string;
-  caratWeight: string;
-  estimatedValue?: string;
-  actualValue?: string;
-  consultantName?: string;
-  lastUpdate: string;
-  notes?: string;
-  priority: "low" | "normal" | "high" | "urgent";
-  receiptNumber?: string;
-  results?: {
-    marketValue: number;
-    insuranceValue: number;
-    retailValue: number;
-    certificationDetails: string;
-    condition: string;
-    report?: string;
-  };
-}
 
 interface CustomerNotification {
   id: string;
@@ -63,10 +49,6 @@ const CustomerDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<
     "overview" | "valuations" | "notifications" | "profile"
   >("overview");
-  const [selectedRequest, setSelectedRequest] =
-    useState<CustomerValuationRequest | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [showNotification, setShowNotification] = useState("");
 
   // ==== DỮ LIỆU THẬT TỪ BE ====
   const [me, setMe] = useState<MeDto | null>(null);
@@ -74,15 +56,29 @@ const CustomerDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
 
-  // Giữ UI Valuations & Notifications (mock – sẽ nối API valuation sau)
-  const [customerRequests, setCustomerRequests] = useState<
-    CustomerValuationRequest[]
-  >([]);
-  const [notifications, setNotifications] = useState<CustomerNotification[]>([
+  // ==== Cases list (paging/filter) ====
+  const [casesPage, setCasesPage] = useState<PagedResult<CaseListItem> | null>(
+    null
+  );
+  const [casesLoading, setCasesLoading] = useState(false);
+  const [casesError, setCasesError] = useState<string | null>(null);
+  const [casePage, setCasePage] = useState(1);
+  const casePageSize = 10;
+  const [caseStatus, setCaseStatus] = useState<string | undefined>(undefined);
+
+  // ==== Modal detail ====
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
+  const [caseDetail, setCaseDetail] = useState<CaseDetail | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailError, setDetailError] = useState<string | null>(null);
+
+  // Notifications (mock)
+  const [notifications, setNotifications] = useState([
     {
       id: "not-001",
       date: "2024-01-22",
-      type: "results_ready",
+      type: "results_ready" as const,
       title: "Valuation Complete - VAL-2024-0123",
       message:
         "Your diamond valuation is complete! Results are now available for download.",
@@ -92,7 +88,7 @@ const CustomerDashboard: React.FC = () => {
     {
       id: "not-002",
       date: "2024-01-21",
-      type: "status_update",
+      type: "status_update" as const,
       title: "Consultant Assigned - VAL-2024-0156",
       message:
         "Mike Chen has been assigned as your consultant and will contact you within 24 hours.",
@@ -101,7 +97,7 @@ const CustomerDashboard: React.FC = () => {
     {
       id: "not-003",
       date: "2024-01-25",
-      type: "status_update",
+      type: "status_update" as const,
       title: "Request Received - VAL-2024-0167",
       message:
         "We have received your valuation request and it is being processed.",
@@ -109,7 +105,7 @@ const CustomerDashboard: React.FC = () => {
     },
   ]);
 
-  // Load BE
+  // Load Dashboard summary (me + recent orders)
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -136,13 +132,78 @@ const CustomerDashboard: React.FC = () => {
     };
   }, []);
 
+  // Load danh sách valuation cases khi đổi tab/page/status
+  useEffect(() => {
+    if (activeTab !== "valuations") return;
+    let mounted = true;
+    (async () => {
+      try {
+        setCasesLoading(true);
+        setCasesError(null);
+        const data = await getMyCases(casePage, casePageSize, caseStatus);
+        if (!mounted) return;
+        setCasesPage(data);
+      } catch (e: any) {
+        if (!mounted) return;
+        setCasesError(
+          e?.response?.data?.message || e?.message || "Load failed"
+        );
+      } finally {
+        if (mounted) setCasesLoading(false);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [activeTab, casePage, caseStatus]);
+
+  // Load detail khi mở modal
+  useEffect(() => {
+    if (!isModalOpen || !selectedCaseId) return;
+    let mounted = true;
+    (async () => {
+      try {
+        setDetailLoading(true);
+        setDetailError(null);
+        setCaseDetail(null);
+        const data = await getCaseDetail(selectedCaseId);
+        if (!mounted) return;
+        setCaseDetail(data);
+      } catch (e: any) {
+        if (!mounted) return;
+        setDetailError(
+          e?.response?.data?.message || e?.message || "Load case detail failed"
+        );
+      } finally {
+        if (mounted) setDetailLoading(false);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [isModalOpen, selectedCaseId]);
+
   const fadeInUp = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
   };
 
+  // Helpers: status mapping
   const getStatusColor = (status: string) => {
     switch (status) {
+      case "YeuCau":
+        return "bg-blue-100 text-blue-800";
+      case "LienHe":
+        return "bg-indigo-100 text-indigo-800";
+      case "BienLai":
+        return "bg-green-100 text-green-800";
+      case "DinhGia":
+        return "bg-yellow-100 text-yellow-800";
+      case "KetQua":
+        return "bg-emerald-100 text-emerald-800";
+      case "Complete":
+        return "bg-gray-100 text-gray-800";
+      // fallback enum cũ
       case "submitted":
         return "bg-blue-100 text-blue-800";
       case "consultant_assigned":
@@ -168,6 +229,19 @@ const CustomerDashboard: React.FC = () => {
 
   const getStatusText = (status: string) => {
     switch (status) {
+      case "YeuCau":
+        return "Request Submitted";
+      case "LienHe":
+        return "Contacted";
+      case "BienLai":
+        return "Receipt Created";
+      case "DinhGia":
+        return "Valuation In Progress";
+      case "KetQua":
+        return "Results Ready";
+      case "Complete":
+        return "Process Complete";
+      // fallback
       case "submitted":
         return "Request Submitted";
       case "consultant_assigned":
@@ -191,6 +265,31 @@ const CustomerDashboard: React.FC = () => {
     }
   };
 
+  const getProgressPercentage = (status: string) => {
+    const mapNew = {
+      YeuCau: 10,
+      LienHe: 25,
+      BienLai: 40,
+      DinhGia: 65,
+      KetQua: 85,
+      Complete: 100,
+    } as const;
+
+    const mapOld = {
+      submitted: 10,
+      consultant_assigned: 20,
+      customer_contacted: 30,
+      receipt_created: 40,
+      valuation_assigned: 50,
+      valuation_in_progress: 70,
+      valuation_completed: 85,
+      results_sent: 95,
+      completed: 100,
+    } as const;
+
+    return (mapNew as any)[status] ?? (mapOld as any)[status] ?? 0;
+  };
+
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "urgent":
@@ -206,26 +305,10 @@ const CustomerDashboard: React.FC = () => {
     }
   };
 
-  const getProgressPercentage = (status: string) => {
-    const statusProgress = {
-      submitted: 10,
-      consultant_assigned: 20,
-      customer_contacted: 30,
-      receipt_created: 40,
-      valuation_assigned: 50,
-      valuation_in_progress: 70,
-      valuation_completed: 85,
-      results_sent: 95,
-      completed: 100,
-    } as const;
-    return (statusProgress as any)[status] || 0;
-  };
-
-  const markNotificationAsRead = (notificationId: string) => {
+  const markNotificationAsRead = (id: string) =>
     setNotifications((prev) =>
-      prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n))
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
     );
-  };
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
@@ -243,9 +326,11 @@ const CustomerDashboard: React.FC = () => {
   ] as const;
 
   const notify = (message: string) => {
+    const timer = setTimeout(() => setShowNotification(""), 3000);
     setShowNotification(message);
-    setTimeout(() => setShowNotification(""), 3000);
+    return () => clearTimeout(timer);
   };
+  const [showNotification, setShowNotification] = useState("");
 
   // ===== Thống kê cho Overview (từ đơn hàng gần đây) =====
   const inProgressCount = useMemo(
@@ -369,7 +454,7 @@ const CustomerDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Overview */}
+        {/* Overview — đúng như bản gốc của bạn */}
         {activeTab === "overview" && (
           <motion.div
             initial="hidden"
@@ -508,7 +593,7 @@ const CustomerDashboard: React.FC = () => {
           </motion.div>
         )}
 
-        {/* My Valuations (UI; sẽ nối API sau) */}
+        {/* My Valuations (REAL API) */}
         {activeTab === "valuations" && (
           <motion.div
             initial="hidden"
@@ -519,142 +604,177 @@ const CustomerDashboard: React.FC = () => {
             <div className="bg-white rounded-lg shadow-sm">
               <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                 <h3 className="text-lg font-semibold">My Valuation Requests</h3>
-                <button
-                  onClick={() => navigate("/valuation")}
-                  className="btn btn-primary"
-                >
-                  New Request
-                </button>
+                <div className="flex items-center gap-3">
+                  {/* Filter status theo enum BE */}
+                  <select
+                    className="border rounded px-2 py-1 text-sm"
+                    value={caseStatus ?? ""}
+                    onChange={(e) => {
+                      setCasePage(1);
+                      setCaseStatus(e.target.value || undefined);
+                    }}
+                  >
+                    <option value="">All Status</option>
+                    <option value="YeuCau">Yêu Cầu</option>
+                    <option value="LienHe">Liên Hệ</option>
+                    <option value="BienLai">Biên Lai</option>
+                    <option value="DinhGia">Định Giá</option>
+                    <option value="KetQua">Kết Quả</option>
+                    <option value="Complete">Hoàn tất</option>
+                  </select>
+
+                  <button
+                    onClick={() => navigate("/valuation")}
+                    className="btn btn-primary"
+                  >
+                    New Request
+                  </button>
+                </div>
               </div>
+
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Request
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Progress
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Consultant
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Value
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {customerRequests.length === 0 && (
-                      <tr>
-                        <td
-                          colSpan={6}
-                          className="px-6 py-8 text-center text-sm text-gray-500"
-                        >
-                          Chưa có yêu cầu định giá. Nhấn{" "}
-                          <button
-                            className="text-blue-600 hover:underline"
-                            onClick={() => navigate("/valuation")}
-                          >
-                            New Request
-                          </button>{" "}
-                          để bắt đầu.
-                        </td>
-                      </tr>
-                    )}
-                    {customerRequests.map((request) => (
-                      <tr key={request.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">
-                              {request.id}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {request.diamondType} - {request.caratWeight}
-                            </div>
-                            <div className="text-xs text-gray-400">
-                              Submitted: {request.submittedDate}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                              request.status
-                            )}`}
-                          >
-                            {getStatusText(request.status)}
-                          </span>
-                          <div
-                            className={`text-xs mt-1 px-2 py-1 rounded ${getPriorityColor(
-                              request.priority
-                            )}`}
-                          >
-                            {request.priority.toUpperCase()}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div
-                              className="bg-luxury-gold h-2 rounded-full transition-all duration-500"
-                              style={{
-                                width: `${getProgressPercentage(
-                                  request.status
-                                )}%`,
-                              }}
-                            ></div>
-                          </div>
-                          <div className="text-xs text-gray-500 mt-1">
-                            {getProgressPercentage(request.status)}% Complete
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {request.consultantName || "Not Assigned"}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">
-                            {request.actualValue ||
-                              request.estimatedValue ||
-                              "TBD"}
-                          </div>
-                          {request.actualValue &&
-                            request.estimatedValue !== request.actualValue && (
-                              <div className="text-xs text-gray-500">
-                                Est: {request.estimatedValue}
+                {casesLoading ? (
+                  <div className="p-6 text-sm text-gray-500">Loading…</div>
+                ) : casesError ? (
+                  <div className="p-6 text-sm text-red-600">{casesError}</div>
+                ) : !casesPage || casesPage.items.length === 0 ? (
+                  <div className="p-6 text-sm text-gray-500">
+                    Chưa có yêu cầu định giá. Nhấn{" "}
+                    <button
+                      className="text-blue-600 hover:underline"
+                      onClick={() => navigate("/valuation")}
+                    >
+                      New Request
+                    </button>{" "}
+                    để bắt đầu.
+                  </div>
+                ) : (
+                  <>
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Case
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Status
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Progress
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Consultant
+                          </th>
+                          <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Value
+                          </th>
+                          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {casesPage.items.map((it) => (
+                          <tr key={it.id} className="hover:bg-gray-50">
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm font-medium text-gray-900">
+                                {it.id}
                               </div>
-                            )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                          <button
-                            onClick={() => {
-                              setSelectedRequest(request);
-                              setIsModalOpen(true);
-                            }}
-                            className="text-luxury-gold hover:text-luxury-navy"
-                          >
-                            View
-                          </button>
-                          {request.status === "valuation_completed" && (
-                            <button
-                              onClick={() =>
-                                notify("Certificate downloaded successfully!")
-                              }
-                              className="text-green-600 hover:text-green-900"
-                            >
-                              Download
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                              <div className="text-xs text-gray-400">
+                                Created:{" "}
+                                {new Date(it.createdAt).toLocaleString()}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span
+                                className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                                  it.status
+                                )}`}
+                              >
+                                {getStatusText(it.status)}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="w-full bg-gray-200 rounded-full h-2">
+                                <div
+                                  className="bg-luxury-gold h-2 rounded-full transition-all duration-500"
+                                  style={{
+                                    width: `${it.progress}%`,
+                                  }}
+                                />
+                              </div>
+                              <div className="text-xs text-gray-500 mt-1">
+                                {it.progress}% Complete
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {it.consultantName ?? "Not Assigned"}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-right">
+                              <div className="text-sm font-medium text-gray-900">
+                                {it.estimatedValue != null
+                                  ? it.estimatedValue.toLocaleString()
+                                  : "TBD"}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-center space-x-2">
+                              <button
+                                onClick={() => {
+                                  setSelectedCaseId(it.id);
+                                  setIsModalOpen(true); // 👉 mở modal
+                                }}
+                                className="text-luxury-gold hover:text-luxury-navy"
+                              >
+                                View
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+
+                    {/* Pagination */}
+                    <div className="flex items-center justify-between p-4">
+                      <div className="text-sm">
+                        Tổng: {casesPage.total} · Trang {casesPage.page}/
+                        {casesPage.totalPages ??
+                          Math.ceil(casesPage.total / casesPage.pageSize)}
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          className="border rounded px-3 py-1 disabled:opacity-50"
+                          onClick={() => setCasePage((p) => Math.max(1, p - 1))}
+                          disabled={(casesPage.page ?? 1) <= 1}
+                        >
+                          Prev
+                        </button>
+                        <button
+                          className="border rounded px-3 py-1 disabled:opacity-50"
+                          onClick={() =>
+                            setCasePage((p) =>
+                              Math.min(
+                                (casesPage.totalPages ??
+                                  Math.ceil(
+                                    casesPage.total / casesPage.pageSize
+                                  )) ||
+                                  1,
+                                p + 1
+                              )
+                            )
+                          }
+                          disabled={
+                            (casesPage.totalPages ??
+                              Math.ceil(
+                                casesPage.total / casesPage.pageSize
+                              )) <= (casesPage.page ?? 1)
+                          }
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </motion.div>
@@ -673,11 +793,16 @@ const CustomerDashboard: React.FC = () => {
                 <h3 className="text-lg font-semibold">Notifications</h3>
               </div>
               <div className="divide-y divide-gray-200">
-                {notifications.map((notification) => (
+                {notifications.length === 0 && (
+                  <div className="p-6 text-sm text-gray-500">
+                    Không có thông báo.
+                  </div>
+                )}
+                {notifications.map((n) => (
                   <div
-                    key={notification.id}
+                    key={n.id}
                     className={`p-6 ${
-                      !notification.read
+                      !n.read
                         ? "bg-blue-50 border-l-4 border-l-blue-400"
                         : "hover:bg-gray-50"
                     }`}
@@ -687,38 +812,30 @@ const CustomerDashboard: React.FC = () => {
                         <div className="flex items-center space-x-2">
                           <h4
                             className={`font-medium ${
-                              !notification.read
-                                ? "text-blue-900"
-                                : "text-gray-900"
+                              !n.read ? "text-blue-900" : "text-gray-900"
                             }`}
                           >
-                            {notification.title}
+                            {n.title}
                           </h4>
-                          {notification.actionRequired && (
+                          {n.actionRequired && (
                             <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">
                               Action Required
                             </span>
                           )}
                         </div>
-                        <p className="text-gray-600 mt-1">
-                          {notification.message}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-2">
-                          {notification.date}
-                        </p>
+                        <p className="text-gray-600 mt-1">{n.message}</p>
+                        <p className="text-xs text-gray-500 mt-2">{n.date}</p>
                       </div>
                       <div className="flex items-center space-x-2">
-                        {!notification.read && (
+                        {!n.read && (
                           <button
-                            onClick={() =>
-                              markNotificationAsRead(notification.id)
-                            }
+                            onClick={() => markNotificationAsRead(n.id)}
                             className="text-blue-600 hover:text-blue-800 text-sm"
                           >
                             Mark as Read
                           </button>
                         )}
-                        {notification.type === "results_ready" && (
+                        {n.type === "results_ready" && (
                           <button
                             onClick={() =>
                               notify("Results viewed successfully!")
@@ -804,179 +921,212 @@ const CustomerDashboard: React.FC = () => {
         )}
       </div>
 
-      {/* Valuation Details Modal */}
-      {isModalOpen && selectedRequest && (
+      {/* Case Detail MODAL */}
+      {isModalOpen && selectedCaseId && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold">
-                Valuation Details - {selectedRequest.id}
+                Valuation Details — {selectedCaseId}
               </h3>
               <button
-                onClick={() => setIsModalOpen(false)}
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setSelectedCaseId(null);
+                  setCaseDetail(null);
+                }}
                 className="text-gray-400 hover:text-gray-600"
+                aria-label="Close"
               >
                 ✕
               </button>
             </div>
 
-            <div className="space-y-6">
-              {/* Status & Progress */}
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <h4 className="font-medium mb-3">Current Status</h4>
-                  <div className="space-y-3">
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                        selectedRequest.status
-                      )}`}
-                    >
-                      {getStatusText(selectedRequest.status)}
-                    </span>
-                    <div className="w-full bg-gray-200 rounded-full h-3">
-                      <div
-                        className="bg-luxury-gold h-3 rounded-full transition-all duration-500"
-                        style={{
-                          width: `${getProgressPercentage(
-                            selectedRequest.status
-                          )}%`,
-                        }}
-                      ></div>
-                    </div>
-                    <p className="text-sm text-gray-600">
-                      {getProgressPercentage(selectedRequest.status)}% Complete
-                    </p>
-                  </div>
-                </div>
-                <div>
-                  <h4 className="font-medium mb-3">Request Information</h4>
-                  <div className="space-y-2 text-sm">
-                    <p>
-                      <strong>Submitted:</strong>{" "}
-                      {selectedRequest.submittedDate}
-                    </p>
-                    <p>
-                      <strong>Last Update:</strong> {selectedRequest.lastUpdate}
-                    </p>
-                    <p>
-                      <strong>Consultant:</strong>{" "}
-                      {selectedRequest.consultantName || "Not assigned"}
-                    </p>
-                    <p>
-                      <strong>Receipt #:</strong>{" "}
-                      {selectedRequest.receiptNumber || "Not generated"}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Diamond Details */}
-              <div>
-                <h4 className="font-medium mb-3">Diamond Details</h4>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <div className="grid md:grid-cols-3 gap-4 text-sm">
-                    <p>
-                      <strong>Type:</strong> {selectedRequest.diamondType}
-                    </p>
-                    <p>
-                      <strong>Carat Weight:</strong>{" "}
-                      {selectedRequest.caratWeight}
-                    </p>
-                    <p>
-                      <strong>Priority:</strong>{" "}
+            {/* Loading/Err/Content */}
+            {detailLoading && (
+              <div className="p-4 text-sm text-gray-500">Loading…</div>
+            )}
+            {detailError && (
+              <div className="p-4 text-sm text-red-600">{detailError}</div>
+            )}
+            {!detailLoading && !detailError && caseDetail && (
+              <div className="space-y-6">
+                {/* Status & Progress */}
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="font-medium mb-3">Current Status</h4>
+                    <div className="space-y-3">
                       <span
-                        className={`px-2 py-1 rounded text-xs ${getPriorityColor(
-                          selectedRequest.priority
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
+                          caseDetail.status
                         )}`}
                       >
-                        {selectedRequest.priority.toUpperCase()}
+                        {getStatusText(caseDetail.status)}
                       </span>
+                      <div className="w-full bg-gray-200 rounded-full h-3">
+                        <div
+                          className="bg-luxury-gold h-3 rounded-full transition-all duration-500"
+                          style={{
+                            width: `${
+                              caseDetail.progress ??
+                              getProgressPercentage(caseDetail.status)
+                            }%`,
+                          }}
+                        />
+                      </div>
+                      <p className="text-sm text-gray-600">
+                        {caseDetail.progress ??
+                          getProgressPercentage(caseDetail.status)}
+                        % Complete
+                      </p>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="font-medium mb-3">Request Information</h4>
+                    <div className="space-y-2 text-sm">
+                      <p>
+                        <strong>Created:</strong>{" "}
+                        {new Date(caseDetail.createdAt).toLocaleString()}
+                      </p>
+                      {caseDetail.updatedAt && (
+                        <p>
+                          <strong>Updated:</strong>{" "}
+                          {new Date(caseDetail.updatedAt).toLocaleString()}
+                        </p>
+                      )}
+                      <p>
+                        <strong>Consultant:</strong>{" "}
+                        {caseDetail.consultantName || "Not assigned"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Diamond Details */}
+                {caseDetail.diamond && (
+                  <div>
+                    <h4 className="font-medium mb-3">Diamond Details</h4>
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <div className="grid md:grid-cols-3 gap-4 text-sm">
+                        <p>
+                          <strong>Certificate #:</strong>{" "}
+                          {caseDetail.diamond.certificateNo || "—"}
+                        </p>
+                        <p>
+                          <strong>Origin:</strong> {caseDetail.diamond.origin}
+                        </p>
+                        <p>
+                          <strong>Shape:</strong> {caseDetail.diamond.shape}
+                        </p>
+                        <p>
+                          <strong>Carat:</strong> {caseDetail.diamond.carat}
+                        </p>
+                        <p>
+                          <strong>Color:</strong> {caseDetail.diamond.color}
+                        </p>
+                        <p>
+                          <strong>Clarity:</strong> {caseDetail.diamond.clarity}
+                        </p>
+                        <p>
+                          <strong>Cut:</strong> {caseDetail.diamond.cut}
+                        </p>
+                        <p>
+                          <strong>Polish:</strong> {caseDetail.diamond.polish}
+                        </p>
+                        <p>
+                          <strong>Symmetry:</strong>{" "}
+                          {caseDetail.diamond.symmetry}
+                        </p>
+                        <p>
+                          <strong>Fluor.:</strong>{" "}
+                          {caseDetail.diamond.fluorescence}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Contact */}
+                {caseDetail.contact && (
+                  <div>
+                    <h4 className="font-medium mb-3">Contact</h4>
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <div className="grid md:grid-cols-3 gap-4 text-sm">
+                        <p>
+                          <strong>Name:</strong> {caseDetail.contact.fullName}
+                        </p>
+                        <p>
+                          <strong>Email:</strong> {caseDetail.contact.email}
+                        </p>
+                        <p>
+                          <strong>Phone:</strong> {caseDetail.contact.phone}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Values */}
+                <div>
+                  <h4 className="font-medium mb-3">Values</h4>
+                  <div className="bg-green-50 p-4 rounded-lg grid md:grid-cols-3 gap-4 text-sm">
+                    <p>
+                      <strong>Estimated Value:</strong>{" "}
+                      {caseDetail.estimatedValue != null
+                        ? caseDetail.estimatedValue.toLocaleString()
+                        : "TBD"}
+                    </p>
+                    <p>
+                      <strong>Market Value:</strong>{" "}
+                      {caseDetail.marketValue != null
+                        ? caseDetail.marketValue.toLocaleString()
+                        : "—"}
+                    </p>
+                    <p>
+                      <strong>Insurance Value:</strong>{" "}
+                      {caseDetail.insuranceValue != null
+                        ? caseDetail.insuranceValue.toLocaleString()
+                        : "—"}
                     </p>
                   </div>
                 </div>
-              </div>
 
-              {/* Valuation Results */}
-              {selectedRequest.results && (
-                <div>
-                  <h4 className="font-medium mb-3">Valuation Results</h4>
-                  <div className="bg-green-50 p-4 rounded-lg">
-                    <div className="grid md:grid-cols-3 gap-4 text-sm">
-                      <p>
-                        <strong>Market Value:</strong> $
-                        {selectedRequest.results.marketValue.toLocaleString()}
-                      </p>
-                      <p>
-                        <strong>Insurance Value:</strong> $
-                        {selectedRequest.results.insuranceValue.toLocaleString()}
-                      </p>
-                      <p>
-                        <strong>Retail Value:</strong> $
-                        {selectedRequest.results.retailValue.toLocaleString()}
-                      </p>
-                      <p>
-                        <strong>Condition:</strong>{" "}
-                        {selectedRequest.results.condition}
-                      </p>
-                      <p className="md:col-span-2">
-                        <strong>Certification:</strong>{" "}
-                        {selectedRequest.results.certificationDetails}
-                      </p>
-                    </div>
-                    {selectedRequest.results.report && (
-                      <div className="mt-4">
-                        <p className="text-sm">
-                          <strong>Report:</strong>{" "}
-                          {selectedRequest.results.report}
-                        </p>
-                      </div>
-                    )}
-                  </div>
+                <div className="flex justify-end gap-3">
+                  {caseDetail.status === "KetQua" && (
+                    <>
+                      <button
+                        onClick={() => {
+                          notify("Certificate downloaded successfully!");
+                          setIsModalOpen(false);
+                        }}
+                        className="btn btn-primary"
+                      >
+                        Download Certificate
+                      </button>
+                      <button
+                        onClick={() => {
+                          notify("Report downloaded successfully!");
+                          setIsModalOpen(false);
+                        }}
+                        className="btn btn-secondary"
+                      >
+                        Download Report
+                      </button>
+                    </>
+                  )}
+                  <button
+                    onClick={() => {
+                      setIsModalOpen(false);
+                      setSelectedCaseId(null);
+                      setCaseDetail(null);
+                    }}
+                    className="btn btn-secondary"
+                  >
+                    Close
+                  </button>
                 </div>
-              )}
-
-              {/* Notes */}
-              {selectedRequest.notes && (
-                <div>
-                  <h4 className="font-medium mb-3">Notes</h4>
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="text-sm">{selectedRequest.notes}</p>
-                  </div>
-                </div>
-              )}
-
-              {/* Actions */}
-              <div className="flex space-x-4">
-                {selectedRequest.status === "valuation_completed" && (
-                  <>
-                    <button
-                      onClick={() => {
-                        notify("Certificate downloaded successfully!");
-                        setIsModalOpen(false);
-                      }}
-                      className="btn btn-primary"
-                    >
-                      Download Certificate
-                    </button>
-                    <button
-                      onClick={() => {
-                        notify("Report downloaded successfully!");
-                        setIsModalOpen(false);
-                      }}
-                      className="btn btn-secondary"
-                    >
-                      Download Report
-                    </button>
-                  </>
-                )}
-                <button
-                  onClick={() => setIsModalOpen(false)}
-                  className="btn btn-secondary"
-                >
-                  Close
-                </button>
               </div>
-            </div>
+            )}
           </div>
         </div>
       )}
