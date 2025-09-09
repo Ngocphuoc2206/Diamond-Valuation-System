@@ -50,8 +50,7 @@
               "RelativeToolTip": "Diamond.ValuationService.Application\\DTOs\\DiamondInfoDto.cs",
               "ViewState": "AgIAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-08T03:32:14.365Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-08T03:32:14.365Z"
             },
             {
               "$type": "Document",
@@ -63,8 +62,7 @@
               "RelativeToolTip": "Diamond.ValuationService.Api\\Program.cs",
               "ViewState": "AgIAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-08T03:24:59.836Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-08T03:24:59.836Z"
             },
             {
               "$type": "Document",
@@ -76,8 +74,7 @@
               "RelativeToolTip": "Diamond.ValuationService.Application\\DTOs\\CaseDtos.cs",
               "ViewState": "AgIAAEkAAAAAAAAAAIBDwFQAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-08T03:24:20.429Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-08T03:24:20.429Z"
             },
             {
               "$type": "Document",
@@ -99,7 +96,7 @@
               "RelativeDocumentMoniker": "Diamond.ValuationService.Infrastructure\\Service\\CaseService.cs",
               "ToolTip": "D:\\Diamond-Valuation-Service\\ValuationRequestService\\Diamond.ValuationService.Infrastructure\\Service\\CaseService.cs",
               "RelativeToolTip": "Diamond.ValuationService.Infrastructure\\Service\\CaseService.cs",
-              "ViewState": "AgIAAFIAAAAAAAAAAAAzwF4AAAAfAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAF4AAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-09-08T01:21:45.031Z",
               "EditorCaption": ""
