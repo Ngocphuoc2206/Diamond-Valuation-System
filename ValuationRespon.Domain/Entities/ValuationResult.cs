@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ValuationRespon.Domain.Entities
 {
@@ -20,9 +16,14 @@ namespace ValuationRespon.Domain.Entities
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal RetailValue { get; set; }
-        public string Condition { get; set; }
-        public string Certification { get; set; }
+
+        public string Condition { get; set; } = string.Empty;
+        public string Certification { get; set; } = string.Empty;
         public string? Notes { get; set; } = null;
+
         public DateTime CompletedAt { get; set; } = DateTime.UtcNow;
+
+        // Quan hệ với Case
+        public ValuationCase? Case { get; set; }
     }
 }
