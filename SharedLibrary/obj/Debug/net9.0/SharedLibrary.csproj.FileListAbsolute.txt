@@ -1,0 +1,14 @@
+D:\Diamond-Valuation-Service\InvoiceService\SharedLibrary\bin\Debug\net9.0\SharedLibrary.deps.json
+D:\Diamond-Valuation-Service\InvoiceService\SharedLibrary\bin\Debug\net9.0\SharedLibrary.runtimeconfig.json
+D:\Diamond-Valuation-Service\InvoiceService\SharedLibrary\bin\Debug\net9.0\SharedLibrary.dll
+D:\Diamond-Valuation-Service\InvoiceService\SharedLibrary\bin\Debug\net9.0\SharedLibrary.pdb
+D:\Diamond-Valuation-Service\InvoiceService\SharedLibrary\obj\Debug\net9.0\SharedLibrary.GeneratedMSBuildEditorConfig.editorconfig
+D:\Diamond-Valuation-Service\InvoiceService\SharedLibrary\obj\Debug\net9.0\SharedLibrary.AssemblyInfoInputs.cache
+D:\Diamond-Valuation-Service\InvoiceService\SharedLibrary\obj\Debug\net9.0\SharedLibrary.AssemblyInfo.cs
+D:\Diamond-Valuation-Service\InvoiceService\SharedLibrary\obj\Debug\net9.0\SharedLibrary.csproj.CoreCompileInputs.cache
+D:\Diamond-Valuation-Service\InvoiceService\SharedLibrary\obj\Debug\net9.0\SharedLibrary.sourcelink.json
+D:\Diamond-Valuation-Service\InvoiceService\SharedLibrary\obj\Debug\net9.0\SharedLibrary.dll
+D:\Diamond-Valuation-Service\InvoiceService\SharedLibrary\obj\Debug\net9.0\refint\SharedLibrary.dll
+D:\Diamond-Valuation-Service\InvoiceService\SharedLibrary\obj\Debug\net9.0\SharedLibrary.pdb
+D:\Diamond-Valuation-Service\InvoiceService\SharedLibrary\obj\Debug\net9.0\SharedLibrary.genruntimeconfig.cache
+D:\Diamond-Valuation-Service\InvoiceService\SharedLibrary\obj\Debug\net9.0\ref\SharedLibrary.dll

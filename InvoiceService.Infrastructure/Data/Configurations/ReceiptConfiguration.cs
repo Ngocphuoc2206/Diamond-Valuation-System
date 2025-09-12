@@ -1,6 +1,7 @@
 using InvoiceService.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System;
 
 namespace InvoiceService.Infrastructure.Data.Configurations;
 

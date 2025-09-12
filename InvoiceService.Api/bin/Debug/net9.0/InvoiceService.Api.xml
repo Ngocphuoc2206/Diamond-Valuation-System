@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>InvoiceService.Api</name>
+    </assembly>
+    <members>
+        <member name="M:InvoiceService.Api.Controllers.ReceiptsController.Create(InvoiceService.Application.DTOs.CreateReceiptRequest,System.Threading.CancellationToken)">
+            <summary>Create valuation receipt</summary>
+        </member>
+    </members>
+</doc>

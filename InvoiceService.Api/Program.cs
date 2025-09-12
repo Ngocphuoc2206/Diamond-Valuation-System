@@ -1,10 +1,11 @@
-using System.Reflection;
+﻿using System.Reflection;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using InvoiceService.Application.Interfaces;
 using InvoiceService.Application.Mapping;
 using InvoiceService.Application.Services;
 using InvoiceService.Application.Validation;
+using InvoiceService.Domain.Interfaces;
 using InvoiceService.Infrastructure.Data;
 using InvoiceService.Infrastructure.Repositories;
 using InvoiceService.Infrastructure.Services;
@@ -25,6 +26,7 @@ builder.Services.AddSingleton<IJwtService, JwtService>(); // demo
 
 // Validation + AutoMapper
 builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddFluentValidationClientsideAdapters();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateReceiptRequestValidator>();
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<InvoiceMappingProfile>());
 
@@ -43,6 +45,26 @@ builder.Services.AddHealthChecks()
     .AddSqlServer(builder.Configuration.GetConnectionString("Default")!);
 
 var app = builder.Build();
+
+/* --- APPLY EF CORE MIGRATIONS AT STARTUP --- */
+using (var scope = app.Services.CreateScope())
+{
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<InvoiceDbContext>();
+        // Tạo DB nếu chưa có & áp dụng mọi migration còn thiếu
+        db.Database.Migrate();
+        logger.LogInformation("Database migrated successfully.");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Database migration failed.");
+        // Tuỳ chọn: rethrow để container restart nếu DB chưa sẵn sàng
+        // throw;
+    }
+}
+/* ------------------------------------------- */
 
 app.UseSwagger();
 app.UseSwaggerUI();

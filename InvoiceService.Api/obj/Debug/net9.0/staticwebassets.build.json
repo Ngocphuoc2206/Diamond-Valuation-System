@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "GENZ6mOR1juU6s57t8OCaNroxlqkRGM5sw/6LRrnAiA=",
+  "Source": "InvoiceService.Api",
+  "BasePath": "_content/InvoiceService.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}

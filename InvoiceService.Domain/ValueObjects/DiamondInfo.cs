@@ -1,3 +1,5 @@
+using System;
+
 namespace InvoiceService.Domain.ValueObjects;
 
 public class DiamondInfo
