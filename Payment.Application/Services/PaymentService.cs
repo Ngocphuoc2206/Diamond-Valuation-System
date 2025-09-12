@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Payment.Application.DTOs;
+using Payment.Application.Interfaces;
 using Payment.Domain.Enums;
 using Payment.Domain.Services;
 using Payment.Domain.Services.Interfaces;
@@ -13,15 +14,18 @@ public class PaymentService : IPaymentService
     private readonly IGenericRepository<Domain.Entities.Payment> _repo;
     private readonly IEnumerable<IProvider> _providers;
     private readonly ILogger<PaymentService> _logger;
+    private readonly IOrderNotifier _notifier;
 
     public PaymentService(
         IGenericRepository<Domain.Entities.Payment> repo,
         IEnumerable<IProvider> providers,
-        ILogger<PaymentService> logger)
+        ILogger<PaymentService> logger,
+        IOrderNotifier notifier)
     {
         _repo = repo;
         _providers = providers;
         _logger = logger;
+        _notifier = notifier;
     }
 
     public async Task<ApiResponse<PaymentViewDto>> CreateAsync(CreatePaymentDto dto, string idempotencyKey)
@@ -121,6 +125,16 @@ public class PaymentService : IPaymentService
         p.UpdatedAt = DateTime.UtcNow;
         await _repo.UpdateAsync(p);
         await _repo.SaveChangesAsync();
+        // gọi OrderService:
+        try
+        {
+            await _notifier.NotifyAsync(p.OrderCode, p.Status.ToString().ToLowerInvariant(), p.ProviderReference);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to notify order status for {OrderCode}", p.OrderCode);
+        }
+
         return ApiResponse<bool>.CreateSuccessResponse(true);
     }
 

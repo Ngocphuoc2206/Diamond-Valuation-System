@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Payment.Application.Interfaces;
 using Payment.Application.Services;
 using Payment.Domain.Entities;
 using Payment.Domain.Interfaces;
@@ -30,7 +31,7 @@ public static class DependencyInjection
         services.AddScoped<IGenericRepository<Refund>, GenericRepository<Refund>>();
         services.AddScoped<IGenericRepository<OutboxMessage>, GenericRepository<OutboxMessage>>();
         services.AddScoped<IUnitOfWork, Uow>();
-
+        services.AddHttpClient<IOrderNotifier, HttpOrderNotifier>();
         services.AddScoped<IPaymentService, PaymentService>();
         services.AddScoped<IProvider, FakePaymentProvider>();
 
