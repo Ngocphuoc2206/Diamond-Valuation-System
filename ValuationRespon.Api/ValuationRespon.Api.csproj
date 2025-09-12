@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SharedLibrary\SharedLibrary.csproj" />
     <ProjectReference Include="..\ValuationRespon.Application\ValuationRespon.Application.csproj" />
     <ProjectReference Include="..\ValuationRespon.Infrastructure\ValuationRespon.Infrastructure.csproj" />
   </ItemGroup>

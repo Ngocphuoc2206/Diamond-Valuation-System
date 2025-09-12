@@ -7,6 +7,8 @@ COPY ["ValuationRespon.Api/ValuationRespon.Api.csproj", "ValuationRespon.Api/"]
 COPY ["ValuationRespon.Application/ValuationRespon.Application.csproj", "ValuationRespon.Application/"]
 COPY ["ValuationRespon.Domain/ValuationRespon.Domain.csproj", "ValuationRespon.Domain/"]
 COPY ["ValuationRespon.Infrastructure/ValuationRespon.Infrastructure.csproj", "ValuationRespon.Infrastructure/"]
+COPY SharedLibrary/SharedLibrary.csproj SharedLibrary/
+
 
 RUN dotnet restore "ValuationRespon.Api/ValuationRespon.Api.csproj"
 
