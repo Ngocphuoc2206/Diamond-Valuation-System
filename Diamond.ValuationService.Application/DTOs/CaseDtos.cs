@@ -1,5 +1,6 @@
 using Diamond.ValuationService.Domain.Entities;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Diamond.ValuationService.Application.DTOs;
 
@@ -62,9 +63,12 @@ public record CaseListItemDto(
     Guid Id,
     string Status,
     int Progress,
-    string? ConsultantName,
+    [property: JsonPropertyName("assigneeName")] string? ConsultantName,
+    string? ValuationName,
     decimal? EstimatedValue,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    MiniContactDto? Contact,
+    MiniDiamondDto? Diamond
 );
 
 public class CaseDetailDto
@@ -77,8 +81,9 @@ public class CaseDetailDto
 
     public DiamondInfoDto Diamond { get; set; } = new();
     public ContactDto Contact { get; set; } = new();
-
+    [JsonPropertyName("assigneeName")]
     public string? ConsultantName { get; set; }
+    public string? ValuationName { get; set; }
     public decimal? EstimatedValue { get; set; }
     public decimal? MarketValue { get; set; }
     public decimal? InsuranceValue { get; set; }

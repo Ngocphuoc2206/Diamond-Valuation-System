@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Diamond.ValuationService.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+65e58147b6085b6b7df49b39c4ebe8ceb74fbe95")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+eca679f6df8ca52bc3341daabf1b22b2209cb5b1")]
 [assembly: System.Reflection.AssemblyProductAttribute("Diamond.ValuationService.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Diamond.ValuationService.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

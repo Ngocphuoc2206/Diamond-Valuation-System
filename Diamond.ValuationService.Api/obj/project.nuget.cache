@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "W8Gn8C7slcU=",
+  "dgSpecHash": "8YfTN47Ha2U=",
   "success": true,
   "projectFilePath": "D:\\Diamond-Valuation-Service\\ValuationRequestService\\Diamond.ValuationService.Api\\Diamond.ValuationService.Api.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\automapper\\15.0.1\\automapper.15.0.1.nupkg.sha512",
     "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",
     "C:\\Users\\Tran Ngoc Phuoc\\.nuget\\packages\\fluentvalidation\\12.0.0\\fluentvalidation.12.0.0.nupkg.sha512",

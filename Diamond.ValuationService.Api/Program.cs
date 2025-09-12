@@ -26,7 +26,7 @@ builder.Services.AddScoped<ICaseService, CaseService>();
 //Swagger + Bearer Authentication
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Valuation API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Valuation Request API", Version = "v1" });
 
     var scheme = new OpenApiSecurityScheme
     {

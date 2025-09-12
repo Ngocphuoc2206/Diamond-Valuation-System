@@ -34,7 +34,16 @@ public class ValuationCase
 
     // ===== Staff phụ trách =====
     public int? AssigneeId { get; set; }
+    public string? AssigneeName { get; set; }
+
+    // ===== Valuationer phụ trách ======
+    public int? ValuationId { get; set; }
+    public string? ValuationName { get; set; }
+
     [JsonIgnore]
     public ValuationResult? Result { get; set; }
     public decimal? EstimatedValue { get; set; }
+
+    public ICollection<ContactLog> ContactLogs { get; set; } = new List<ContactLog>();
+
 }

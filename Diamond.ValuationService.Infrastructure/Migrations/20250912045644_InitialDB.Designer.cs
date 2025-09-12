@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Diamond.ValuationService.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250908021439_InitialDB")]
+    [Migration("20250912045644_InitialDB")]
     partial class InitialDB
     {
         /// <inheritdoc />
@@ -59,7 +59,50 @@ namespace Diamond.ValuationService.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("Contacts");
+                });
+
+            modelBuilder.Entity("Diamond.ValuationService.Domain.Entities.ContactLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CaseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("NextFollowUpAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("Outcome")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CaseId", "CreatedAt");
+
+                    b.ToTable("ContactLogs");
                 });
 
             modelBuilder.Entity("Diamond.ValuationService.Domain.Entities.DiamondSpec", b =>
@@ -172,12 +215,16 @@ namespace Diamond.ValuationService.Infrastructure.Migrations
                     b.Property<int?>("AssigneeId")
                         .HasColumnType("int");
 
+                    b.Property<string>("AssigneeName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<decimal>("Carat")
                         .HasPrecision(10, 3)
                         .HasColumnType("decimal(10,3)");
 
                     b.Property<string>("CertificateNo")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Clarity")
                         .IsRequired()
@@ -193,7 +240,9 @@ namespace Diamond.ValuationService.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("Cut")
                         .IsRequired()
@@ -201,6 +250,7 @@ namespace Diamond.ValuationService.Infrastructure.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<decimal?>("EstimatedValue")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Fluorescence")
@@ -229,8 +279,10 @@ namespace Diamond.ValuationService.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("Symmetry")
                         .IsRequired()
@@ -242,6 +294,13 @@ namespace Diamond.ValuationService.Infrastructure.Migrations
 
                     b.Property<int?>("UserId")
                         .HasColumnType("int");
+
+                    b.Property<int?>("ValuationId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ValuationName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
@@ -318,17 +377,29 @@ namespace Diamond.ValuationService.Infrastructure.Migrations
                     b.ToTable("ValuationResults");
                 });
 
+            modelBuilder.Entity("Diamond.ValuationService.Domain.Entities.ContactLog", b =>
+                {
+                    b.HasOne("Diamond.ValuationService.Domain.Entities.ValuationCase", "Case")
+                        .WithMany("ContactLogs")
+                        .HasForeignKey("CaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Case");
+                });
+
             modelBuilder.Entity("Diamond.ValuationService.Domain.Entities.ValuationCase", b =>
                 {
                     b.HasOne("Diamond.ValuationService.Domain.Entities.Contact", "Contact")
                         .WithMany("Cases")
                         .HasForeignKey("ContactId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Diamond.ValuationService.Domain.Entities.ValuationRequest", "Request")
                         .WithMany()
-                        .HasForeignKey("RequestId");
+                        .HasForeignKey("RequestId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Diamond.ValuationService.Domain.Entities.ValuationResult", "Result")
                         .WithMany()
@@ -355,6 +426,11 @@ namespace Diamond.ValuationService.Infrastructure.Migrations
             modelBuilder.Entity("Diamond.ValuationService.Domain.Entities.Contact", b =>
                 {
                     b.Navigation("Cases");
+                });
+
+            modelBuilder.Entity("Diamond.ValuationService.Domain.Entities.ValuationCase", b =>
+                {
+                    b.Navigation("ContactLogs");
                 });
 #pragma warning restore 612, 618
         }

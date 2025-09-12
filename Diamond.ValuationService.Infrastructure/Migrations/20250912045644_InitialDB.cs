@@ -114,7 +114,7 @@ namespace Diamond.ValuationService.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CertificateNo = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CertificateNo = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     Origin = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Shape = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Carat = table.Column<decimal>(type: "decimal(10,3)", precision: 10, scale: 3, nullable: false),
@@ -124,15 +124,18 @@ namespace Diamond.ValuationService.Infrastructure.Migrations
                     Polish = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     Symmetry = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     Fluorescence = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ContactId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: true),
                     RequestId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     AssigneeId = table.Column<int>(type: "int", nullable: true),
+                    AssigneeName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ValuationId = table.Column<int>(type: "int", nullable: true),
+                    ValuationName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     ResultId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    EstimatedValue = table.Column<decimal>(type: "decimal(18,2)", nullable: true)
+                    EstimatedValue = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -142,18 +145,53 @@ namespace Diamond.ValuationService.Infrastructure.Migrations
                         column: x => x.ContactId,
                         principalTable: "Contacts",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_ValuationCases_ValuationRequests_RequestId",
                         column: x => x.RequestId,
                         principalTable: "ValuationRequests",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_ValuationCases_ValuationResults_ResultId",
                         column: x => x.ResultId,
                         principalTable: "ValuationResults",
                         principalColumn: "Id");
                 });
+
+            migrationBuilder.CreateTable(
+                name: "ContactLogs",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CaseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Channel = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Outcome = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Note = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    NextFollowUpAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedBy = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ContactLogs", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ContactLogs_ValuationCases_CaseId",
+                        column: x => x.CaseId,
+                        principalTable: "ValuationCases",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ContactLogs_CaseId_CreatedAt",
+                table: "ContactLogs",
+                columns: new[] { "CaseId", "CreatedAt" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Contacts_UserId",
+                table: "Contacts",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ValuationCases_ContactId",
@@ -184,6 +222,9 @@ namespace Diamond.ValuationService.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "ContactLogs");
+
             migrationBuilder.DropTable(
                 name: "PriceTable");
 

@@ -17,6 +17,9 @@ public class AppDbContext : DbContext
     public DbSet<Contact> Contacts => Set<Contact>();
     public DbSet<ValuationCase> ValuationCases => Set<ValuationCase>();
 
+    // 🔹 DbSet cho lịch sử liên hệ
+    public DbSet<ContactLog> ContactLogs => Set<ContactLog>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -24,10 +27,14 @@ public class AppDbContext : DbContext
         // ---- Contact ----
         modelBuilder.Entity<Contact>(e =>
         {
+            e.HasKey(x => x.Id);
             e.Property(x => x.FullName).IsRequired().HasMaxLength(200);
             e.Property(x => x.Email).IsRequired().HasMaxLength(200);
             e.Property(x => x.Phone).IsRequired().HasMaxLength(30);
-            e.Property(x => x.PreferredMethod).IsRequired().HasMaxLength(50);
+
+            // PreferredMethod thường không bắt buộc -> để Optional cho an toàn
+            e.Property(x => x.PreferredMethod).HasMaxLength(50);
+            e.HasIndex(x => x.UserId);
         });
 
         // ---- ValuationCase ----
@@ -35,6 +42,11 @@ public class AppDbContext : DbContext
         {
             e.HasKey(x => x.Id);
             e.HasIndex(x => x.UserId);
+
+            // Enum Status -> string để dễ đọc/truy vấn
+            e.Property(x => x.Status).HasConversion<string>().HasMaxLength(30);
+
+            e.Property(x => x.CertificateNo).HasMaxLength(100);
             e.Property(x => x.Origin).IsRequired().HasMaxLength(50);
             e.Property(x => x.Shape).IsRequired().HasMaxLength(50);
             e.Property(x => x.Carat).HasPrecision(10, 3);
@@ -44,10 +56,41 @@ public class AppDbContext : DbContext
             e.Property(x => x.Polish).IsRequired().HasMaxLength(20);
             e.Property(x => x.Symmetry).IsRequired().HasMaxLength(20);
             e.Property(x => x.Fluorescence).IsRequired().HasMaxLength(20);
+            e.Property(x => x.EstimatedValue).HasPrecision(18, 2);
+
+            e.Property(x => x.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+            e.Property(x => x.UpdatedAt);
+
+            e.Property(x => x.ValuationId);
+            e.Property(x => x.ValuationName).HasMaxLength(100);
 
             e.HasOne(x => x.Contact)
-             .WithMany(c => c.Cases)
-             .HasForeignKey(x => x.ContactId);
+                .WithMany(c => c.Cases)
+                .HasForeignKey(x => x.ContactId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // (tuỳ bạn có dùng navigation không)
+            e.HasOne(x => x.Request)
+                .WithMany()
+                .HasForeignKey(x => x.RequestId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // 1 case -> nhiều contact logs
+            e.HasMany(x => x.ContactLogs)
+                .WithOne(l => l.Case)
+                .HasForeignKey(l => l.CaseId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ---- ContactLog (mới) ----
+        modelBuilder.Entity<ContactLog>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Channel).IsRequired().HasMaxLength(20);    // phone|sms|email|zalo
+            e.Property(x => x.Outcome).IsRequired().HasMaxLength(30);    // connected|no_answer|busy|wrong_number
+            e.Property(x => x.Note).HasMaxLength(2000);
+            e.Property(x => x.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+            e.HasIndex(x => new { x.CaseId, x.CreatedAt });
         });
 
         // ---- DiamondSpec ----

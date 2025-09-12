@@ -4,3 +4,13 @@ GET {{Diamond.ValuationService.Api_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+
+### Assign case
+PUT {{baseUrl}}/api/cases/{{CASE_ID}}/assign
+Authorization: Bearer {{TOKEN}}
+Content-Type: application/json
+
+{
+  "assigneeId": 1001,
+  "assigneeName": "Nguyen Van B"
+}
