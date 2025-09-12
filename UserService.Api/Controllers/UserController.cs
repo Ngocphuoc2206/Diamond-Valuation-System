@@ -54,7 +54,7 @@ public class UserController : ControllerBase
         => Ok(await _svc.GetAllUserAsync(q));
 
     [HttpGet("{id:int}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin, ConsultingStaff, ValuationStaff, Manager")]
     public async Task<IActionResult> GetById(int id)
         => Ok(await _svc.GetByIdAsync(id));
 
