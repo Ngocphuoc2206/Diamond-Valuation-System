@@ -53,12 +53,10 @@ builder.Services
 
             ClockSkew = TimeSpan.Zero,
 
-            // Nếu token dùng "role" cho role claim:
             RoleClaimType = "role",
             NameClaimType = ClaimTypes.NameIdentifier
         };
 
-        // Nếu token chứa mảng "roles": [...] → map thêm sang ClaimTypes.Role
         opt.Events = new JwtBearerEvents
         {
             OnTokenValidated = ctx =>
@@ -85,8 +83,6 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 
 // ===== CORS =====
 app.UseCors("AllowFE");
-
-// ===== AuthN/AuthZ phải đứng TRƯỚC MapControllers/MapReverseProxy =====
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -94,7 +90,7 @@ app.UseAuthorization();
 app.MapGet("/", () => Results.Ok(new { service = "ApiGateway", ok = true }));
 app.MapHealthChecks("/healthz");
 
-// Controller endpoints (vd: AdminOverviewController)
+// Controller endpoints
 app.MapControllers();
 
 // YARP proxy endpoints
