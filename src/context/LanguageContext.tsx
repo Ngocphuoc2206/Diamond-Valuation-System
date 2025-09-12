@@ -959,6 +959,69 @@ const enTranslations: Record<string, string> = {
   "staff.pending": "Pending",
   "staff.onHold": "On Hold",
 
+  "staff.navigation": "Navigation",
+  "staff.performanceSummary": "Performance Summary",
+  "staff.pendingApprovals": "Pending Approvals",
+
+  // ---- Staff Dashboard: section/tabs + actions (đồng bộ với UI) ----
+  "staff.myValuationWorkflow": "My Valuation Workflow",
+  "staff.viewTimeline": "View Timeline",
+  "staff.contact": "Contact",
+  "staff.start": "Start",
+  "staff.complete": "Complete",
+  "staff.assignValuation": "Assign Valuation",
+  "staff.assignMe": "Assign to me",
+
+  // ---- Queue table/filters ----
+  "queue.id": "ID",
+  "queue.customer": "Customer",
+  "queue.diamond": "Diamond",
+  "queue.status": "Status",
+  "queue.priority": "Priority",
+
+  // ---- Modals ----
+  "modal.contact.title": "Contact {name}",
+  "modal.contact.placeholder": "Notes to record...",
+  "modal.contact.confirm": "Confirm",
+  "modal.contact.cancel": "Cancel",
+
+  "modal.receipt.title": "Create receipt for {name}",
+  "modal.receipt.placeholder": "Receipt number",
+  "modal.receipt.confirm": "Confirm",
+  "modal.receipt.cancel": "Cancel",
+
+  "modal.valuation.title": "Complete valuation – {id}",
+  "modal.valuation.marketValue": "Market value",
+  "modal.valuation.insuranceValue": "Insurance value",
+  "modal.valuation.retailValue": "Retail value",
+  "modal.valuation.condition": "Condition",
+  "modal.valuation.certDetails": "Certification details",
+  "modal.valuation.notes": "Notes",
+  "modal.valuation.confirm": "Confirm",
+  "modal.valuation.cancel": "Cancel",
+
+  "modal.results.title": "Send results – {name}",
+  "modal.results.placeholder": "Message to customer...",
+  "modal.results.send": "Send",
+  "modal.results.cancel": "Cancel",
+
+  "modal.timeline.title": "Timeline – {id}",
+  "modal.timeline.close": "Close",
+
+  // ---- Workflow statuses (status.*) ----
+  "status.new_request": "New Request",
+  "status.consultant_assigned": "Consultant Assigned",
+  "status.customer_contacted": "Customer Contacted",
+  "status.receipt_created": "Receipt Created",
+  "status.valuation_assigned": "Valuation Assigned",
+  "status.valuation_in_progress": "Valuation in Progress",
+  "status.valuation_completed": "Valuation Completed",
+  "status.consultant_review": "Consultant Review",
+  "status.results_sent": "Results Sent",
+  "status.completed": "Completed",
+  "status.on_hold": "On Hold",
+  "status.cancelled": "Cancelled",
+
   // Staff Performance Metrics (EN)
   "staff.assignedTasks": "Assigned Tasks",
   "staff.completedToday": "Completed Today",
@@ -976,7 +1039,6 @@ const enTranslations: Record<string, string> = {
   "staff.toolsAndResources": "Tools and Resources",
 
   // Staff Action Buttons (EN)
-  "staff.contact": "Contact",
   "staff.manageTemplates": "Manage Templates",
   "staff.accessDB": "Access DB",
   "staff.viewTemplates": "View Templates",
@@ -1064,7 +1126,6 @@ const enTranslations: Record<string, string> = {
   "admin.onlineStoreOrders": "Online Store Orders",
 
   // Enhanced Staff Features (EN)
-  "staff.myValuationWorkflow": "My Valuation Workflow",
   "staff.pendingReview": "Pending Review",
   "staff.myPerformanceReports": "My Performance Reports",
   "staff.workflowManagement": "Workflow Management",
@@ -2003,6 +2064,71 @@ const viTranslations: Record<string, string> = {
   "staff.status.onhold": "Tạm Dừng",
   "staff.status.cancelled": "Đã Hủy",
 
+  "staff.navigation": "Điều Hướng",
+  "staff.performanceSummary": "Tổng Quan Hiệu Suất",
+  "staff.pendingApprovals": "Đang Chờ Duyệt",
+
+  // ---- Staff Dashboard: section/tabs + actions ----
+  "staff.myValuationWorkflow": "Quy Trình Định Giá Của Tôi",
+  "staff.viewTimeline": "Xem Timeline",
+  "staff.contact": "Liên Hệ",
+  "staff.createReceipt": "Tạo Phiếu Nhận",
+  "staff.start": "Bắt Đầu",
+  "staff.complete": "Hoàn Tất",
+  "staff.assignValuation": "Gán Định Giá",
+  "staff.sendResults": "Gửi Kết Quả",
+  "staff.assignMe": "Gán cho tôi",
+
+  // ---- Queue table/filters ----
+  "queue.id": "Mã",
+  "queue.customer": "Khách hàng",
+  "queue.diamond": "Kim cương",
+  "queue.status": "Trạng thái",
+  "queue.priority": "Ưu tiên",
+
+  // ---- Modals ----
+  "modal.contact.title": "Liên hệ {name}",
+  "modal.contact.placeholder": "Ghi chú liên hệ...",
+  "modal.contact.confirm": "Xác nhận",
+  "modal.contact.cancel": "Hủy",
+
+  "modal.receipt.title": "Tạo phiếu nhận cho {name}",
+  "modal.receipt.placeholder": "Số phiếu nhận",
+  "modal.receipt.confirm": "Xác nhận",
+  "modal.receipt.cancel": "Hủy",
+
+  "modal.valuation.title": "Hoàn tất thẩm định – {id}",
+  "modal.valuation.marketValue": "Giá trị thị trường",
+  "modal.valuation.insuranceValue": "Giá trị bảo hiểm",
+  "modal.valuation.retailValue": "Giá trị bán lẻ",
+  "modal.valuation.condition": "Tình trạng",
+  "modal.valuation.certDetails": "Chi tiết chứng nhận",
+  "modal.valuation.notes": "Ghi chú",
+  "modal.valuation.confirm": "Xác nhận",
+  "modal.valuation.cancel": "Hủy",
+
+  "modal.results.title": "Gửi kết quả – {name}",
+  "modal.results.placeholder": "Tin nhắn gửi khách...",
+  "modal.results.send": "Gửi",
+  "modal.results.cancel": "Hủy",
+
+  "modal.timeline.title": "Timeline – {id}",
+  "modal.timeline.close": "Đóng",
+
+  // ---- Workflow statuses (status.*) ----
+  "status.new_request": "Yêu Cầu Mới",
+  "status.consultant_assigned": "Đã Gán Tư Vấn",
+  "status.customer_contacted": "Đã Liên Hệ Khách",
+  "status.receipt_created": "Đã Tạo Phiếu Nhận",
+  "status.valuation_assigned": "Đã Gán Định Giá",
+  "status.valuation_in_progress": "Đang Thẩm Định",
+  "status.valuation_completed": "Hoàn Tất Định Giá",
+  "status.consultant_review": "Tư Vấn Duyệt Kết Quả",
+  "status.results_sent": "Đã Gửi Kết Quả",
+  "status.completed": "Hoàn Thành",
+  "status.on_hold": "Tạm Dừng",
+  "status.cancelled": "Hủy",
+
   // Staff Detail View (VI) — keep canonical keys here
   "staff.requestDetails": "Chi Tiết Yêu Cầu",
   "staff.overview": "Tổng Quan",
@@ -2022,9 +2148,7 @@ const viTranslations: Record<string, string> = {
   "staff.additionalNotes": "Ghi Chú Bổ Sung",
   "staff.assignToMe": "Giao Cho Tôi",
   "staff.markAsContacted": "Đánh Dấu Đã Liên Hệ",
-  "staff.createReceipt": "Tạo Biên Nhận",
   "staff.reviewResults": "Xem Xét Kết Quả",
-  "staff.sendResults": "Gửi Kết Quả",
   "staff.callCustomer": "Gọi Khách Hàng",
   "staff.sendEmail": "Gửi Email",
   "staff.scheduleAppointment": "Đặt Lịch Hẹn",
@@ -2056,7 +2180,6 @@ const viTranslations: Record<string, string> = {
   "staff.saveValuationData": "Lưu Dữ Liệu Định Giá",
 
   // Staff Dashboard Section Headings (VI)
-  "staff.myValuationWorkflow": "Quy Trình Định Giá Của Tôi",
   "staff.customerCommunicationCenter": "Trung Tâm Liên Lạc Khách Hàng",
   "staff.diamondAppraisalWorkstation": "Trạm Thẩm Định Kim Cương",
   "staff.workflowManagement": "Quản Lý Quy Trình",
@@ -2066,7 +2189,6 @@ const viTranslations: Record<string, string> = {
   "staff.manageTemplates": "Quản Lý Mẫu",
   "staff.viewCallHistory": "Xem Lịch Sử Cuộc Gọi",
   "staff.bookAppointment": "Đặt Lịch Hẹn",
-  "staff.contact": "Liên Hệ",
   "staff.openTool": "Mở Công Cụ",
   "staff.accessDB": "Truy Cập CSDL",
   "staff.viewTemplates": "Xem Mẫu",

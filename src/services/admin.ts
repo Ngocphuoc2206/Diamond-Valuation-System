@@ -1,101 +1,132 @@
+// src/services/adminOverview.ts
 import { api } from "./apiClient";
+import { UserAPI } from "./user";
+import { getMyCases } from "./valuation";
 
-/** Kiểu dữ liệu tổng quan cho AdminDashboard */
+/**
+ * FE-only Admin Overview aggregator (SAFE)
+ * - Users: /api/user (UserAPI.list)  ✅
+ * - Cases by status: /api/cases/mine ✅ (tạm thời đếm của chính user)
+ * - Orders: /api/orders               ✅
+ */
+
 export type AdminOverview = {
-  totals: {
-    valuations: number;
-    byStatus: Partial<Record<ValStatus, number>>;
+  users: { total: number };
+  valuations: {
+    total: number;
+    byStatus: Record<
+      "YeuCau" | "LienHe" | "BienLai" | "DinhGia" | "KetQua" | "Complete",
+      number
+    >;
   };
-  recentCases: Array<{
-    id: string;
-    status: string;
-    createdAt: string;
-    consultantName?: string | null;
-  }>;
-  // có thể mở rộng: users, orders, revenue...
+  orders: {
+    totalRevenue: number;
+    revenueDaily: Array<{ date: string; total: number }>;
+  };
 };
 
-type ValStatus =
-  | "YeuCau"
-  | "LienHe"
-  | "BienLai"
-  | "DinhGia"
-  | "KetQua"
-  | "Complete";
+// ---------- Helpers ----------
+function toISODate(d: Date) {
+  return d.toISOString().slice(0, 10); // yyyy-mm-dd
+}
+function startOfDay(d: Date) {
+  const x = new Date(d);
+  x.setUTCHours(0, 0, 0, 0);
+  return x;
+}
+function endOfDay(d: Date) {
+  const x = new Date(d);
+  x.setUTCHours(23, 59, 59, 999);
+  return x;
+}
 
-async function safeGet<T>(url: string, params?: any): Promise<T | null> {
-  try {
-    const { data } = await api.get<T>(url, { params });
-    return data;
-  } catch {
-    return null;
+// ---------- Users (SAFE) ----------
+export async function countUsersSafe(): Promise<number> {
+  // UserAPI.list -> /api/user?page=1&size=1 (gateway có)
+  const page = await UserAPI.list(1, 1);
+  return page?.total ?? page?.items?.length ?? 0;
+}
+
+// ---------- Cases (SAFE - mine) ----------
+export async function countMyCasesByStatusSafe(
+  status?: string
+): Promise<number> {
+  const page = await getMyCases(1, 1, status); // /api/cases/mine
+  return page?.total ?? page?.items?.length ?? 0;
+}
+
+// ---------- Orders ----------
+export async function getOrdersInRangeSafe(fromISO: string, toISO: string) {
+  const { data } = await api.get("/api/orders", {
+    params: { createdFrom: fromISO, createdTo: toISO, page: 1, pageSize: 500 },
+  });
+  return (data?.items ?? []) as Array<{ total: number; createdAt: string }>;
+}
+
+// ---------- Combined: getAdminOverview ----------
+export async function getAdminOverview(days = 30): Promise<AdminOverview> {
+  const today = new Date();
+  const from = startOfDay(new Date(today.getTime() - (days - 1) * 86400000));
+  const to = endOfDay(today);
+  const fromISO = toISODate(from);
+  const toISO = toISODate(to);
+
+  const [
+    totalUsers,
+    yeuCau,
+    lienHe,
+    bienLai,
+    dinhGia,
+    ketQua,
+    complete,
+    orders,
+  ] = await Promise.all([
+    countUsersSafe(),
+    countMyCasesByStatusSafe("YeuCau"),
+    countMyCasesByStatusSafe("LienHe"),
+    countMyCasesByStatusSafe("BienLai"),
+    countMyCasesByStatusSafe("DinhGia"),
+    countMyCasesByStatusSafe("KetQua"),
+    countMyCasesByStatusSafe("Complete"),
+    getOrdersInRangeSafe(fromISO, toISO),
+  ]);
+
+  // Tính doanh thu + gom theo ngày
+  let totalRevenue = 0;
+  const mapDaily = new Map<string, number>();
+  for (const o of orders) {
+    const amount = Number(o.total) || 0;
+    totalRevenue += amount;
+    const day = toISODate(new Date(o.createdAt));
+    mapDaily.set(day, (mapDaily.get(day) || 0) + amount);
   }
-}
 
-/** Lấy tổng số hồ sơ theo status bằng cách gọi pageSize=1 để đọc `total` */
-async function getCaseCountByStatus(
-  status?: ValStatus
-): Promise<number | null> {
-  // Sửa path này cho đúng endpoint admin list của bạn:
-  //  - Nếu list admin là `/api/cases` → giữ nguyên
-  //  - Nếu là `/api/cases/admin` → đổi path
-  const data = await safeGet<{
-    items: any[];
-    page: number;
-    pageSize: number;
-    total: number;
-  }>("/api/cases", { page: 1, pageSize: 1, status });
-
-  return data ? data.total : null;
-}
-
-/** Lấy N hồ sơ gần đây cho Recent Activity */
-async function getRecentCases(limit = 5) {
-  const data = await safeGet<{
-    items: Array<{
-      id: string;
-      status: string;
-      createdAt: string;
-      consultantName?: string | null;
-    }>;
-    total: number;
-  }>("/api/cases", { page: 1, pageSize: limit });
-
-  return data?.items ?? [];
-}
-
-/** API tổng hợp: GHÉP các call con phía trên */
-export async function loadAdminOverview(): Promise<AdminOverview | null> {
-  // nếu không có quyền (403) ở bất kỳ call nào → vẫn trả về phần còn chạy được
-  const [all, yeuCau, lienHe, bienLai, dinhGia, ketQua, complete, recent] =
-    await Promise.all([
-      getCaseCountByStatus(undefined),
-      getCaseCountByStatus("YeuCau"),
-      getCaseCountByStatus("LienHe"),
-      getCaseCountByStatus("BienLai"),
-      getCaseCountByStatus("DinhGia"),
-      getCaseCountByStatus("KetQua"),
-      getCaseCountByStatus("Complete"),
-      getRecentCases(5),
-    ]);
-
-  if (all == null) {
-    // Không gọi được list cases admin (thường là 403) → trả null để UI hiển thị thông báo
-    return null;
+  const daysList: Array<{ date: string; total: number }> = [];
+  for (
+    let d = new Date(from);
+    d.getTime() <= to.getTime();
+    d = new Date(d.getTime() + 86400000)
+  ) {
+    const k = toISODate(d);
+    daysList.push({ date: k, total: mapDaily.get(k) || 0 });
   }
 
   return {
-    totals: {
-      valuations: all,
+    users: { total: totalUsers },
+    valuations: {
+      total: yeuCau + lienHe + bienLai + dinhGia + ketQua + complete,
       byStatus: {
-        YeuCau: yeuCau ?? 0,
-        LienHe: lienHe ?? 0,
-        BienLai: bienLai ?? 0,
-        DinhGia: dinhGia ?? 0,
-        KetQua: ketQua ?? 0,
-        Complete: complete ?? 0,
+        YeuCau: yeuCau,
+        LienHe: lienHe,
+        BienLai: bienLai,
+        DinhGia: dinhGia,
+        KetQua: ketQua,
+        Complete: complete,
       },
     },
-    recentCases: recent,
+    orders: {
+      totalRevenue,
+      revenueDaily: daysList,
+    },
   };
 }

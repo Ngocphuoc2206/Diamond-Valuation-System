@@ -1,8 +1,110 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+
+import { AnimatePresence } from "framer-motion";
+import {
+  getCaseDetail,
+  type CaseDetail,
+  progressOf,
+  updateStatus,
+} from "../services/valuation";
+
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
 import { Link } from "react-router-dom";
+import {
+  listUnassignedCases,
+  listAssignedToMe,
+  claimCase,
+} from "../services/valuation";
+import { toast } from "react-toastify";
+import { createReceipt } from "../services/invoices";
+import ReceiptModal from "./StaffDashBoard/components/Modals/ReceiptModal";
+
+// ==========================HELPER===================================
+// Map tiến độ cho cả 2 kiểu status (FE cũ & BE mới)
+const progressByStatus = (s?: string) => {
+  switch ((s || "").toLowerCase()) {
+    // FE cũ
+    case "new_request":
+      return 10;
+    case "consultant_assigned":
+      return 20;
+    case "customer_contacted":
+      return 30;
+    case "receipt_created":
+      return 40;
+    case "valuation_assigned":
+      return 50;
+    case "valuation_in_progress":
+      return 70;
+    case "valuation_completed":
+      return 80;
+    case "consultant_review":
+      return 90;
+    case "results_sent":
+      return 95;
+    case "completed":
+      return 100;
+    // BE mới
+    case "yeucau":
+      return 10;
+    case "lienhe":
+      return 25;
+    case "bienlai":
+      return 40;
+    case "dinhgia":
+      return 65;
+    case "ketqua":
+      return 85;
+    case "complete":
+      return 100;
+    default:
+      return 10;
+  }
+};
+
+type ActionItem = {
+  key:
+    | "view_timeline"
+    | "send_to_valuation"
+    | "start_valuation"
+    | "finish_valuation"
+    | "send_results"
+    | "mark_complete";
+  label: string;
+  color: string;
+};
+
+const normalizeStatus = (s?: string): ValuationWorkflowStatus => {
+  const k = (s || "").toLowerCase();
+  switch (k) {
+    case "yeucau":
+      return "new_request";
+    case "lienhe":
+      return "customer_contacted";
+    case "bienlai":
+      return "receipt_created";
+    case "dinhgia":
+      return "valuation_in_progress";
+    case "ketqua":
+      return "valuation_completed";
+    case "complete":
+      return "completed";
+    default:
+      return (s as ValuationWorkflowStatus) || "new_request";
+  }
+};
+
+const priorityRank = (p?: string) =>
+  (({ urgent: 4, high: 3, normal: 2, low: 1 } as any)[p || "normal"] || 1);
+
+// Nếu getStatusInfo của bạn không cover hết, dùng default
+const defaultStatusInfo = (status?: string) => ({
+  label: status || "Unknown",
+  color: "bg-gray-100 text-gray-800",
+  icon: null,
+});
 
 // Enhanced workflow states for complete valuation process
 type ValuationWorkflowStatus =
@@ -59,180 +161,6 @@ interface ValuationRequest {
   }[];
 }
 
-// Mock comprehensive valuation requests with full workflow
-const mockValuationRequests: ValuationRequest[] = [
-  {
-    id: "VAL-2024-0123",
-    customerName: "John Doe",
-    customerEmail: "john.doe@email.com",
-    customerPhone: "+1-555-0123",
-    submittedDate: "2024-01-15",
-    status: "new_request",
-    priority: "high",
-    diamondType: "Round Brilliant Cut",
-    caratWeight: "2.5",
-    estimatedValue: "$15,000",
-    notes:
-      "Customer mentioned insurance claim urgency. Inherited diamond from grandmother.",
-    customerNotes:
-      "This is my grandmother's engagement ring. I need it appraised for insurance purposes.",
-    communicationLog: [
-      {
-        date: "2024-01-15",
-        type: "system",
-        from: "System",
-        message: "Valuation request submitted by customer",
-      },
-    ],
-    timeline: [
-      {
-        date: "2024-01-15",
-        status: "new_request",
-        user: "John Doe",
-        notes: "Initial request submitted",
-      },
-    ],
-  },
-  {
-    id: "VAL-2024-0124",
-    customerName: "Jane Smith",
-    customerEmail: "jane.smith@email.com",
-    customerPhone: "+1-555-0124",
-    submittedDate: "2024-01-16",
-    status: "customer_contacted",
-    priority: "normal",
-    diamondType: "Princess Cut",
-    caratWeight: "1.8",
-    estimatedValue: "$8,500",
-    assignedConsultant: "Sarah Johnson",
-    notes: "Standard appraisal request for engagement ring purchase",
-    customerNotes: "Recently purchased, need official valuation for insurance.",
-    consultantNotes:
-      "Customer contacted via phone. Appointment scheduled for diamond inspection.",
-    communicationLog: [
-      {
-        date: "2024-01-16",
-        type: "system",
-        from: "System",
-        message: "Valuation request submitted by customer",
-      },
-      {
-        date: "2024-01-16",
-        type: "phone",
-        from: "Sarah Johnson",
-        message:
-          "Initial contact made. Customer very responsive, appointment scheduled for Jan 18th.",
-      },
-    ],
-    timeline: [
-      {
-        date: "2024-01-16",
-        status: "new_request",
-        user: "Jane Smith",
-        notes: "Initial request submitted",
-      },
-      {
-        date: "2024-01-16",
-        status: "consultant_assigned",
-        user: "System",
-        notes: "Assigned to Sarah Johnson",
-      },
-      {
-        date: "2024-01-16",
-        status: "customer_contacted",
-        user: "Sarah Johnson",
-        notes: "Customer contacted successfully, appointment scheduled",
-      },
-    ],
-  },
-  {
-    id: "VAL-2024-0125",
-    customerName: "Robert Wilson",
-    customerEmail: "robert.w@email.com",
-    customerPhone: "+1-555-0125",
-    submittedDate: "2024-01-14",
-    status: "valuation_in_progress",
-    priority: "normal",
-    diamondType: "Emerald Cut",
-    caratWeight: "3.2",
-    estimatedValue: "$22,000",
-    assignedConsultant: "Mike Chen",
-    assignedValuer: "Dr. Emma Wilson",
-    receiptNumber: "RCP-2024-0125",
-    notes: "Complex vintage piece requiring expert analysis",
-    customerNotes: "Family heirloom from 1950s, very sentimental value.",
-    consultantNotes:
-      "Receipt created, diamond received and secured. Customer very knowledgeable about piece history.",
-    valuationNotes:
-      "Exceptional vintage cut with unique characteristics. Requires careful analysis of period cutting techniques.",
-    communicationLog: [
-      {
-        date: "2024-01-14",
-        type: "system",
-        from: "System",
-        message: "Valuation request submitted by customer",
-      },
-      {
-        date: "2024-01-14",
-        type: "email",
-        from: "Mike Chen",
-        message: "Initial contact email sent with process overview",
-      },
-      {
-        date: "2024-01-15",
-        type: "meeting",
-        from: "Mike Chen",
-        message:
-          "In-person consultation completed. Diamond received and receipt issued.",
-      },
-      {
-        date: "2024-01-16",
-        type: "system",
-        from: "Dr. Emma Wilson",
-        message: "Valuation process initiated. Initial examination completed.",
-      },
-    ],
-    timeline: [
-      {
-        date: "2024-01-14",
-        status: "new_request",
-        user: "Robert Wilson",
-        notes: "Initial request submitted",
-      },
-      {
-        date: "2024-01-14",
-        status: "consultant_assigned",
-        user: "System",
-        notes: "Assigned to Mike Chen",
-      },
-      {
-        date: "2024-01-14",
-        status: "customer_contacted",
-        user: "Mike Chen",
-        notes: "Customer contacted via email",
-      },
-      {
-        date: "2024-01-15",
-        status: "receipt_created",
-        user: "Mike Chen",
-        notes: "Diamond received, receipt RCP-2024-0125 created",
-      },
-      {
-        date: "2024-01-15",
-        status: "valuation_assigned",
-        user: "System",
-        notes: "Assigned to Dr. Emma Wilson for valuation",
-      },
-      {
-        date: "2024-01-16",
-        status: "valuation_in_progress",
-        user: "Dr. Emma Wilson",
-        notes: "Valuation process initiated",
-      },
-    ],
-  },
-];
-
 // Mock data for staff dashboard
 const staffStats = {
   assignedTasks: 12,
@@ -248,9 +176,341 @@ const StaffDashboard: React.FC = () => {
   const { user } = useAuth();
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState("tasks");
+  const [loading, setLoading] = useState(false);
+
   const [valuationRequests, setValuationRequests] = useState<
     ValuationRequest[]
-  >(mockValuationRequests);
+  >([]);
+  const [tasksLoading, setTasksLoading] = useState(false);
+  const [tasksPage, setTasksPage] = useState(1);
+  const [tasksPageSize, setTasksPageSize] = useState(10);
+  const [tasksTotal, setTasksTotal] = useState(0);
+
+  // Right detail drawer state
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
+  const [detail, setDetail] = useState<CaseDetail | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailError, setDetailError] = useState<string | null>(null);
+
+  // Contact Customer
+  const [isContactOpen, setIsContactOpen] = useState(false);
+  const [contactTarget, setContactTarget] = useState<any>(null);
+  const [contactForm, setContactForm] = useState({
+    method: "phone" as "phone" | "email" | "meeting",
+    when: new Date().toISOString().slice(0, 16), // yyyy-MM-ddTHH:mm
+    notes: "",
+  });
+
+  const [openReceipt, setOpenReceipt] = useState(false);
+  const [receiptCase, setReceiptCase] = useState<any>(null);
+  const [selectedCase, setSelectedCase] = useState<any>(null);
+
+  const onClickCreateReceipt = (req: any) => {
+    setSelectedCase(req);
+    setOpenReceipt(true);
+  };
+
+  // Trong component StaffDashboard
+  const [workingId, setWorkingId] = useState<string | null>(null);
+
+  function computeActions(req: any): ActionItem[] {
+    const actions: ActionItem[] = [];
+    const s = normalizeStatus(req?.status);
+
+    if (isConsultingStaff) {
+      if (s === "receipt_created") {
+        actions.push({
+          key: "send_to_valuation",
+          label: t("staff.sendToValuation") ?? "Gửi Sang Định Giá",
+          color: "bg-purple-600 text-white hover:bg-purple-700",
+        });
+      }
+      if (s === "valuation_completed") {
+        actions.push({
+          key: "mark_complete",
+          label: t("staff.markComplete") ?? "Đóng Hồ Sơ",
+          color: "bg-gray-800 text-white hover:bg-gray-900",
+        });
+      }
+    }
+
+    if (isValuationStaff) {
+      if (s === "receipt_created") {
+        actions.push({
+          key: "start_valuation",
+          label: t("staff.startValuation") ?? "Bắt Đầu Định Giá",
+          color: "bg-indigo-600 text-white hover:bg-indigo-700",
+        });
+      }
+      if (s === "valuation_in_progress") {
+        actions.push({
+          key: "finish_valuation",
+          label: t("staff.finishValuation") ?? "Hoàn Tất Định Giá",
+          color: "bg-emerald-600 text-white hover:bg-emerald-700",
+        });
+      }
+      if (s === "valuation_completed") {
+        actions.push({
+          key: "send_results",
+          label: t("staff.sendResults") ?? "Gửi Kết Quả",
+          color: "bg-cyan-600 text-white hover:bg-cyan-700",
+        });
+      }
+    }
+
+    actions.push({
+      key: "view_timeline",
+      label: t("staff.viewTimeline") ?? "View Timeline",
+      color: "bg-gray-100 hover:bg-gray-200",
+    });
+
+    return actions;
+  }
+
+  const openCreateReceipt = (requestId: string) => {
+    const req =
+      selectedRequest?.id === requestId
+        ? selectedRequest
+        : (valuationRequests ?? []).find((x: any) => x.id === requestId);
+    if (!req) return;
+    setReceiptCase(req);
+    setOpenReceipt(true);
+  };
+
+  async function reloadMyTasks(opts?: {
+    page?: number;
+    pageSize?: number;
+    status?: string;
+  }) {
+    const page = opts?.page ?? tasksPage;
+    const pageSize = opts?.pageSize ?? tasksPageSize;
+    const status = opts?.status;
+
+    setTasksLoading(true);
+    try {
+      const res = await listAssignedToMe({ page, pageSize, status });
+      // res.items từ BE: { id, status, progress, assigneeName, estimatedValue, createdAt }
+      const mapped = (res.items || []).map((x: any) => {
+        const st = normalizeStatus(x.status);
+        return {
+          id: x.id,
+          status: st,
+          progress:
+            typeof x.progress === "number" ? x.progress : progressOf(st),
+          assigneeName: x.assigneeName ?? null,
+          estimatedValue: x.estimatedValue ?? null,
+          createdAt: x.createdAt,
+          updatedAt: x.updatedAt ?? null,
+
+          // Các field UI đang dùng ở tab "tasks" (fallback nếu BE chưa trả)
+          priority: "normal", // tạm thời, khi BE có priority thì map lại
+          notes: "",
+          timeline: [],
+          contact: null,
+          diamond: null,
+        };
+      });
+
+      setValuationRequests(mapped);
+      setTasksPage(page);
+      setTasksPageSize(pageSize);
+      setTasksTotal(res.total ?? mapped.length);
+    } catch (err) {
+      console.error("reloadMyTasks failed:", err);
+      // TODO: nếu bạn có toast, bật ở đây
+      // toast.error(t("common.loadFailed") ?? "Tải danh sách nhiệm vụ thất bại");
+    } finally {
+      setTasksLoading(false);
+    }
+  }
+
+  function openContactModal(req: any) {
+    setContactTarget(req);
+    setContactForm({
+      method: "phone",
+      when: new Date().toISOString().slice(0, 16),
+      notes: "",
+    });
+    setIsContactOpen(true);
+  }
+
+  function closeContactModal() {
+    setIsContactOpen(false);
+    setContactTarget(null);
+  }
+
+  const GUID_RE =
+    /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+
+  const toNum = (v: any, def = 0) => {
+    if (v === null || v === undefined) return def;
+    const n = typeof v === "string" ? Number(v.replace(",", ".")) : Number(v);
+    return Number.isFinite(n) ? n : def;
+  };
+
+  async function handleCreateReceipt(
+    req: any,
+    form: {
+      receiptDate: string;
+      appraiserId: string;
+      estimatedValue: number;
+      notes?: string;
+      customerId?: string;
+      customerName?: string;
+      customerEmail?: string;
+      customerPhone?: string;
+      customerAddress?: string;
+    }
+  ) {
+    try {
+      setLoading(true);
+      // map Diamond từ case
+      const d = req?.diamond ?? {};
+      const shapeCut = d.type ?? d.shape ?? req?.diamondType ?? "Unknown";
+      const caratWeight = toNum(
+        d.carat ?? req?.caratWeight ?? req?.diamond?.Carat,
+        0
+      );
+      if (caratWeight <= 0) {
+        toast.error("Carat phải > 0.");
+        return;
+      }
+
+      // map Bill To từ form (đã prefill bằng case)
+      const payload = {
+        receiptDate: form.receiptDate,
+        appraiserId: user?.id || 0,
+        estimatedValue: toNum(form.estimatedValue ?? req?.estimatedValue, 0),
+        diamond: {
+          shapeCut,
+          caratWeight,
+          colorGrade: d.color ?? undefined,
+          clarityGrade: d.clarity ?? undefined,
+          cutGrade: d.cut ?? undefined,
+        },
+        notes: form?.notes || req?.notes || undefined,
+
+        // Bill To + linkage
+        caseId: req?.id,
+        customerId:
+          form?.customerId != null ? String(form?.customerId) : undefined,
+        customerName: form?.customerName || undefined,
+        customerEmail: form?.customerEmail || undefined,
+        customerPhone: form?.customerPhone || undefined,
+        customerAddress: form?.customerAddress || undefined,
+      };
+
+      const created = await createReceipt(payload);
+
+      // đổi status case sang bước tiếp theo (ví dụ "BienLai")
+      try {
+        await updateStatus(req.id, "BienLai");
+      } catch {
+        notify("Đổi trạng thái hồ sơ thất bại (biên nhận vẫn đã tạo).");
+      }
+
+      toast.success(`Đã tạo biên nhận #${created.receiptNo}`);
+
+      // điều hướng tới trang chi tiết biên nhận
+      // navigate(`/dashboard/staff/receipts/${created.id}`);
+    } catch (e: any) {
+      const prob = e?.response?.data; // ValidationProblemDetails
+      const errs = prob?.errors as Record<string, string[]> | undefined;
+      if (errs) {
+        // gom lỗi cho dễ đọc
+        const lines = Object.entries(errs).map(
+          ([k, v]) => `${k}: ${v.join("; ")}`
+        );
+        console.error("Validation errors:\n" + lines.join("\n"));
+        toast.error(lines.join(" | "));
+      } else {
+        console.error(prob);
+        toast.error(prob?.title || "Bad Request (400)");
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleSendToValuation(caseId: string) {
+    try {
+      setWorkingId(caseId);
+      await updateStatus(caseId, "valuation_assigned"); // map -> "DinhGia"
+      await reloadMyTasks();
+    } finally {
+      setWorkingId(null);
+    }
+  }
+
+  async function submitContact() {
+    if (!contactTarget) return;
+    try {
+      // Gọi BE đổi trạng thái → LienHe
+      await updateStatus(contactTarget.id, "customer_contacted");
+
+      // Cập nhật lại ngay trên UI
+      setValuationRequests((prev) =>
+        prev.map((r) =>
+          r.id === contactTarget.id
+            ? {
+                ...r,
+                status: "customer_contacted",
+                progress: progressByStatus("customer_contacted"),
+                timeline: [
+                  ...(Array.isArray(r.timeline) ? r.timeline : []),
+                  {
+                    date: new Date().toISOString(),
+                    status: "customer_contacted",
+                    user: user?.name || "Current User",
+                    notes: `Contact via ${contactForm.method}`,
+                  },
+                ],
+                communicationLog: [
+                  ...(Array.isArray(r.communicationLog)
+                    ? r.communicationLog
+                    : []),
+                  {
+                    date: new Date().toISOString(),
+                    type: contactForm.method as any,
+                    from: user?.name || "Current User",
+                    message: contactForm.notes || "Contacted customer",
+                  },
+                ],
+              }
+            : r
+        )
+      );
+      notify("Đã cập nhật trạng thái: Đã liên hệ khách hàng");
+      closeContactModal();
+    } catch (e) {
+      notify("Cập nhật trạng thái thất bại");
+    }
+  }
+
+  const openCaseDetail = (id: string) => {
+    setSelectedCaseId(id);
+    setDetail(null);
+    setDetailError(null);
+    setDetailLoading(true);
+    setIsDetailOpen(true);
+
+    getCaseDetail(id)
+      .then((d) => setDetail(d))
+      .catch((err: any) => {
+        const msg = err?.response?.data ?? err?.message ?? "Failed to load";
+        setDetailError(typeof msg === "string" ? msg : JSON.stringify(msg));
+      })
+      .finally(() => setDetailLoading(false));
+  };
+
+  const closeCaseDetail = () => {
+    setIsDetailOpen(false);
+    setSelectedCaseId(null);
+    setDetail(null);
+    setDetailError(null);
+  };
+
   const [selectedValuation, setSelectedValuation] =
     useState<ValuationRequest | null>(null);
   const [selectedRequest, setSelectedRequest] =
@@ -267,40 +527,49 @@ const StaffDashboard: React.FC = () => {
     setTimeout(() => setShowNotification(""), 3000);
   };
 
+  useEffect(() => {
+    let ignore = false;
+    const load = async () => {
+      try {
+        if (activeTab === "tasks") {
+          const res = await listAssignedToMe({ page: 1, pageSize: 10 });
+          console.log("Task: ", res);
+          if (!ignore) setValuationRequests(res.items);
+        } else if (activeTab === "queue") {
+          const res = await listUnassignedCases({ page: 1, pageSize: 10 });
+          console.log("Queue", res);
+          if (!ignore) setValuationRequests(res.items);
+        }
+      } catch {
+        // nếu bạn dùng notify/toast, có thể báo lỗi ở đây
+      }
+    };
+    load();
+    return () => {
+      ignore = true;
+    };
+  }, [activeTab]);
+
   // Handler functions for workflow actions
-  const handleAssignToMe = (requestId: string) => {
-    setValuationRequests((prev) =>
-      prev.map((request) =>
-        request.id === requestId
-          ? {
-              ...request,
-              status: "consultant_assigned" as ValuationWorkflowStatus,
-              assignedConsultant: user?.name || "Current User",
-              timeline: [
-                ...request.timeline,
-                {
-                  date: new Date().toISOString().split("T")[0],
-                  status: "consultant_assigned" as ValuationWorkflowStatus,
-                  user: user?.name || "Current User",
-                  notes: "Request assigned to consultant",
-                },
-              ],
-              communicationLog: [
-                ...request.communicationLog,
-                {
-                  date: new Date().toISOString().split("T")[0],
-                  type: "system" as const,
-                  from: "System",
-                  message: `Request assigned to ${
-                    user?.name || "Current User"
-                  }`,
-                },
-              ],
-            }
-          : request
-      )
-    );
-    notify("Request assigned successfully!");
+  const handleAssignToMe = async (requestId: string) => {
+    try {
+      await claimCase(requestId); // <-- gọi BE
+      notify("Nhận case thành công!");
+      // refresh lại danh sách tab hiện tại
+      if (activeTab === "queue") {
+        const res = await listUnassignedCases({ page: 1, pageSize: 10 });
+        setValuationRequests(res.items);
+      } else {
+        const res = await listAssignedToMe({ page: 1, pageSize: 10 });
+        setValuationRequests(res.items);
+      }
+    } catch (e: any) {
+      if (e?.response?.status === 409) {
+        notify("Case đã có người khác nhận trước.");
+      } else {
+        notify("Nhận case thất bại.");
+      }
+    }
   };
 
   const handleMarkAsContacted = (requestId: string) => {
@@ -335,42 +604,40 @@ const StaffDashboard: React.FC = () => {
     );
     notify("Customer contact status updated!");
   };
-
-  const handleCreateReceipt = (requestId: string) => {
-    const receiptNumber = `RCP-${new Date().getFullYear()}-${
-      requestId.split("-")[2]
-    }`;
-    setValuationRequests((prev) =>
-      prev.map((request) =>
-        request.id === requestId
-          ? {
-              ...request,
-              status: "receipt_created" as ValuationWorkflowStatus,
-              receiptNumber,
-              timeline: [
-                ...request.timeline,
-                {
-                  date: new Date().toISOString().split("T")[0],
-                  status: "receipt_created" as ValuationWorkflowStatus,
-                  user: user?.name || "Current User",
-                  notes: `Receipt created: ${receiptNumber}`,
-                },
-              ],
-              communicationLog: [
-                ...request.communicationLog,
-                {
-                  date: new Date().toISOString().split("T")[0],
-                  type: "system" as const,
-                  from: "System",
-                  message: `Valuation receipt ${receiptNumber} created and diamond received`,
-                },
-              ],
-            }
-          : request
-      )
-    );
-    notify(`Receipt ${receiptNumber} created successfully!`);
-  };
+  //   const receiptNumber = `RCP-${new Date().getFullYear()}-${
+  //     requestId.split("-")[2]
+  //   }`;
+  //   setValuationRequests((prev) =>
+  //     prev.map((request) =>
+  //       request.id === requestId
+  //         ? {
+  //             ...request,
+  //             status: "receipt_created" as ValuationWorkflowStatus,
+  //             receiptNumber,
+  //             timeline: [
+  //               ...request.timeline,
+  //               {
+  //                 date: new Date().toISOString().split("T")[0],
+  //                 status: "receipt_created" as ValuationWorkflowStatus,
+  //                 user: user?.name || "Current User",
+  //                 notes: `Receipt created: ${receiptNumber}`,
+  //               },
+  //             ],
+  //             communicationLog: [
+  //               ...request.communicationLog,
+  //               {
+  //                 date: new Date().toISOString().split("T")[0],
+  //                 type: "system" as const,
+  //                 from: "System",
+  //                 message: `Valuation receipt ${receiptNumber} created and diamond received`,
+  //               },
+  //             ],
+  //           }
+  //         : request
+  //     )
+  //   );
+  //   notify(`Receipt ${receiptNumber} created successfully!`);
+  // };
 
   const handleStartValuation = (requestId: string) => {
     setValuationRequests((prev) =>
@@ -379,6 +646,7 @@ const StaffDashboard: React.FC = () => {
           ? {
               ...request,
               status: "valuation_in_progress" as ValuationWorkflowStatus,
+              progress: progressByStatus("valuation_in_progress"),
               assignedValuer: user?.name || "Current User",
               timeline: [
                 ...request.timeline,
@@ -414,6 +682,7 @@ const StaffDashboard: React.FC = () => {
           ? {
               ...request,
               status: "valuation_completed" as ValuationWorkflowStatus,
+              progress: progressByStatus("valuation_completed"),
               timeline: [
                 ...request.timeline,
                 {
@@ -682,6 +951,7 @@ const StaffDashboard: React.FC = () => {
           });
           break;
         case "customer_contacted":
+          // openContactModal(request);
           actions.push({
             action: "create_receipt",
             label: "Create Receipt",
@@ -981,9 +1251,87 @@ const StaffDashboard: React.FC = () => {
                     {t("staff.myValuationWorkflow")}
                   </h3>
                   <div className="space-y-4">
-                    {getMyRequests().map((request) => {
-                      const statusInfo = getStatusInfo(request.status);
-                      const actions = getAvailableActions(request);
+                    {(valuationRequests ?? []).map((request: any) => {
+                      // ====== SAFE FALLBACKS ======
+                      const status = request?.status ?? "YeuCau";
+                      const statusInfo =
+                        typeof getStatusInfo === "function"
+                          ? getStatusInfo(status) || defaultStatusInfo(status)
+                          : defaultStatusInfo(status);
+
+                      const timeline: any[] = Array.isArray(request?.timeline)
+                        ? request.timeline
+                        : [];
+                      const lastUpdated =
+                        request?.updatedAt ??
+                        (timeline.length > 0
+                          ? timeline[timeline.length - 1]?.date
+                          : undefined) ??
+                        request?.createdAt ??
+                        "-";
+
+                      const priority = request?.priority ?? "normal";
+                      const progress =
+                        Number.isFinite(request?.progress) &&
+                        request?.progress !== null
+                          ? Number(request.progress)
+                          : progressByStatus(status);
+
+                      // Thông tin liên hệ + kim cương (BE mới không có -> fallback từ contact/diamond)
+                      const customerName =
+                        request?.customerName ??
+                        request?.contact?.fullName ??
+                        "—";
+                      const customerEmail =
+                        request?.customerEmail ??
+                        request?.contact?.email ??
+                        "—";
+                      const customerPhone =
+                        request?.customerPhone ??
+                        request?.contact?.phone ??
+                        "—";
+                      const submittedDate =
+                        request?.submittedDate ?? request?.createdAt ?? "—";
+
+                      const diamondType =
+                        request?.diamondType ??
+                        request?.diamond?.Origin ??
+                        request?.diamond?.type ??
+                        "—";
+                      const caratWeight =
+                        request?.caratWeight ??
+                        request?.diamond?.Carat ??
+                        request?.diamond?.carat ??
+                        "—";
+
+                      const estValue = request?.estimatedValue ?? "—";
+                      const receiptNumber = request?.receiptNumber;
+
+                      // Người phụ trách (BE mới: assigneeName)
+                      const assignedConsultant =
+                        request?.assignedConsultant ??
+                        request?.assigneeName ??
+                        null;
+                      const assignedValuer = request?.assignedValuer ?? null;
+
+                      const latestNotes =
+                        request?.valuationNotes ??
+                        request?.consultantNotes ??
+                        request?.notes;
+
+                      // Actions có thể undefined
+                      // const actions = (getAvailableActions?.(request) ??
+                      //   []) as Array<{
+                      //   action: string;
+                      //   label: string;
+                      //   color: string;
+                      // }>;
+                      const actions = computeActions(request);
+                      const statusNorm = normalizeStatus(status);
+                      const canContact = statusNorm === "new_request"; // chỉ khi mới nhận yêu cầu
+                      const canCreateReceipt =
+                        statusNorm === "customer_contacted" &&
+                        !request?.receiptNumber;
 
                       return (
                         <div
@@ -1003,32 +1351,82 @@ const StaffDashboard: React.FC = () => {
                               </span>
                               <span
                                 className={`px-2 py-1 rounded text-xs font-medium ${
-                                  request.priority === "urgent"
+                                  priority === "urgent"
                                     ? "bg-red-100 text-red-800"
-                                    : request.priority === "high"
+                                    : priority === "high"
                                     ? "bg-orange-100 text-orange-800"
-                                    : request.priority === "normal"
+                                    : priority === "normal"
                                     ? "bg-blue-100 text-blue-800"
                                     : "bg-gray-100 text-gray-800"
                                 }`}
                               >
-                                {request.priority} priority
+                                {priority} priority
                               </span>
                             </div>
+
                             <div className="flex space-x-2">
-                              {actions.map((action, index) => (
+                              {/* View detail (drawer/modal) */}
+                              <button
+                                onClick={() => openCaseDetail(request.id)}
+                                className="btn bg-luxury-navy text-white text-sm"
+                              >
+                                {t("common.viewDetail") ?? "View Details"}
+                              </button>
+
+                              {/* Liên hệ khách hàng (chỉ khi YeuCau) */}
+                              {canContact && (
                                 <button
-                                  key={index}
+                                  onClick={() =>
+                                    openContactModal({
+                                      id: request.id,
+                                      fullName: customerName,
+                                      email: customerEmail,
+                                      phone: customerPhone,
+                                      status: statusNorm,
+                                    })
+                                  }
+                                  className="btn bg-green-600 text-white text-sm"
+                                >
+                                  {t("staff.contactCustomer") ??
+                                    "Contact Customer"}
+                                </button>
+                              )}
+
+                              {/* Tạo phiếu nhận (chỉ khi LienHe & chưa có receipt) */}
+                              {canCreateReceipt && (
+                                <button
                                   onClick={() => {
-                                    if (action.action === "view_timeline") {
+                                    setSelectedCase(request);
+                                    setOpenReceipt(true);
+                                  }}
+                                  disabled={loading}
+                                  className={`btn bg-emerald-600 text-white text-sm ${
+                                    loading
+                                      ? "opacity-50 cursor-not-allowed"
+                                      : ""
+                                  }`}
+                                >
+                                  {loading
+                                    ? "Đang tạo..."
+                                    : t("staff.createReceipt") ??
+                                      "Tạo Phiếu Nhận"}
+                                </button>
+                              )}
+
+                              {/* Các action khác giữ nguyên logic cũ */}
+                              {(actions || []).map((action: ActionItem) => (
+                                <button
+                                  key={action.key}
+                                  onClick={() => {
+                                    if (action.key === "view_timeline") {
                                       setSelectedValuation(request);
                                       setModalType("timeline");
                                       setIsModalOpen(true);
                                     } else {
                                       handleWorkflowAction(
                                         request.id,
-                                        action.action
-                                      );
+                                        action.key
+                                      ); // <-- dùng key
                                     }
                                   }}
                                   className={`btn ${action.color} text-sm`}
@@ -1037,6 +1435,20 @@ const StaffDashboard: React.FC = () => {
                                 </button>
                               ))}
                             </div>
+                            <ReceiptModal
+                              isOpen={openReceipt}
+                              request={selectedCase}
+                              defaultAppraiserId={(user as any)?.id}
+                              onCancel={() => {
+                                setOpenReceipt(false);
+                                setSelectedCase(null);
+                              }}
+                              onSubmit={async (form: any) => {
+                                await handleCreateReceipt(selectedCase, form);
+                                setOpenReceipt(false);
+                                setSelectedCase(null);
+                              }}
+                            />
                           </div>
 
                           <div className="grid md:grid-cols-2 gap-4 text-sm">
@@ -1045,25 +1457,25 @@ const StaffDashboard: React.FC = () => {
                                 <span className="font-medium">
                                   {t("staff.customer")}:
                                 </span>{" "}
-                                {request.customerName}
+                                {customerName}
                               </p>
                               <p>
                                 <span className="font-medium">
                                   {t("staff.email")}:
                                 </span>{" "}
-                                {request.customerEmail}
+                                {customerEmail}
                               </p>
                               <p>
                                 <span className="font-medium">
                                   {t("staff.phone")}:
                                 </span>{" "}
-                                {request.customerPhone}
+                                {customerPhone}
                               </p>
                               <p>
                                 <span className="font-medium">
                                   {t("staff.submitted")}:
                                 </span>{" "}
-                                {request.submittedDate}
+                                {submittedDate}
                               </p>
                             </div>
                             <div>
@@ -1071,26 +1483,26 @@ const StaffDashboard: React.FC = () => {
                                 <span className="font-medium">
                                   {t("staff.type")}:
                                 </span>{" "}
-                                {request.diamondType}
+                                {diamondType}
                               </p>
                               <p>
                                 <span className="font-medium">
                                   {t("staff.carat")}:
                                 </span>{" "}
-                                {request.caratWeight}ct
+                                {caratWeight}ct
                               </p>
                               <p>
                                 <span className="font-medium">
                                   {t("staff.estValue")}:
                                 </span>{" "}
-                                {request.estimatedValue}
+                                {estValue}
                               </p>
-                              {request.receiptNumber && (
+                              {receiptNumber && (
                                 <p>
                                   <span className="font-medium">
                                     {t("staff.receipt")}:
                                   </span>{" "}
-                                  {request.receiptNumber}
+                                  {receiptNumber}
                                 </p>
                               )}
                             </div>
@@ -1109,70 +1521,38 @@ const StaffDashboard: React.FC = () => {
                             <div className="w-full bg-gray-200 rounded-full h-2">
                               <div
                                 className="bg-luxury-gold h-2 rounded-full transition-all duration-300"
-                                style={{
-                                  width: `${
-                                    request.status === "new_request"
-                                      ? 10
-                                      : request.status === "consultant_assigned"
-                                      ? 20
-                                      : request.status === "customer_contacted"
-                                      ? 30
-                                      : request.status === "receipt_created"
-                                      ? 40
-                                      : request.status === "valuation_assigned"
-                                      ? 50
-                                      : request.status ===
-                                        "valuation_in_progress"
-                                      ? 70
-                                      : request.status === "valuation_completed"
-                                      ? 80
-                                      : request.status === "consultant_review"
-                                      ? 90
-                                      : request.status === "results_sent"
-                                      ? 95
-                                      : request.status === "completed"
-                                      ? 100
-                                      : 10
-                                  }%`,
-                                }}
-                              ></div>
+                                style={{ width: `${progress}%` }}
+                              />
                             </div>
                           </div>
 
                           {/* Current Assignment */}
                           <div className="mt-3 flex items-center justify-between">
                             <div className="text-sm">
-                              {request.assignedConsultant && (
+                              {assignedConsultant && (
                                 <span className="text-blue-600">
-                                  👤 Consultant: {request.assignedConsultant}
+                                  👤 Consultant: {assignedConsultant}
                                 </span>
                               )}
-                              {request.assignedValuer && (
+                              {assignedValuer && (
                                 <span className="text-purple-600 ml-4">
-                                  💎 Valuer: {request.assignedValuer}
+                                  💎 Valuer: {assignedValuer}
                                 </span>
                               )}
                             </div>
                             <div className="text-xs text-gray-500">
-                              Last updated:{" "}
-                              {
-                                request.timeline[request.timeline.length - 1]
-                                  ?.date
-                              }
+                              Last updated: {lastUpdated}
                             </div>
                           </div>
 
                           {/* Latest Notes */}
-                          {(request.consultantNotes ||
-                            request.valuationNotes) && (
+                          {latestNotes && (
                             <div className="mt-3 p-3 bg-gray-50 rounded">
                               <p className="text-sm">
                                 <span className="font-medium">
                                   {t("staff.latestNotes")}:
-                                </span>
-                                {request.valuationNotes ||
-                                  request.consultantNotes ||
-                                  request.notes}
+                                </span>{" "}
+                                {latestNotes}
                               </p>
                             </div>
                           )}
@@ -1207,8 +1587,8 @@ const StaffDashboard: React.FC = () => {
                           </p>
                           <p className="text-2xl font-bold text-red-900">
                             {
-                              valuationRequests.filter(
-                                (r) => r.priority === "urgent"
+                              (valuationRequests ?? []).filter(
+                                (r) => (r?.priority ?? "normal") === "urgent"
                               ).length
                             }
                           </p>
@@ -1224,8 +1604,8 @@ const StaffDashboard: React.FC = () => {
                           </p>
                           <p className="text-2xl font-bold text-orange-900">
                             {
-                              valuationRequests.filter(
-                                (r) => r.priority === "high"
+                              (valuationRequests ?? []).filter(
+                                (r) => (r?.priority ?? "normal") === "high"
                               ).length
                             }
                           </p>
@@ -1241,8 +1621,8 @@ const StaffDashboard: React.FC = () => {
                           </p>
                           <p className="text-2xl font-bold text-yellow-900">
                             {
-                              valuationRequests.filter(
-                                (r) => r.priority === "normal"
+                              (valuationRequests ?? []).filter(
+                                (r) => (r?.priority ?? "normal") === "normal"
                               ).length
                             }
                           </p>
@@ -1258,8 +1638,8 @@ const StaffDashboard: React.FC = () => {
                           </p>
                           <p className="text-2xl font-bold text-green-900">
                             {
-                              valuationRequests.filter(
-                                (r) => r.priority === "low"
+                              (valuationRequests ?? []).filter(
+                                (r) => (r?.priority ?? "normal") === "low"
                               ).length
                             }
                           </p>
@@ -1269,7 +1649,7 @@ const StaffDashboard: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Queue Filters */}
+                  {/* Queue Filters (giữ nguyên UI – chưa áp dụng filter thực tế) */}
                   <div className="flex flex-wrap gap-3 mb-6">
                     <select className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-luxury-gold">
                       <option>All Statuses</option>
@@ -1296,9 +1676,10 @@ const StaffDashboard: React.FC = () => {
 
                   {/* Work Queue List */}
                   <div className="space-y-4">
-                    {mockValuationRequests
-                      .filter((request) => {
-                        // Filter based on role
+                    {(valuationRequests ?? [])
+                      // Lọc theo vai trò bằng status đã chuẩn hoá
+                      .filter((req: any) => {
+                        const s = normalizeStatus(req?.status);
                         if (isConsultingStaff) {
                           return [
                             "new_request",
@@ -1306,41 +1687,37 @@ const StaffDashboard: React.FC = () => {
                             "customer_contacted",
                             "consultant_review",
                             "results_sent",
-                          ].includes(request.status);
+                          ].includes(s);
                         }
                         if (isValuationStaff) {
                           return [
                             "valuation_assigned",
                             "valuation_in_progress",
                             "valuation_completed",
-                          ].includes(request.status);
+                          ].includes(s);
                         }
                         return true;
                       })
-                      .sort((a, b) => {
-                        // Sort by priority and date
-                        const priorityOrder = {
-                          urgent: 4,
-                          high: 3,
-                          normal: 2,
-                          low: 1,
-                        };
-                        if (
-                          priorityOrder[a.priority] !==
-                          priorityOrder[b.priority]
-                        ) {
-                          return (
-                            priorityOrder[b.priority] -
-                            priorityOrder[a.priority]
-                          );
-                        }
-                        return (
-                          new Date(a.submittedDate).getTime() -
-                          new Date(b.submittedDate).getTime()
-                        );
+                      // Sắp xếp theo priority + ngày
+                      .sort((a: any, b: any) => {
+                        const pr =
+                          priorityRank(b?.priority) - priorityRank(a?.priority);
+                        if (pr !== 0) return pr;
+                        const da = new Date(
+                          a?.submittedDate ?? a?.createdAt ?? 0
+                        ).getTime();
+                        const db = new Date(
+                          b?.submittedDate ?? b?.createdAt ?? 0
+                        ).getTime();
+                        return da - db;
                       })
-                      .map((request) => {
-                        const statusColors = {
+                      .map((request: any) => {
+                        const statusNorm = normalizeStatus(request?.status);
+                        const canContact = statusNorm === "new_request"; // chỉ khi mới nhận yêu cầu
+                        const canCreateReceipt =
+                          statusNorm === "customer_contacted" &&
+                          !request?.receiptNumber;
+                        const statusColors: any = {
                           new_request: "bg-blue-100 text-blue-800",
                           consultant_assigned: "bg-indigo-100 text-indigo-800",
                           customer_contacted: "bg-green-100 text-green-800",
@@ -1356,13 +1733,37 @@ const StaffDashboard: React.FC = () => {
                           on_hold: "bg-red-100 text-red-800",
                           cancelled: "bg-red-200 text-red-900",
                         };
-
-                        const priorityColors = {
+                        const priorityColors: any = {
                           urgent: "bg-red-500 text-white",
                           high: "bg-orange-500 text-white",
                           normal: "bg-blue-500 text-white",
                           low: "bg-gray-500 text-white",
                         };
+
+                        const customerName =
+                          request?.customerName ??
+                          request?.contact?.fullName ??
+                          "—";
+                        const customerPhone =
+                          request?.customerPhone ??
+                          request?.contact?.phone ??
+                          "—";
+                        const diamondType =
+                          request?.diamondType ?? request?.diamond?.type ?? "—";
+                        const caratWeight =
+                          request?.caratWeight ??
+                          request?.diamond?.carat ??
+                          "—";
+                        const estValue = request?.estimatedValue ?? "—";
+                        const submittedISO =
+                          request?.submittedDate ?? request?.createdAt ?? "";
+                        const submittedLbl = submittedISO
+                          ? new Date(submittedISO).toLocaleDateString()
+                          : "—";
+
+                        const timeline: any[] = Array.isArray(request?.timeline)
+                          ? request.timeline
+                          : [];
 
                         return (
                           <div
@@ -1377,18 +1778,20 @@ const StaffDashboard: React.FC = () => {
                                   </h4>
                                   <span
                                     className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                      priorityColors[request.priority]
+                                      priorityColors[
+                                        request?.priority ?? "normal"
+                                      ]
                                     }`}
                                   >
-                                    {request.priority.toUpperCase()}
+                                    {(
+                                      request?.priority ?? "normal"
+                                    ).toUpperCase()}
                                   </span>
                                   <span
-                                    className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                      statusColors[request.status]
-                                    }`}
+                                    className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[statusNorm]}`}
                                   >
                                     {(() => {
-                                      const statusMap = {
+                                      const m: any = {
                                         new_request: t(
                                           "staff.status.newRequest"
                                         ),
@@ -1420,45 +1823,43 @@ const StaffDashboard: React.FC = () => {
                                         on_hold: t("staff.status.onHold"),
                                         cancelled: t("staff.status.cancelled"),
                                       };
-                                      return (
-                                        statusMap[request.status] ||
-                                        request.status
-                                      );
+                                      return m[statusNorm] ?? statusNorm;
                                     })()}
                                   </span>
                                 </div>
+
                                 <p className="text-gray-600 mb-2">
                                   <span className="font-medium">
-                                    {request.customerName}
+                                    {customerName}
                                   </span>{" "}
-                                  • {request.customerPhone}
+                                  • {customerPhone}
                                 </p>
                                 <p className="text-sm text-gray-500 mb-3">
-                                  {request.diamondType} • {request.caratWeight}{" "}
-                                  carats • Est. {request.estimatedValue}
+                                  {diamondType} • {caratWeight} carats • Est.{" "}
+                                  {estValue}
                                 </p>
-                                <p className="text-sm text-gray-700">
-                                  {request.notes}
-                                </p>
+                                {request?.notes && (
+                                  <p className="text-sm text-gray-700">
+                                    {request.notes}
+                                  </p>
+                                )}
                               </div>
+
                               <div className="text-right">
                                 <p className="text-sm text-gray-500 mb-2">
                                   Submitted
                                 </p>
-                                <p className="font-medium">
-                                  {new Date(
-                                    request.submittedDate
-                                  ).toLocaleDateString()}
-                                </p>
+                                <p className="font-medium">{submittedLbl}</p>
                                 <div className="mt-3 space-x-2">
                                   <button
-                                    onClick={() => setSelectedRequest(request)}
+                                    onClick={() => openCaseDetail(request.id)}
                                     className="px-4 py-2 bg-luxury-gold text-white rounded hover:bg-opacity-80 transition-colors text-sm"
                                   >
-                                    View Details
+                                    {t("common.viewDetail") ?? "View Details"}
                                   </button>
+
                                   {isConsultingStaff &&
-                                    request.status === "new_request" && (
+                                    statusNorm === "new_request" && (
                                       <button
                                         onClick={() =>
                                           handleAssignToMe(request.id)
@@ -1468,8 +1869,9 @@ const StaffDashboard: React.FC = () => {
                                         Assign to Me
                                       </button>
                                     )}
+
                                   {isValuationStaff &&
-                                    request.status === "valuation_assigned" && (
+                                    statusNorm === "valuation_assigned" && (
                                       <button
                                         onClick={() =>
                                           handleStartValuation(request.id)
@@ -1483,23 +1885,14 @@ const StaffDashboard: React.FC = () => {
                               </div>
                             </div>
 
-                            {/* Timeline Preview */}
-                            {request.timeline.length > 0 && (
+                            {/* Timeline Preview (safe) */}
+                            {timeline.length > 0 && (
                               <div className="mt-4 pt-4 border-t border-gray-200">
                                 <div className="flex items-center space-x-4 text-sm text-gray-600">
                                   <span>Last update:</span>
                                   <span className="font-medium">
-                                    {
-                                      request.timeline[
-                                        request.timeline.length - 1
-                                      ].date
-                                    }{" "}
-                                    -{" "}
-                                    {
-                                      request.timeline[
-                                        request.timeline.length - 1
-                                      ].notes
-                                    }
+                                    {timeline[timeline.length - 1]?.date} -{" "}
+                                    {timeline[timeline.length - 1]?.notes}
                                   </span>
                                 </div>
                               </div>
@@ -1510,7 +1903,8 @@ const StaffDashboard: React.FC = () => {
                   </div>
 
                   {/* Empty State */}
-                  {valuationRequests.filter((request) => {
+                  {(valuationRequests ?? []).filter((req: any) => {
+                    const s = normalizeStatus(req?.status);
                     if (isConsultingStaff) {
                       return [
                         "new_request",
@@ -1518,14 +1912,14 @@ const StaffDashboard: React.FC = () => {
                         "customer_contacted",
                         "consultant_review",
                         "results_sent",
-                      ].includes(request.status);
+                      ].includes(s);
                     }
                     if (isValuationStaff) {
                       return [
                         "valuation_assigned",
                         "valuation_in_progress",
                         "valuation_completed",
-                      ].includes(request.status);
+                      ].includes(s);
                     }
                     return true;
                   }).length === 0 && (
@@ -2853,6 +3247,11 @@ const StaffDashboard: React.FC = () => {
                 </div>
               </div>
             )}
+            {loading && (
+              <div className="fixed inset-0 z-[60] bg-white/50 backdrop-blur-[1px] flex items-center justify-center">
+                <div className="animate-spin h-8 w-8 border-2 border-gray-300 border-t-transparent rounded-full" />
+              </div>
+            )}
 
             {/* Valuation Completion Modal */}
             {modalType === "valuation" && (
@@ -3138,6 +3537,294 @@ ${user?.name}`}
         </div>
       )}
 
+      <AnimatePresence>
+        {isContactOpen && (
+          <>
+            <motion.div
+              className="fixed inset-0 bg-black/40 z-40"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={closeContactModal}
+            />
+            <motion.div
+              className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-white z-50 shadow-2xl"
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "tween", duration: 0.25 }}
+            >
+              <div className="p-4 border-b flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Liên hệ khách hàng</h3>
+                <button
+                  onClick={closeContactModal}
+                  className="p-2 hover:bg-gray-100 rounded"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="p-4 space-y-4">
+                <div>
+                  <label className="block text-sm mb-1">Hình thức</label>
+                  <select
+                    className="w-full border rounded px-3 py-2"
+                    value={contactForm.method}
+                    onChange={(e) =>
+                      setContactForm((s) => ({
+                        ...s,
+                        method: e.target.value as any,
+                      }))
+                    }
+                  >
+                    <option value="phone">📞 Gọi điện</option>
+                    <option value="email">📧 Email</option>
+                    <option value="meeting">📅 Hẹn gặp</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm mb-1">Thời điểm</label>
+                  <input
+                    type="datetime-local"
+                    className="w-full border rounded px-3 py-2"
+                    value={contactForm.when}
+                    onChange={(e) =>
+                      setContactForm((s) => ({ ...s, when: e.target.value }))
+                    }
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm mb-1">Ghi chú</label>
+                  <textarea
+                    rows={3}
+                    className="w-full border rounded px-3 py-2"
+                    placeholder="Nội dung trao đổi / ghi chú cuộc gọi…"
+                    value={contactForm.notes}
+                    onChange={(e) =>
+                      setContactForm((s) => ({ ...s, notes: e.target.value }))
+                    }
+                  />
+                </div>
+
+                {contactTarget?.contact && (
+                  <div className="text-sm bg-gray-50 p-3 rounded">
+                    <div>
+                      <b>Khách hàng:</b> {contactTarget.contact.fullName}
+                    </div>
+                    <div>
+                      <b>Điện thoại:</b> {contactTarget.contact.phone}
+                    </div>
+                    <div>
+                      <b>Email:</b> {contactTarget.contact.email}
+                    </div>
+                    <div className="mt-2 flex gap-2">
+                      <a
+                        className="btn btn-secondary text-xs"
+                        href={`tel:${contactTarget.contact.phone}`}
+                      >
+                        Gọi ngay
+                      </a>
+                      <a
+                        className="btn btn-secondary text-xs"
+                        href={`mailto:${contactTarget.contact.email}`}
+                      >
+                        Gửi email
+                      </a>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex gap-2 pt-2">
+                  <button onClick={submitContact} className="btn btn-primary">
+                    Lưu & đổi trạng thái
+                  </button>
+                  <button
+                    onClick={closeContactModal}
+                    className="btn btn-secondary"
+                  >
+                    Huỷ
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Detail Request */}
+      <AnimatePresence>
+        {isDetailOpen && (
+          <>
+            {/* Overlay */}
+            <motion.div
+              className="fixed inset-0 bg-black/40 z-40"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={closeCaseDetail}
+            />
+
+            {/* Right Drawer */}
+            <motion.aside
+              className="fixed right-0 top-0 bottom-0 w-full max-w-xl bg-white shadow-2xl z-50"
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "tween", duration: 0.25 }}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between p-4 border-b">
+                <h3 className="text-lg font-semibold">
+                  {t("staff.caseDetail") ?? "Case Detail"}
+                </h3>
+                <button
+                  onClick={closeCaseDetail}
+                  className="p-2 rounded hover:bg-gray-100"
+                  aria-label="Close"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="p-4 overflow-y-auto h-full">
+                {/* Loading skeleton */}
+                {detailLoading && (
+                  <div className="animate-pulse space-y-4">
+                    <div className="h-4 bg-gray-200 rounded w-1/2" />
+                    <div className="h-3 bg-gray-200 rounded w-1/3" />
+                    <div className="h-2 bg-gray-200 rounded w-full" />
+                    <div className="h-2 bg-gray-200 rounded w-5/6" />
+                    <div className="h-2 bg-gray-200 rounded w-2/3" />
+                  </div>
+                )}
+
+                {/* Error */}
+                {detailError && (
+                  <div className="text-sm text-red-600 bg-red-50 border border-red-200 p-3 rounded">
+                    {detailError}
+                  </div>
+                )}
+
+                {/* Content */}
+                {detail && (
+                  <div className="space-y-6">
+                    {/* Chips */}
+                    <div className="flex items-center flex-wrap gap-2">
+                      <span className="text-xs px-2 py-1 rounded bg-gray-100">
+                        #{detail.id}
+                      </span>
+                      <span className="text-xs px-2 py-1 rounded bg-blue-100 text-blue-800">
+                        {normalizeStatus(detail.status)}
+                      </span>
+                      {detail.consultantName && (
+                        <span className="text-xs px-2 py-1 rounded bg-purple-100 text-purple-800">
+                          👤 {detail.consultantName}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Progress */}
+                    <div>
+                      <div className="flex justify-between text-xs text-gray-500 mb-2">
+                        <span>
+                          {detail.progress ?? progressOf(detail.status)}%
+                        </span>
+                        <span>
+                          {t("staff.submitted") ?? "Submitted"}:&nbsp;
+                          {new Date(detail.createdAt).toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded h-2">
+                        <div
+                          className="bg-luxury-gold h-2 rounded"
+                          style={{
+                            width: `${
+                              detail.progress ?? progressOf(detail.status)
+                            }%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Contact */}
+                    {detail.contact && (
+                      <div className="border rounded-lg p-4">
+                        <h4 className="font-medium mb-2">
+                          {t("staff.customer") ?? "Customer"}
+                        </h4>
+                        <div className="text-sm grid grid-cols-2 gap-2">
+                          <div>
+                            <span className="text-gray-500">
+                              {t("staff.name") ?? "Name"}:
+                            </span>{" "}
+                            {detail.contact.fullName}
+                          </div>
+                          <div>
+                            <span className="text-gray-500">
+                              {t("staff.phone") ?? "Phone"}:
+                            </span>{" "}
+                            {detail.contact.phone}
+                          </div>
+                          <div>
+                            <span className="text-gray-500">Email:</span>{" "}
+                            {detail.contact.email}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Diamond */}
+                    {detail.diamond && (
+                      <div className="border rounded-lg p-4">
+                        <h4 className="font-medium mb-2">
+                          {t("staff.diamond") ?? "Diamond"}
+                        </h4>
+                        <div className="text-sm grid grid-cols-2 gap-2">
+                          <div>Shape: {detail.diamond.shape}</div>
+                          <div>Carat: {detail.diamond.carat}</div>
+                          <div>Color: {detail.diamond.color}</div>
+                          <div>Clarity: {detail.diamond.clarity}</div>
+                          <div>Cut: {detail.diamond.cut}</div>
+                          <div>Fluor: {detail.diamond.fluorescence}</div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Results (nếu có) */}
+                    {(detail.marketValue ??
+                      detail.retailValue ??
+                      detail.insuranceValue) && (
+                      <div className="border rounded-lg p-4">
+                        <h4 className="font-medium mb-2">
+                          {t("staff.results") ?? "Results"}
+                        </h4>
+                        <div className="text-sm grid grid-cols-3 gap-2">
+                          <div>Market: {detail.marketValue ?? "-"}</div>
+                          <div>Retail: {detail.retailValue ?? "-"}</div>
+                          <div>Insurance: {detail.insuranceValue ?? "-"}</div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* (Tuỳ chọn) Action buttons theo role/status */}
+                    {/* Ví dụ:
+              <div className="flex gap-2">
+                {isConsultingStaff && normalizeStatus(detail.status) === "YeuCau" && (
+                  <button className="btn bg-blue-600 text-white">Assign to Me</button>
+                )}
+              </div>
+              */}
+                  </div>
+                )}
+              </div>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
       {/* Detailed View Modal */}
       {selectedRequest && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -3167,7 +3854,7 @@ ${user?.name}`}
                   request={selectedRequest}
                   onAssignToMe={handleAssignToMe}
                   onMarkAsContacted={handleMarkAsContacted}
-                  onCreateReceipt={handleCreateReceipt}
+                  onCreateReceipt={openCreateReceipt}
                 />
               ) : isValuationStaff ? (
                 <ValuationStaffDetailView

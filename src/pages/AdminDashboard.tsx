@@ -336,8 +336,8 @@ const AdminDashboard: React.FC = () => {
       }
       case "complete":
         if (confirm("Mark this valuation as completed?")) {
-          setValuations((prev) =>
-            prev.map((v) =>
+          setValuations((prev: any) =>
+            prev.map((v: any) =>
               v.id === valuationId ? { ...v, status: "completed" } : v
             )
           );

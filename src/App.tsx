@@ -5,6 +5,9 @@ import MainLayout from "./layouts/MainLayout";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 import { LanguageProvider } from "./context/LanguageContext";
+import ProtectedRoute from "./router/ProtectedRoute";
+import RequireRole from "./router/RequireRole";
+import DashboardLayout from "./layouts/DashboardLayout";
 
 // Lazy-loaded pages
 const HomePage = lazy(() => import("./pages/HomePage"));
@@ -21,6 +24,7 @@ const RoleBasedDashboard = lazy(() => import("./pages/RoleBasedDashboard"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
 const FAQPage = lazy(() => import("./pages/FAQPage"));
 const ValuationResults = lazy(() => import("./pages/ValuationResults"));
+const ReceiptDetailPage = lazy(() => import("./pages/ReceiptDetailPage"));
 const CustomerCommunication = lazy(
   () => import("./pages/CustomerCommunication")
 );
@@ -138,6 +142,16 @@ function App() {
                     <MainLayout>
                       <ValuationResults />
                     </MainLayout>
+                  }
+                />
+                <Route
+                  path="/dashboard/staff/receipts/:id"
+                  element={
+                    <ProtectedRoute>
+                      <DashboardLayout>
+                        <ReceiptDetailPage />
+                      </DashboardLayout>
+                    </ProtectedRoute>
                   }
                 />
                 <Route

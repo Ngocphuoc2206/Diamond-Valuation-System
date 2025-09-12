@@ -35,6 +35,7 @@ const CustomerCommunication = lazy(
 
 // ✅ Thêm trang chi tiết hồ sơ
 const CaseDetailPage = lazy(() => import("./pages/CaseDetailPage"));
+const ReceiptDetailPage = lazy(() => import("./pages/ReceiptDetailPage"));
 
 // Payment return & order success
 const PaymentReturnPage = lazy(() => import("./pages/PaymentReturnPage"));
@@ -192,6 +193,7 @@ const AppRouter: React.FC = () => {
               }
             >
               <Route index element={<StaffDashboard />} />
+              <Route path="receipts/:id" element={<ReceiptDetailPage />} />
             </Route>
 
             {/* Customer */}

@@ -1,7 +1,7 @@
 // src/pages/admin/tabs/OverviewTab.tsx
-// ============================
 import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
+// 👇 sửa đường dẫn: từ tabs/ -> services/
 import { getAdminOverview, type AdminOverview } from "../../services/admin";
 
 interface OverviewTabProps {
@@ -36,7 +36,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
   recentActivities,
   onQuickOpen,
 }) => {
-  // ===== New: tải số liệu thật từ BE =====
+  // ===== Load số liệu thật từ BE =====
   const [days, setDays] = useState(30);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
@@ -50,14 +50,19 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         const d = await getAdminOverview(days); // GET /api/admin/overview?days=...
         setData(d);
       } catch (e: any) {
-        setErr(e?.message || "Failed to load overview");
+        // Nếu bị 403 → gợi ý quyền
+        const msg =
+          e?.response?.status === 403
+            ? "Request failed with status code 403 — cần token có quyền Admin."
+            : e?.message || "Failed to load overview";
+        setErr(msg);
       } finally {
         setLoading(false);
       }
     })();
   }, [days]);
 
-  // ===== Map BE -> UI (fallback về props nếu BE chưa có) =====
+  // ===== Map BE -> UI (fallback sang props nếu BE chưa có) =====
   const totalUsers = useMemo(
     () => (data?.users as any)?.total ?? dashboardStats.totalUsers,
     [data, dashboardStats.totalUsers]
@@ -73,12 +78,11 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
     const daily = data?.orders?.revenueDaily as
       | { date: string; total: number }[]
       | undefined;
-    if (daily && daily.length) {
+    if (daily?.length) {
       return daily.reduce((s, x) => s + (Number(x.total) || 0), 0);
     }
-    if (typeof data?.orders?.totalRevenue === "number") {
+    if (typeof data?.orders?.totalRevenue === "number")
       return data.orders.totalRevenue;
-    }
     return dashboardStats.monthlyRevenue;
   }, [data, dashboardStats.monthlyRevenue]);
 
@@ -122,6 +126,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
       {/* Key Metrics */}
       {!loading && !err && (
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Users */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -143,6 +148,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
             </div>
           </div>
 
+          {/* Valuations */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -164,6 +170,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
             </div>
           </div>
 
+          {/* Revenue */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -185,6 +192,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
             </div>
           </div>
 
+          {/* Rating */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -257,7 +265,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
           {t("admin.systemActivities")}
         </h3>
         <div className="space-y-4">
-          {recentActivities.map((activity) => (
+          {(recentActivities || []).map((activity) => (
             <div
               key={activity.id}
               className="flex items-center justify-between py-3 border-b last:border-b-0"
