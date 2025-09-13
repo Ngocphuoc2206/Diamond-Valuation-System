@@ -3,20 +3,20 @@
   "WorkspaceRootPath": "D:\\Diamond-Valuation-Service\\ValuationRequestService\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{3DDD826A-9700-1C7E-3BD4-90E5AEF76DF6}|Diamond.ValuationService.Infrastructure\\Diamond.ValuationService.Infrastructure.csproj|d:\\diamond-valuation-service\\valuationrequestservice\\diamond.valuationservice.infrastructure\\service\\caseservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{3DDD826A-9700-1C7E-3BD4-90E5AEF76DF6}|Diamond.ValuationService.Infrastructure\\Diamond.ValuationService.Infrastructure.csproj|solutionrelative:diamond.valuationservice.infrastructure\\service\\caseservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{A5ADC281-FE01-00CC-E9E0-1B659B8EBA69}|Diamond.ValuationService.Api\\Diamond.ValuationService.Api.csproj|d:\\diamond-valuation-service\\valuationrequestservice\\diamond.valuationservice.api\\controllers\\casescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A5ADC281-FE01-00CC-E9E0-1B659B8EBA69}|Diamond.ValuationService.Api\\Diamond.ValuationService.Api.csproj|solutionrelative:diamond.valuationservice.api\\controllers\\casescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{80108212-C7BC-2BF4-D059-8128EC5A3F3E}|Diamond.ValuationService.Application\\Diamond.ValuationService.Application.csproj|d:\\diamond-valuation-service\\valuationrequestservice\\diamond.valuationservice.application\\dtos\\contactdtos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{80108212-C7BC-2BF4-D059-8128EC5A3F3E}|Diamond.ValuationService.Application\\Diamond.ValuationService.Application.csproj|solutionrelative:diamond.valuationservice.application\\dtos\\contactdtos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{3DDD826A-9700-1C7E-3BD4-90E5AEF76DF6}|Diamond.ValuationService.Infrastructure\\Diamond.ValuationService.Infrastructure.csproj|d:\\diamond-valuation-service\\valuationrequestservice\\diamond.valuationservice.infrastructure\\service\\caseservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3DDD826A-9700-1C7E-3BD4-90E5AEF76DF6}|Diamond.ValuationService.Infrastructure\\Diamond.ValuationService.Infrastructure.csproj|solutionrelative:diamond.valuationservice.infrastructure\\service\\caseservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{80108212-C7BC-2BF4-D059-8128EC5A3F3E}|Diamond.ValuationService.Application\\Diamond.ValuationService.Application.csproj|d:\\diamond-valuation-service\\valuationrequestservice\\diamond.valuationservice.application\\dtos\\valuationdtos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{80108212-C7BC-2BF4-D059-8128EC5A3F3E}|Diamond.ValuationService.Application\\Diamond.ValuationService.Application.csproj|solutionrelative:diamond.valuationservice.application\\dtos\\valuationdtos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{80108212-C7BC-2BF4-D059-8128EC5A3F3E}|Diamond.ValuationService.Application\\Diamond.ValuationService.Application.csproj|d:\\diamond-valuation-service\\valuationrequestservice\\diamond.valuationservice.application\\interfaces\\icaseservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{80108212-C7BC-2BF4-D059-8128EC5A3F3E}|Diamond.ValuationService.Application\\Diamond.ValuationService.Application.csproj|solutionrelative:diamond.valuationservice.application\\interfaces\\icaseservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{80108212-C7BC-2BF4-D059-8128EC5A3F3E}|Diamond.ValuationService.Application\\Diamond.ValuationService.Application.csproj|d:\\diamond-valuation-service\\valuationrequestservice\\diamond.valuationservice.application\\dtos\\updateresultdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{80108212-C7BC-2BF4-D059-8128EC5A3F3E}|Diamond.ValuationService.Application\\Diamond.ValuationService.Application.csproj|solutionrelative:diamond.valuationservice.application\\dtos\\updateresultdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -39,54 +39,51 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "CaseService.cs",
-              "DocumentMoniker": "D:\\Diamond-Valuation-Service\\ValuationRequestService\\Diamond.ValuationService.Infrastructure\\Service\\CaseService.cs",
-              "RelativeDocumentMoniker": "Diamond.ValuationService.Infrastructure\\Service\\CaseService.cs",
-              "ToolTip": "D:\\Diamond-Valuation-Service\\ValuationRequestService\\Diamond.ValuationService.Infrastructure\\Service\\CaseService.cs",
-              "RelativeToolTip": "Diamond.ValuationService.Infrastructure\\Service\\CaseService.cs",
-              "ViewState": "AgIAACcBAAAAAAAAAIAzwNsAAAAgAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-12T04:55:11.491Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
               "Title": "CasesController.cs",
               "DocumentMoniker": "D:\\Diamond-Valuation-Service\\ValuationRequestService\\Diamond.ValuationService.Api\\Controllers\\CasesController.cs",
               "RelativeDocumentMoniker": "Diamond.ValuationService.Api\\Controllers\\CasesController.cs",
               "ToolTip": "D:\\Diamond-Valuation-Service\\ValuationRequestService\\Diamond.ValuationService.Api\\Controllers\\CasesController.cs",
               "RelativeToolTip": "Diamond.ValuationService.Api\\Controllers\\CasesController.cs",
-              "ViewState": "AgIAAC4AAAAAAAAAAAAUwLIAAAAgAAAAAAAAAA==",
+              "ViewState": "AgIAAG4AAAAAAAAAAAA5wH8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-12T04:40:31.461Z",
+              "WhenOpened": "2025-09-12T10:43:36.152Z",
               "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "CaseService.cs",
+              "DocumentMoniker": "D:\\Diamond-Valuation-Service\\ValuationRequestService\\Diamond.ValuationService.Infrastructure\\Service\\CaseService.cs",
+              "RelativeDocumentMoniker": "Diamond.ValuationService.Infrastructure\\Service\\CaseService.cs",
+              "ToolTip": "D:\\Diamond-Valuation-Service\\ValuationRequestService\\Diamond.ValuationService.Infrastructure\\Service\\CaseService.cs",
+              "RelativeToolTip": "Diamond.ValuationService.Infrastructure\\Service\\CaseService.cs",
+              "ViewState": "AgIAAE4BAAAAAAAAAIAwwEEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-12T10:42:49Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "ContactDtos.cs",
-              "DocumentMoniker": "D:\\Diamond-Valuation-Service\\ValuationRequestService\\Diamond.ValuationService.Application\\DTOs\\ContactDtos.cs",
-              "RelativeDocumentMoniker": "Diamond.ValuationService.Application\\DTOs\\ContactDtos.cs",
-              "ToolTip": "D:\\Diamond-Valuation-Service\\ValuationRequestService\\Diamond.ValuationService.Application\\DTOs\\ContactDtos.cs",
-              "RelativeToolTip": "Diamond.ValuationService.Application\\DTOs\\ContactDtos.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Title": "ICaseService.cs",
+              "DocumentMoniker": "D:\\Diamond-Valuation-Service\\ValuationRequestService\\Diamond.ValuationService.Application\\Interfaces\\ICaseService.cs",
+              "RelativeDocumentMoniker": "Diamond.ValuationService.Application\\Interfaces\\ICaseService.cs",
+              "ToolTip": "D:\\Diamond-Valuation-Service\\ValuationRequestService\\Diamond.ValuationService.Application\\Interfaces\\ICaseService.cs",
+              "RelativeToolTip": "Diamond.ValuationService.Application\\Interfaces\\ICaseService.cs",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAiwBEAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-12T04:39:38.976Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-12T10:42:26.228Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "ValuationDtos.cs",
-              "DocumentMoniker": "D:\\Diamond-Valuation-Service\\ValuationRequestService\\Diamond.ValuationService.Application\\DTOs\\ValuationDtos.cs",
-              "RelativeDocumentMoniker": "Diamond.ValuationService.Application\\DTOs\\ValuationDtos.cs",
-              "ToolTip": "D:\\Diamond-Valuation-Service\\ValuationRequestService\\Diamond.ValuationService.Application\\DTOs\\ValuationDtos.cs",
-              "RelativeToolTip": "Diamond.ValuationService.Application\\DTOs\\ValuationDtos.cs",
-              "ViewState": "AgIAABYAAAAAAAAAAAA4wAAAAAAAAAAAAAAAAA==",
+              "Title": "UpdateResultDto.cs",
+              "DocumentMoniker": "D:\\Diamond-Valuation-Service\\ValuationRequestService\\Diamond.ValuationService.Application\\DTOs\\UpdateResultDto.cs",
+              "RelativeDocumentMoniker": "Diamond.ValuationService.Application\\DTOs\\UpdateResultDto.cs",
+              "ToolTip": "D:\\Diamond-Valuation-Service\\ValuationRequestService\\Diamond.ValuationService.Application\\DTOs\\UpdateResultDto.cs",
+              "RelativeToolTip": "Diamond.ValuationService.Application\\DTOs\\UpdateResultDto.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAA8AAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-12T04:38:47.065Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-12T10:41:43.804Z"
             }
           ]
         }

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Diamond.ValuationService.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+eca679f6df8ca52bc3341daabf1b22b2209cb5b1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f7414ffb5cf2bf61939bff4d0e0da15e07bb2750")]
 [assembly: System.Reflection.AssemblyProductAttribute("Diamond.ValuationService.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Diamond.ValuationService.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -907,3 +907,4 @@ D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Ap
 D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Api\obj\Debug\net9.0\Diamond.ValuationService.Api.genruntimeconfig.cache
 D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Api\obj\Debug\net9.0\ref\Diamond.ValuationService.Api.dll
 D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Api\bin\Debug\net9.0\AutoMapper.dll
+D:\Diamond-Valuation-Service\ValuationRequestService\Diamond.ValuationService.Api\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt

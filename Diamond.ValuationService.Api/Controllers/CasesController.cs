@@ -85,6 +85,91 @@ public class CasesController : ControllerBase
         return Ok(data);
     }
 
+
+    [Authorize(Roles = "Admin,ConsultingStaff,ValuationStaff")]
+    [HttpGet]
+    public async Task<IActionResult> Get(
+    [FromQuery] int page = 1,
+    [FromQuery] int pageSize = 10,
+    [FromQuery] string? status = null,
+    [FromQuery] string? q = null,                 // optional: search by id/valuation/contact/shape
+    [FromQuery] string? assignee = null,          // optional: filter assignee name contains
+    [FromQuery] DateTime? dateFrom = null,        // optional: filter by CreatedAt >=
+    [FromQuery] DateTime? dateTo = null,
+    CancellationToken ct = default)
+    {
+        if (page <= 0) page = 1;
+        if (pageSize <= 0) pageSize = 10;
+
+        var query = _db.ValuationCases
+            .AsNoTracking();
+
+        // Filter by status if provided (expects BE enum: YeuCau/LienHe/BienLai/DinhGia/KetQua/Complete)
+        if (!string.IsNullOrWhiteSpace(status) &&
+            Enum.TryParse<CaseStatus>(status, true, out var st))
+        {
+            query = query.Where(v => v.Status == st);
+        }
+
+        // Optional: text search (id, valuation name, contact name, shape)
+        if (!string.IsNullOrWhiteSpace(q))
+        {
+            var qLower = q.Trim().ToLower();
+            query = query.Where(v =>
+                v.Id.ToString().ToLower().Contains(qLower) ||
+                (v.ValuationName != null && v.ValuationName.ToLower().Contains(qLower)) ||
+                (v.Contact != null && v.Contact.FullName != null && v.Contact.FullName.ToLower().Contains(qLower)) ||
+                (v.Request != null && v.Request.Spec != null && v.Request.Spec.Shape != null && v.Request.Spec.Shape.ToLower().Contains(qLower))
+            );
+        }
+
+        // Optional: assignee contains
+        if (!string.IsNullOrWhiteSpace(assignee))
+        {
+            var kw = assignee.Trim().ToLower();
+            query = query.Where(v => v.AssigneeName != null && v.AssigneeName.ToLower().Contains(kw));
+        }
+
+        var total = await query.CountAsync(ct);
+
+        var items = await query
+            .OrderByDescending(v => v.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(v => new CaseListItemDto(
+                v.Id,
+                v.Status.ToString(),
+                MapProgress(v.Status),
+                v.AssigneeName,
+                v.ValuationName,
+                v.EstimatedValue,
+                v.CreatedAt,
+                // Contact summary
+                v.Contact == null
+                    ? new MiniContactDto(null, null, null, null)
+                    : new MiniContactDto(
+                        v.Contact.FullName,
+                        v.Contact.Email,
+                        v.Contact.Phone,
+                        v.Contact.UserId
+                    ),
+                // Diamond summary from Request.Spec
+                v.Request != null && v.Request.Spec != null
+                    ? new MiniDiamondDto(
+                        v.Request.Spec.Origin,
+                        (decimal?)v.Request.Spec.Carat,
+                        v.Request.Spec.Color,
+                        v.Request.Spec.Shape,
+                        v.Request.Spec.Clarity,
+                        v.Request.Spec.Cut
+                    )
+                    : new MiniDiamondDto(null, null, null, null, null, null)
+            ))
+            .ToListAsync(ct);
+
+        return Ok(new PagedResult<CaseListItemDto>(items, page, pageSize, total));
+    }
+
     // ------------------------------
     // GetById
     // ------------------------------
@@ -112,8 +197,9 @@ public class CasesController : ControllerBase
     // ------------------------------
     // UpdateStatus / Assign (chuẩn hoá Roles)
     // ------------------------------
-    [Authorize(Roles = "Admin,ConsultingStaff,ValuationStaff")]
+    //[Authorize(Roles = "Admin,ConsultingStaff,ValuationStaff")]
     [HttpPut("{id:guid}/status")]
+    [AllowAnonymous]
     public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdateCaseStatusDto body, CancellationToken ct)
     {
         if (body is null || string.IsNullOrWhiteSpace(body.Status))
@@ -201,6 +287,57 @@ public class CasesController : ControllerBase
         return Ok(new PagedResult<CaseListItemDto>(items, page, pageSize, total));
     }
 
+    [Authorize(Roles = "Admin,ConsultingStaff,ValuationStaff")]
+    [HttpGet("unassigned/valuation")]
+    public async Task<IActionResult> GetUnassignedValuation(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? status = null,
+        CancellationToken ct = default)
+    {
+        var q = _db.ValuationCases
+            .AsNoTracking()
+            .Where(v => v.ValuationId == null && v.AssigneeId != null);
+
+        if (!string.IsNullOrWhiteSpace(status) && Enum.TryParse<CaseStatus>(status, true, out var st))
+            q = q.Where(v => v.Status == st);
+
+        var total = await q.CountAsync(ct);
+
+        var items = await q
+            .OrderByDescending(v => v.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(v => new CaseListItemDto(
+                v.Id,
+                v.Status.ToString(),
+                MapProgress(v.Status),
+                v.AssigneeName,
+                v.ValuationName,
+                v.EstimatedValue,
+                v.CreatedAt,
+                // Contact
+                new MiniContactDto(
+                    v.Contact != null ? v.Contact.FullName : null,
+                    v.Contact != null ? v.Contact.Email : null,
+                    v.Contact != null ? v.Contact.Phone : null,
+                    v.Contact != null ? v.Contact.UserId : null
+                ),
+                // Diamond (từ Request.Spec)
+                new MiniDiamondDto(
+                    v.Request != null && v.Request.Spec != null ? v.Request.Spec.Origin : null,
+                    v.Request != null && v.Request.Spec != null ? (decimal?)v.Request.Spec.Carat : null,
+                    v.Request != null && v.Request.Spec != null ? v.Request.Spec.Color : null,
+                    v.Request != null && v.Request.Spec != null ? v.Request.Spec.Shape : null,
+                    v.Request != null && v.Request.Spec != null ? v.Request.Spec.Clarity : null,
+                    v.Request != null && v.Request.Spec != null ? v.Request.Spec.Cut : null
+                )
+            ))
+            .ToListAsync(ct);
+
+        return Ok(new PagedResult<CaseListItemDto>(items, page, pageSize, total));
+    }
+
     // ------------------------------
     // ASSIGNED-TO-ME (đã project Contact + Diamond)
     // ------------------------------
@@ -219,6 +356,59 @@ public class CasesController : ControllerBase
         var q = _db.ValuationCases
             .AsNoTracking()
             .Where(v => v.AssigneeId == staffId);
+
+        if (!string.IsNullOrWhiteSpace(status) && Enum.TryParse<CaseStatus>(status, true, out var st))
+            q = q.Where(v => v.Status == st);
+
+        var total = await q.CountAsync(ct);
+
+        var items = await q
+            .OrderByDescending(v => v.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(v => new CaseListItemDto(
+                v.Id,
+                v.Status.ToString(),
+                MapProgress(v.Status),
+                v.AssigneeName,
+                v.ValuationName,
+                v.EstimatedValue,
+                v.CreatedAt,
+                new MiniContactDto(
+                    v.Contact != null ? v.Contact.FullName : null,
+                    v.Contact != null ? v.Contact.Email : null,
+                    v.Contact != null ? v.Contact.Phone : null,
+                    v.Contact != null ? v.Contact.UserId : null
+                ),
+                new MiniDiamondDto(
+                    v.Request != null && v.Request.Spec != null ? v.Request.Spec.Origin : null,
+                    v.Request != null && v.Request.Spec != null ? (decimal?)v.Request.Spec.Carat : null,
+                    v.Request != null && v.Request.Spec != null ? v.Request.Spec.Color : null,
+                    v.Request != null && v.Request.Spec != null ? v.Request.Spec.Shape : null,
+                    v.Request != null && v.Request.Spec != null ? v.Request.Spec.Clarity : null,
+                    v.Request != null && v.Request.Spec != null ? v.Request.Spec.Cut : null
+                )
+            ))
+            .ToListAsync(ct);
+
+        return Ok(new PagedResult<CaseListItemDto>(items, page, pageSize, total));
+    }
+
+    [Authorize(Roles = "Admin,ConsultingStaff,ValuationStaff")]
+    [HttpGet("assigned-to-me/valuation")]
+    public async Task<IActionResult> GetAssignedToMeValuation(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? status = null,
+        CancellationToken ct = default)
+    {
+        var uid = GetUserId();
+        if (string.IsNullOrWhiteSpace(uid)) return Unauthorized();
+        if (!int.TryParse(uid, out var staffId)) return Unauthorized("Invalid uid");
+
+        var q = _db.ValuationCases
+            .AsNoTracking()
+            .Where(v => v.ValuationId == staffId);
 
         if (!string.IsNullOrWhiteSpace(status) && Enum.TryParse<CaseStatus>(status, true, out var st))
             q = q.Where(v => v.Status == st);
@@ -380,4 +570,76 @@ public class CasesController : ControllerBase
             .ToListAsync(ct);
         return Ok(items);
     }
+
+    [AllowAnonymous]
+    [HttpPut("{id:guid}/result")]
+    public async Task<IActionResult> UpdateResult(Guid id, [FromBody] UpdateResultDto dto, CancellationToken ct)
+    {
+        if (dto is null) return BadRequest("Missing body");
+
+        await _svc.UpdateResultAsync(id, dto, ct);
+        return NoContent();
+    }
+
+
+    // Thêm vào dưới nhóm GET unassigned / assigned-to-me
+    [Authorize(Roles = "Admin,ValuationStaff")]
+    [HttpGet("pending-valuation")]
+    public async Task<IActionResult> GetPendingValuation(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? status = null,
+        CancellationToken ct = default)
+    {
+        var q = _db.ValuationCases
+            .AsNoTracking()
+            .Where(v => v.AssigneeId != null && v.ValuationId == null); // ĐIỀU KIỆN CHÍNH
+
+        if (!string.IsNullOrWhiteSpace(status) && Enum.TryParse<CaseStatus>(status, true, out var st))
+            q = q.Where(v => v.Status == st);
+
+        var total = await q.CountAsync(ct);
+
+        var items = await q
+            .OrderByDescending(v => v.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(v => new
+            {
+                v.Id,
+                Status = v.Status.ToString(),
+                v.AssigneeName,
+                v.ValuationName,
+                v.EstimatedValue,
+                v.CreatedAt,
+
+                // Contact summary
+                Contact = v.Contact == null ? null : new MiniContactDto(
+                    v.Contact.FullName, v.Contact.Email, v.Contact.Phone, v.Contact.UserId
+                ),
+
+                // Diamond summary từ Request.Spec
+                Diamond = v.Request != null && v.Request.Spec != null
+                    ? new MiniDiamondDto(
+                        v.Request.Spec.Origin,
+                        (decimal?)v.Request.Spec.Carat,
+                        v.Request.Spec.Color,
+                        v.Request.Spec.Shape,
+                        v.Request.Spec.Clarity,
+                        v.Request.Spec.Cut
+                    )
+                    : null
+            })
+            .ToListAsync(ct);
+
+        return Ok(new
+        {
+            page,
+            pageSize,
+            total,
+            totalPages = (int)Math.Ceiling(total / (double)pageSize),
+            items
+        });
+    }
+
 }

@@ -56,7 +56,7 @@ public readonly record struct CreateCaseResponseDto(
 public record class UpdateCaseStatusDto
 {
     [Required, StringLength(50)]
-    public string Status { get; init; } = default!;
+    public string Status { get; set; } = default!;
 }
 
 public record CaseListItemDto(

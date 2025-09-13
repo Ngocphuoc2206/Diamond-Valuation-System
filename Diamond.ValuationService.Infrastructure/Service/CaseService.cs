@@ -299,4 +299,40 @@ public class CaseService : ICaseService
 
         return data;
     }
+
+    public async Task UpdateResultAsync(Guid caseId, UpdateResultDto dto, CancellationToken ct)
+    {
+        //Tìm case
+        var vc = await _db.ValuationCases
+            .Include(x => x.Request) // để lấy RequestId
+            .FirstOrDefaultAsync(x => x.Id == caseId, ct);
+
+        if (vc is null)
+            throw new KeyNotFoundException("Case not found");
+
+        if (vc.Request is null)
+            throw new InvalidOperationException("Case has no attached ValuationRequest");
+
+        // Tạo snapshot kết quả (gắn theo RequestId)
+        var result = new ValuationResult
+        {
+            Id = Guid.NewGuid(),
+            RequestId = vc.Request.Id,
+            PricePerCarat = dto.PricePerCarat,
+            TotalPrice = dto.TotalPrice,
+            Currency = dto.Currency,
+            AlgorithmVersion = dto.AlgorithmVersion,
+            ValuatedAt = dto.ValuatedAt,
+            Notes = ""
+        };
+
+        await _db.ValuationResults.AddAsync(result, ct);
+
+        // 3) Ghi nhanh giá trị vào Case (để FE hiển thị)
+        vc.EstimatedValue = dto.TotalPrice;
+        vc.UpdatedAt = DateTime.UtcNow;
+
+        await _db.SaveChangesAsync(ct);
+    }
+
 }

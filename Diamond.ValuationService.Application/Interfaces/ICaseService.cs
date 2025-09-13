@@ -14,4 +14,7 @@ public interface ICaseService
 
     Task<CaseDetailDto?> GetCaseDetailForUserAsync(Guid id, int userId, CancellationToken ct);
     Task<bool> UpdateStatusAsync(Guid caseId, CaseStatus status, CancellationToken ct = default);
+
+    Task UpdateResultAsync(Guid caseId, UpdateResultDto dto, CancellationToken ct);
+
 }
