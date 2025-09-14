@@ -1,14 +1,14 @@
 // src/pages/admin/tabs/OverviewTab.tsx
 import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-// 👇 sửa đường dẫn: từ tabs/ -> services/
+// 👇 đảm bảo file services/admin.ts có export getAdminOverview & type AdminOverview
 import { getAdminOverview, type AdminOverview } from "../../services/admin";
 
 interface OverviewTabProps {
   t: (key: string) => string;
   dashboardStats: {
     totalUsers: number;
-    totalValuations: number;
+    totalValuations: number; // ← từ AdminDashboard: đã lấy DB (listCases.total)
     monthlyRevenue: number;
     customerRating: number;
   };
@@ -28,7 +28,7 @@ const fadeInUp = {
 };
 
 const numberFmt = (n: number | undefined) =>
-  typeof n === "number" ? n.toLocaleString() : "0";
+  typeof n === "number" && !Number.isNaN(n) ? n.toLocaleString() : "0";
 
 const OverviewTab: React.FC<OverviewTabProps> = ({
   t,
@@ -38,28 +38,33 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
 }) => {
   // ===== Load số liệu thật từ BE =====
   const [days, setDays] = useState(30);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [data, setData] = useState<AdminOverview | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
     (async () => {
-      setLoading(true);
-      setErr(null);
       try {
+        setLoading(true);
+        setErr(null);
         const d = await getAdminOverview(days); // GET /api/admin/overview?days=...
-        setData(d);
+        if (!cancelled) setData(d);
       } catch (e: any) {
-        // Nếu bị 403 → gợi ý quyền
+        // Không chặn UI — chỉ hiện cảnh báo nhỏ
         const msg =
           e?.response?.status === 403
-            ? "Request failed with status code 403 — cần token có quyền Admin."
-            : e?.message || "Failed to load overview";
-        setErr(msg);
+            ? "Không đủ quyền để tải tổng quan (403). Đang hiển thị dữ liệu dự phòng."
+            : e?.message ||
+              "Không thể tải số liệu tổng quan. Đang hiển thị dữ liệu dự phòng.";
+        if (!cancelled) setErr(msg);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     })();
+    return () => {
+      cancelled = true;
+    };
   }, [days]);
 
   // ===== Map BE -> UI (fallback sang props nếu BE chưa có) =====
@@ -97,7 +102,14 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
     >
       {/* Header + Range */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">{t("admin.overview")}</h2>
+        <div className="flex items-center gap-3">
+          <h2 className="text-xl font-semibold">{t("admin.overview")}</h2>
+          {loading && (
+            <span className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-600">
+              Loading…
+            </span>
+          )}
+        </div>
         <div className="flex items-center gap-2">
           <label className="text-sm text-gray-600">Khoảng:</label>
           <select
@@ -113,108 +125,103 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         </div>
       </div>
 
-      {/* Loading / Error */}
-      {loading && (
-        <div className="bg-white rounded-lg shadow-md p-6">Đang tải...</div>
-      )}
-      {!loading && err && (
-        <div className="bg-red-50 border border-red-200 text-red-700 rounded p-4">
+      {/* Cảnh báo lỗi (không chặn UI) */}
+      {err && (
+        <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 rounded p-3 text-sm">
           {err}
         </div>
       )}
 
-      {/* Key Metrics */}
-      {!loading && !err && (
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Users */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">
-                  {t("admin.totalUsers")}
-                </p>
-                <p className="text-3xl font-bold text-luxury-navy">
-                  {numberFmt(totalUsers)}
-                </p>
-              </div>
-              <div className="p-3 bg-blue-100 rounded-full">
-                <span className="text-2xl">👥</span>
-              </div>
+      {/* Key Metrics (luôn hiển thị với fallback) */}
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Users */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">
+                {t("admin.totalUsers")}
+              </p>
+              <p className="text-3xl font-bold text-luxury-navy">
+                {numberFmt(totalUsers)}
+              </p>
             </div>
-            <div className="mt-4">
-              <span className="text-green-600 text-sm font-medium">
-                ↗ +12% {t("admin.fromLastMonth")}
-              </span>
+            <div className="p-3 bg-blue-100 rounded-full">
+              <span className="text-2xl">👥</span>
             </div>
           </div>
-
-          {/* Valuations */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">
-                  {t("admin.totalValuations")}
-                </p>
-                <p className="text-3xl font-bold text-luxury-navy">
-                  {numberFmt(totalValuations)}
-                </p>
-              </div>
-              <div className="p-3 bg-purple-100 rounded-full">
-                <span className="text-2xl">💎</span>
-              </div>
-            </div>
-            <div className="mt-4">
-              <span className="text-green-600 text-sm font-medium">
-                ↗ +8% {t("admin.fromLastMonth")}
-              </span>
-            </div>
-          </div>
-
-          {/* Revenue */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">
-                  {t("admin.monthlyRevenue")}
-                </p>
-                <p className="text-3xl font-bold text-luxury-navy">
-                  {"₫" + numberFmt(monthlyRevenue)}
-                </p>
-              </div>
-              <div className="p-3 bg-green-100 rounded-full">
-                <span className="text-2xl">💰</span>
-              </div>
-            </div>
-            <div className="mt-4">
-              <span className="text-green-600 text-sm font-medium">
-                ↗ +15% {t("admin.fromLastMonth")}
-              </span>
-            </div>
-          </div>
-
-          {/* Rating */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">
-                  {t("admin.customerRating")}
-                </p>
-                <p className="text-3xl font-bold text-luxury-navy">
-                  {customerRating}/5
-                </p>
-              </div>
-              <div className="p-3 bg-yellow-100 rounded-full">
-                <span className="text-2xl">⭐</span>
-              </div>
-            </div>
-            <div className="mt-4">
-              <span className="text-green-600 text-sm font-medium">
-                ↗ +0.2 {t("admin.fromLastMonth")}
-              </span>
-            </div>
+          <div className="mt-4">
+            <span className="text-green-600 text-sm font-medium">
+              ↗ +12% {t("admin.fromLastMonth")}
+            </span>
           </div>
         </div>
-      )}
+
+        {/* Valuations */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">
+                {t("admin.totalValuations")}
+              </p>
+              <p className="text-3xl font-bold text-luxury-navy">
+                {numberFmt(totalValuations)}
+              </p>
+            </div>
+            <div className="p-3 bg-purple-100 rounded-full">
+              <span className="text-2xl">💎</span>
+            </div>
+          </div>
+          <div className="mt-4">
+            <span className="text-green-600 text-sm font-medium">
+              ↗ +8% {t("admin.fromLastMonth")}
+            </span>
+          </div>
+        </div>
+
+        {/* Revenue */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">
+                {t("admin.monthlyRevenue")}
+              </p>
+              <p className="text-3xl font-bold text-luxury-navy">
+                {"₫" + numberFmt(monthlyRevenue)}
+              </p>
+            </div>
+            <div className="p-3 bg-green-100 rounded-full">
+              <span className="text-2xl">💰</span>
+            </div>
+          </div>
+          <div className="mt-4">
+            <span className="text-green-600 text-sm font-medium">
+              ↗ +15% {t("admin.fromLastMonth")}
+            </span>
+          </div>
+        </div>
+
+        {/* Rating */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">
+                {t("admin.customerRating")}
+              </p>
+              <p className="text-3xl font-bold text-luxury-navy">
+                {customerRating}/5
+              </p>
+            </div>
+            <div className="p-3 bg-yellow-100 rounded-full">
+              <span className="text-2xl">⭐</span>
+            </div>
+          </div>
+          <div className="mt-4">
+            <span className="text-green-600 text-sm font-medium">
+              ↗ +0.2 {t("admin.fromLastMonth")}
+            </span>
+          </div>
+        </div>
+      </div>
 
       {/* Quick Actions */}
       <div className="bg-white rounded-lg shadow-md p-6">

@@ -10,18 +10,27 @@ import {
   UserIcon,
 } from "@heroicons/react/24/outline";
 
+/** GIỮ LẠI: mapping key cho i18n, KHÔNG render trực tiếp nếu không phải customer */
 const navigation = [
-  { name: "nav.home", href: "/" },
-  { name: "nav.shop", href: "/shop" },
-  { name: "nav.valuationTool", href: "/valuation" },
-  { name: "nav.diamondKnowledge", href: "/knowledge" },
-  { name: "nav.contact", href: "/contact" },
+  { name: "nav.home", href: "/", key: "home" },
+  { name: "nav.shop", href: "/shop", key: "shop", customerOnly: true },
+  {
+    name: "nav.valuationTool",
+    href: "/valuation",
+    key: "valuation",
+    customerOnly: true,
+  },
+  {
+    name: "nav.diamondKnowledge",
+    href: "/knowledge",
+    key: "knowledge",
+    customerOnly: true,
+  },
+  { name: "nav.contact", href: "/contact", key: "contact" },
 ];
 
 const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, user, logout } = useAuth();
-
-  // Dùng items từ CartContext server-backed
   const { items } = useCart();
   const itemsCount = useMemo(
     () => items.reduce((sum, it) => sum + (it.quantity ?? 0), 0),
@@ -34,7 +43,15 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Đóng mobile menu khi đổi route
+  // ---- NEW: xác định role & isCustomer y như DashboardLayout ----
+  const roleString = (() => {
+    // hỗ trợ cả user.role (string) lẫn user.roles (string|array)
+    const raw = (user as any)?.role ?? (user as any)?.roles ?? "";
+    if (Array.isArray(raw)) return String(raw[0] ?? "").toLowerCase();
+    return String(raw ?? "").toLowerCase();
+  })();
+  const isCustomer = roleString === "customer";
+
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [location.pathname]);
@@ -53,6 +70,12 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         ? "text-luxury-gold border-luxury-gold"
         : "text-gray-700 hover:text-luxury-gold border-transparent"
     }`;
+
+  // ---- NEW: lọc navigation theo isCustomer (giống DashboardLayout) ----
+  const visibleNav = useMemo(
+    () => navigation.filter((item) => !item.customerOnly || isCustomer),
+    [isCustomer]
+  );
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
@@ -122,12 +145,8 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 </Link>
 
                 <nav className="hidden lg:flex lg:gap-x-8">
-                  {navigation.map((item) => (
-                    <NavLink
-                      key={item.name}
-                      to={item.href}
-                      className={navClass}
-                    >
+                  {visibleNav.map((item) => (
+                    <NavLink key={item.key} to={item.href} className={navClass}>
                       {t(item.name)}
                     </NavLink>
                   ))}
@@ -159,19 +178,21 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                   </svg>
                 </button>
 
-                {/* Cart */}
-                <Link
-                  to="/cart"
-                  className="relative p-2 text-gray-500 hover:text-luxury-gold transition-colors"
-                >
-                  <span className="sr-only">{t("nav.cart")}</span>
-                  <ShoppingBagIcon className="h-6 w-6" aria-hidden="true" />
-                  {itemsCount > 0 && (
-                    <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-luxury-gold text-[10px] font-medium text-white">
-                      {itemsCount}
-                    </span>
-                  )}
-                </Link>
+                {/* Cart -> CHỈ customer */}
+                {isCustomer && (
+                  <Link
+                    to="/cart"
+                    className="relative p-2 text-gray-500 hover:text-luxury-gold transition-colors"
+                  >
+                    <span className="sr-only">{t("nav.cart")}</span>
+                    <ShoppingBagIcon className="h-6 w-6" aria-hidden="true" />
+                    {itemsCount > 0 && (
+                      <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-luxury-gold text-[10px] font-medium text-white">
+                        {itemsCount}
+                      </span>
+                    )}
+                  </Link>
+                )}
 
                 {/* Account */}
                 {isAuthenticated ? (
@@ -181,7 +202,10 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                       className="flex items-center text-sm font-medium text-gray-700 hover:text-luxury-gold"
                     >
                       <span className="mr-1">
-                        {user?.name || user?.email || t("nav.profile")}
+                        {user?.name ||
+                          (user as any)?.fullName ||
+                          user?.email ||
+                          t("nav.profile")}
                       </span>
                       <UserIcon className="h-5 w-5" aria-hidden="true" />
                     </button>
@@ -218,13 +242,15 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                   </Link>
                 )}
 
-                {/* Valuation CTA */}
-                <Link
-                  to="/valuation"
-                  className="hidden md:block btn btn-primary"
-                >
-                  {t("nav.getValuation")}
-                </Link>
+                {/* Valuation CTA -> CHỈ customer (giống DashboardLayout) */}
+                {isCustomer && (
+                  <Link
+                    to="/valuation"
+                    className="hidden md:block btn btn-primary"
+                  >
+                    {t("nav.getValuation")}
+                  </Link>
+                )}
               </div>
             </div>
           </div>
@@ -258,9 +284,9 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               <div className="mt-6 flow-root">
                 <div className="-my-6 divide-y divide-gray-500/10">
                   <div className="space-y-2 py-6">
-                    {navigation.map((item) => (
+                    {visibleNav.map((item) => (
                       <Link
-                        key={item.name}
+                        key={item.key}
                         to={item.href}
                         className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
                         onClick={() => setMobileMenuOpen(false)}
@@ -391,7 +417,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       </header>
 
       {/* ===== Main content ===== */}
-      <main className="flex-1 relative z-0"> {children} </main>
+      <main className="flex-1 relative z-0">{children}</main>
 
       {/* ===== Footer ===== */}
       <footer className="bg-gray-900 text-white"></footer>

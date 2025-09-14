@@ -6,8 +6,6 @@ import axios, {
 } from "axios";
 import { readTokens, saveTokens, clearTokens } from "./tokenStorage";
 import type { ApiEnvelope, TokenResponse } from "../types/api";
-
-// Base URL từ .env
 const apiBaseURL = import.meta.env.VITE_API_BASE_URL || "http://localhost:9000";
 
 export const api: AxiosInstance = axios.create({

@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import { Link, NavLink, useLocation, Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
-  HomeIcon,
   ArrowLeftOnRectangleIcon,
   BellIcon,
   ShoppingBagIcon,
   MagnifyingGlassIcon,
   UserCircleIcon,
 } from "@heroicons/react/24/outline";
+import { useLanguage } from "../context/LanguageContext";
 
 type Role =
   | "customer"
@@ -24,14 +24,15 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
   const location = useLocation();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
+  const { t, language, setLanguage } = useLanguage();
+
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  const role = (user?.role ?? "").toLowerCase() as Role | "";
+  const role = (user?.roles ?? "").toLowerCase() as Role | "";
   const isCustomer = role === "customer";
 
-  // Mock notifications
   const notifications = [
     {
       id: 1,
@@ -60,7 +61,6 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
   ];
   const unreadCount = notifications.filter((n) => n.unread).length;
 
-  // class cho NavLink
   const navClass = ({ isActive }: { isActive: boolean }) =>
     `px-4 py-3 text-sm ${
       isActive
@@ -72,21 +72,41 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
     <div className="min-h-screen flex flex-col bg-gray-50">
       {/* ===== Top utility bar (navy) ===== */}
       <div className="w-full bg-luxury-navy text-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-9 flex items-center justify-between text-[13px]">
-          <div className="opacity-90">
-            Miễn phí vận chuyển cho đơn hàng trên $1000
-          </div>
+        <div className="container-custom h-9 flex items-center justify-between text-[13px]">
+          <div className="opacity-90">{t("topbar.freeShipping")}</div>
           <div className="flex items-center gap-4 opacity-90">
             <Link to="/faq" className="hover:text-luxury-gold">
-              Câu Hỏi
+              {t("topbar.faq")}
             </Link>
             <Link to="/contact" className="hover:text-luxury-gold">
-              Liên Hệ
+              {t("topbar.contact")}
             </Link>
             <div className="flex items-center gap-2">
-              <button className="hover:text-luxury-gold">EN</button>
+              <button
+                type="button"
+                onClick={() => setLanguage("en")}
+                className={
+                  language === "en"
+                    ? "text-luxury-gold"
+                    : "hover:text-luxury-gold"
+                }
+                aria-pressed={language === "en"}
+              >
+                EN
+              </button>
               <span>|</span>
-              <button className="hover:text-luxury-gold">VI</button>
+              <button
+                type="button"
+                onClick={() => setLanguage("vi")}
+                className={
+                  language === "vi"
+                    ? "text-luxury-gold"
+                    : "hover:text-luxury-gold"
+                }
+                aria-pressed={language === "vi"}
+              >
+                VI
+              </button>
             </div>
           </div>
         </div>
@@ -94,60 +114,72 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
 
       {/* ===== Main navbar (white) ===== */}
       <div className="w-full bg-white border-b">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          {/* Logo */}
+        <div className="container-custom h-16 flex items-center">
+          {/* Logo/brand (trái, sát lề giống MainLayout) */}
           <Link to="/" className="font-serif text-2xl">
-            <span className="text-luxury-navy">Công Cụ</span>{" "}
-            <span className="text-luxury-gold">Định Giá</span>
+            <span className="text-luxury-navy">
+              {t("brand.tool") || "Công Cụ"}
+            </span>{" "}
+            <span className="text-luxury-gold">
+              {t("brand.valuation") || "Định Giá"}
+            </span>
           </Link>
 
-          {/* Menu chính */}
-          <div className="hidden md:flex items-center">
+          {/* Menu chính (ngay cạnh logo, vẫn căn trái) */}
+          <nav className="hidden md:flex items-center ml-8">
             <NavLink to="/" className={navClass}>
-              Trang Chủ
+              {t("nav.home")}
             </NavLink>
+
             {isCustomer && (
               <NavLink to="/shop" className={navClass}>
-                Cửa Hàng
+                {t("nav.shop")}
               </NavLink>
             )}
-            <NavLink to="/valuation" className={navClass}>
-              Công Cụ Định Giá
-            </NavLink>
-            <NavLink to="/knowledge" className={navClass}>
-              Kiến Thức Kim Cương
-            </NavLink>
-            <NavLink to="/contact" className={navClass}>
-              Liên Hệ
-            </NavLink>
-          </div>
+            {isCustomer && (
+              <NavLink to="/valuation" className={navClass}>
+                {t("nav.valuationTool")}
+              </NavLink>
+            )}
+            {isCustomer && (
+              <NavLink to="/knowledge" className={navClass}>
+                {t("nav.diamondKnowledge")}
+              </NavLink>
+            )}
 
-          {/* Actions bên phải */}
-          <div className="flex items-center gap-3">
+            <NavLink to="/contact" className={navClass}>
+              {t("nav.contact")}
+            </NavLink>
+          </nav>
+
+          {/* Actions bên phải (đẩy sang phải bằng ml-auto) */}
+          <div className="ml-auto flex items-center gap-3">
             {/* Search */}
             <button
-              title="Tìm kiếm"
+              title={t("common.search")}
               className="p-2 rounded-full hover:bg-gray-100"
             >
               <MagnifyingGlassIcon className="h-5 w-5 text-gray-700" />
             </button>
 
-            {/* Cart / Shop entry (dẫn tới giỏ) */}
-            <Link
-              to="/cart"
-              title="Giỏ hàng"
-              className="p-2 rounded-full hover:bg-gray-100"
-            >
-              <ShoppingBagIcon className="h-5 w-5 text-gray-700" />
-            </Link>
+            {/* Cart / chỉ hiển thị cho Customer */}
+            {isCustomer && (
+              <Link
+                to="/cart"
+                title={t("nav.cart")}
+                className="p-2 rounded-full hover:bg-gray-100"
+              >
+                <ShoppingBagIcon className="h-5 w-5 text-gray-700" />
+              </Link>
+            )}
 
-            {/* Notifications (dashboard) */}
+            {/* Notifications */}
             <div className="relative">
               <button
                 type="button"
                 className="p-2 rounded-full hover:bg-gray-100 text-gray-700"
                 onClick={() => setNotificationsOpen(!notificationsOpen)}
-                title="Thông báo"
+                title={t("common.notifications")}
               >
                 <BellIcon className="h-5 w-5" />
                 {unreadCount > 0 && (
@@ -196,37 +228,43 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
             </div>
 
             {/* Account / Dashboard */}
-            <Link
-              to="/dashboard"
-              title={user?.name || "Tài khoản"}
-              className="p-2 rounded-full hover:bg-gray-100"
-            >
-              <UserCircleIcon className="h-6 w-6 text-gray-700" />
-            </Link>
+            {isCustomer && (
+              <Link
+                to="/dashboard"
+                title={user?.name || t("nav.profile")}
+                className="p-2 rounded-full hover:bg-gray-100"
+              >
+                <UserCircleIcon className="h-6 w-6 text-gray-700" />
+              </Link>
+            )}
 
-            {/* Nút Định Giá (đi vào flow trong dashboard) */}
-            <Link
-              to="/dashboard/valuations"
-              className="ml-1 inline-flex items-center rounded-md bg-luxury-navy px-4 py-2 text-sm font-semibold text-white hover:bg-luxury-gold hover:text-luxury-navy transition"
-            >
-              Định Giá
-            </Link>
+            {/* Nút vào flow định giá */}
+            {isCustomer && (
+              <Link
+                to="/dashboard/valuations"
+                className="ml-1 inline-flex items-center rounded-md bg-luxury-navy px-4 py-2 text-sm font-semibold text-white hover:bg-luxury-gold hover:text-luxury-navy transition"
+              >
+                {t("nav.valuationTool")}
+              </Link>
+            )}
 
             {/* Sign out */}
             <button
               onClick={logout}
               className="ml-2 inline-flex items-center text-sm font-medium text-gray-700 hover:text-red-600"
-              title="Đăng xuất"
+              title={t("nav.signout")}
             >
               <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-1" />
-              Sign out
+              {t("nav.signout")}
             </button>
           </div>
         </div>
       </div>
 
       {/* ===== Nội dung trang ===== */}
-      <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
+      <main className="flex-1">
+        <div className="container-custom py-6">{children}</div>
+      </main>
     </div>
   );
 };

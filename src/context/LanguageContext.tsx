@@ -296,8 +296,16 @@ const enTranslations: Record<string, string> = {
   "common.submit": "Submit",
   "common.reset": "Reset",
   "common.clear": "Clear",
+  "common.customer": "Customer",
+  "common.type": "Type",
+  "common.status": "Status",
+  "common.assignedTo": "Assigned",
+  "common.dueDate": "Due Date",
+  "common.actions": "Action",
   "common.openMenu": "Open main menu",
   "common.search": "Search",
+  "common.viewDetail": "View Detail",
+  "common.view": "View",
 
   // Placeholders
   "placeholder.certificateNumber": "E.g. GIA 1234567890",
@@ -899,6 +907,8 @@ const enTranslations: Record<string, string> = {
   "staff.accessDenied": "Access Denied",
   "staff.noPermission": "You do not have permission to access this page.",
   "staff.goToDashboard": "Go to Dashboard",
+  "staff.finishValuation": "Finish Valuation",
+  "staff.caseDetail": "Case Detail",
 
   // Staff Status Labels (EN)
   "staff.new": "New Request",
@@ -922,12 +932,14 @@ const enTranslations: Record<string, string> = {
   "staff.recordCommunication": "Record Communication",
   "staff.availableActions": "Available Actions",
   "staff.statusActions": "Status Actions",
+  "staff.status.completed": "Completed",
   "staff.additionalNotes": "Additional Notes",
   "staff.assignToMe": "Assign to Me",
   "staff.markAsContacted": "Mark as Contacted",
   "staff.createReceipt": "Create Receipt",
   "staff.reviewResults": "Review Results",
   "staff.sendResults": "Send Results",
+  "staff.contactCustomer": "Contact Customer",
   "staff.callCustomer": "Call Customer",
   "staff.sendEmail": "Send Email",
   "staff.scheduleAppointment": "Schedule Appointment",
@@ -951,6 +963,7 @@ const enTranslations: Record<string, string> = {
   "staff.valuationActions": "Valuation Actions",
   "staff.workflowActions": "Workflow Actions",
   "staff.startValuation": "Start Valuation",
+  "staff.sendToValuation": "Send to Valuation",
   "staff.updateProgress": "Update Progress",
   "staff.completeValuation": "Complete Valuation",
   "staff.putOnHold": "Put on Hold",
@@ -971,6 +984,7 @@ const enTranslations: Record<string, string> = {
   "staff.complete": "Complete",
   "staff.assignValuation": "Assign Valuation",
   "staff.assignMe": "Assign to me",
+  "staff.markComplete": "Mark Complete",
 
   // ---- Queue table/filters ----
   "queue.id": "ID",
@@ -1046,6 +1060,9 @@ const enTranslations: Record<string, string> = {
   "staff.saveProgress": "Save Progress",
   "staff.completeAppraisal": "Complete Appraisal",
   "staff.downloadFullReport": "Download Full Report",
+  "staff.diamond": "Diamond",
+  "brand.tool": "Tool",
+  "brand.valuation": "Valuation",
 
   // Staff Email Template (EN)
   "staff.emailTemplate": "Dear",
@@ -1457,6 +1474,12 @@ const viTranslations: Record<string, string> = {
   "common.loading": "Đang tải...",
   "common.error": "Lỗi",
   "common.success": "Thành công",
+  "common.customer": "Khách Hàng",
+  "common.type": "Loại",
+  "common.status": "Trạng thái",
+  "common.assignedTo": "Được nhận",
+  "common.dueDate": "Ngày hết hạn",
+  "common.actions": "Hành động",
   "common.cancel": "Hủy",
   "common.save": "Lưu",
   "common.edit": "Chỉnh sửa",
@@ -1473,7 +1496,9 @@ const viTranslations: Record<string, string> = {
   "common.clear": "Xóa",
   "common.openMenu": "Mở menu chính",
   "common.search": "Tìm kiếm",
-
+  "common.viewDetail": "Xem chi tiết",
+  "common.all": "Tất cả",
+  "common.enterName": "Nhập tên cần tìm",
   // Placeholders (VI)
   "placeholder.certificateNumber": "VD: GIA 1234567890",
   "placeholder.carat": "VD: 1.25",
@@ -2049,6 +2074,7 @@ const viTranslations: Record<string, string> = {
   "staff.customerCommunication": "Liên Lạc Khách Hàng",
   "staff.valuationWorkflow": "Quy Trình Định Giá",
   "staff.teamOverview": "Tổng Quan Nhóm",
+  "staff.finishValuation": "Hoàn Tất Định Giá",
 
   // Staff Status Labels (VI)
   "staff.status.newRequest": "Yêu Cầu Mới",
@@ -2063,6 +2089,8 @@ const viTranslations: Record<string, string> = {
   "staff.status.completed": "Hoàn Thành",
   "staff.status.onhold": "Tạm Dừng",
   "staff.status.cancelled": "Đã Hủy",
+  "staff.sendToValuation": "Gửi sang định giá",
+  "staff.markComplete": "Đóng Hồ Sơ",
 
   "staff.navigation": "Điều Hướng",
   "staff.performanceSummary": "Tổng Quan Hiệu Suất",
@@ -2078,6 +2106,8 @@ const viTranslations: Record<string, string> = {
   "staff.assignValuation": "Gán Định Giá",
   "staff.sendResults": "Gửi Kết Quả",
   "staff.assignMe": "Gán cho tôi",
+  "staff.caseDetail": "Chi tiết yêu cầu",
+  "staff.diamond": "Thông số Kim cương",
 
   // ---- Queue table/filters ----
   "queue.id": "Mã",
@@ -2106,6 +2136,8 @@ const viTranslations: Record<string, string> = {
   "modal.valuation.notes": "Ghi chú",
   "modal.valuation.confirm": "Xác nhận",
   "modal.valuation.cancel": "Hủy",
+  "brand.tool": "Công cụ",
+  "brand.valuation": "Định giá",
 
   "modal.results.title": "Gửi kết quả – {name}",
   "modal.results.placeholder": "Tin nhắn gửi khách...",
@@ -2196,6 +2228,7 @@ const viTranslations: Record<string, string> = {
   "staff.saveProgress": "Lưu Tiến Độ", // kept here
   "staff.completeAppraisal": "Hoàn Thành Thẩm Định",
   "staff.downloadFullReport": "Tải Báo Cáo Đầy Đủ",
+  "staff.contactCustomer": "Liên hệ khách hàng",
 
   // Staff Email Template (VI)
   "staff.emailTemplate": "Kính chào",

@@ -7,6 +7,12 @@ import {
   type CaseDetail,
   progressOf,
   updateStatus,
+  listValuationQueue,
+  listPendingValuationCases,
+  type CaseListItem,
+  claimValuation,
+  listUnassignedValuation,
+  listAssignedToMeValuation,
 } from "../services/valuation";
 
 import { useAuth } from "../context/AuthContext";
@@ -20,6 +26,7 @@ import {
 import { toast } from "react-toastify";
 import { createReceipt } from "../services/invoices";
 import ReceiptModal from "./StaffDashBoard/components/Modals/ReceiptModal";
+import { api } from "../services/apiClient";
 
 // ==========================HELPER===================================
 // Map tiến độ cho cả 2 kiểu status (FE cũ & BE mới)
@@ -177,6 +184,10 @@ const StaffDashboard: React.FC = () => {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState("tasks");
   const [loading, setLoading] = useState(false);
+  const [loadingQueue, setLoadingQueue] = useState(false);
+
+  //Finish
+  const [finishingId, setFinishingId] = useState<string | null>(null);
 
   const [valuationRequests, setValuationRequests] = useState<
     ValuationRequest[]
@@ -186,12 +197,85 @@ const StaffDashboard: React.FC = () => {
   const [tasksPageSize, setTasksPageSize] = useState(10);
   const [tasksTotal, setTasksTotal] = useState(0);
 
+  //Calc
+  // ---- Staff KPI (dynamic, thay cho số mock) ----
+  const [stats, setStats] = useState({
+    assignedTasks: 0,
+    completedToday: 0,
+    pendingApprovals: 0,
+    totalCompleted: 0,
+    // vẫn giữ các số "tháng này" từ mock để hiển thị progress bar
+    monthlyTarget: staffStats.monthlyTarget,
+    monthlyCompleted: staffStats.monthlyCompleted,
+    averageRating: staffStats.averageRating,
+  });
+
+  // Chuẩn hoá & tính KPI
+  const recalcStats = (items: any[], totalFromServer?: number) => {
+    // assigned = tổng nhiệm vụ “của tôi”
+    const assignedTasks = Number.isFinite(totalFromServer as any)
+      ? (totalFromServer as number)
+      : items.length;
+
+    const today = new Date().toISOString().slice(0, 10);
+
+    const asNorm = (s?: string) => normalizeStatus(s);
+
+    const completedToday = items.filter((x) => {
+      const st = asNorm(x?.status);
+      if (st !== "completed" && st !== "valuation_completed") return false;
+      const d = (x?.updatedAt || x?.completedAt || x?.createdAt || "").slice(
+        0,
+        10
+      );
+      return d === today;
+    }).length;
+
+    const pendingApprovals = items.filter((x) => {
+      const st = asNorm(x?.status);
+      // với Valuation staff: chờ consultant duyệt → mình đếm "valuation_completed"
+      // với Consulting staff: chờ duyệt/gửi kết quả → mình đếm "consultant_review"
+      return isValuationStaff
+        ? st === "valuation_completed"
+        : st === "consultant_review";
+    }).length;
+
+    const totalCompleted = items.filter(
+      (x) => asNorm(x?.status) === "completed"
+    ).length;
+
+    setStats((p) => ({
+      ...p,
+      assignedTasks,
+      completedToday,
+      pendingApprovals,
+      totalCompleted,
+    }));
+  };
+
   // Right detail drawer state
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
   const [detail, setDetail] = useState<CaseDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState<string | null>(null);
+
+  //Valuation
+  const [pendingValuations, setPendingValuations] = useState<CaseListItem[]>(
+    []
+  );
+  const [pendingPage, setPendingPage] = useState(1);
+  const [pendingTotalPages, setPendingTotalPages] = useState(1);
+  const pageSize = 10;
+
+  //
+  // thêm helper ở trên (cùng file)
+  const safeValuerId = () => {
+    // nếu BE dùng int staffId thì ưu tiên staffId, fallback Number(user.id)
+    const raw = (user as any)?.staffId ?? (user as any)?.id;
+    const n = Number(raw);
+    return Number.isFinite(n) && n > 0 ? n : 0;
+  };
 
   // Contact Customer
   const [isContactOpen, setIsContactOpen] = useState(false);
@@ -209,6 +293,18 @@ const StaffDashboard: React.FC = () => {
   const onClickCreateReceipt = (req: any) => {
     setSelectedCase(req);
     setOpenReceipt(true);
+  };
+
+  const loadValuationQueue = async () => {
+    setLoadingQueue(true);
+    try {
+      // Gộp: assigned-to-me + unassigned, đã lọc status = DinhGia
+      const items = await listValuationQueue(); // đã FE-map sẵn
+      console.log("Valuation: ", items);
+      setValuationRequests(items);
+    } finally {
+      setLoadingQueue(false);
+    }
   };
 
   // Trong component StaffDashboard
@@ -257,6 +353,11 @@ const StaffDashboard: React.FC = () => {
           color: "bg-cyan-600 text-white hover:bg-cyan-700",
         });
       }
+      actions.push({
+        key: "mark_complete",
+        label: t("staff.markComplete") ?? "Hoàn tất",
+        color: "bg-gray-800 text-white hover:bg-gray-900",
+      });
     }
 
     actions.push({
@@ -313,6 +414,7 @@ const StaffDashboard: React.FC = () => {
       });
 
       setValuationRequests(mapped);
+      recalcStats(mapped, res.total);
       setTasksPage(page);
       setTasksPageSize(pageSize);
       setTasksTotal(res.total ?? mapped.length);
@@ -404,16 +506,27 @@ const StaffDashboard: React.FC = () => {
       const created = await createReceipt(payload);
 
       // đổi status case sang bước tiếp theo (ví dụ "BienLai")
+      // đổi status case sang bước tiếp theo (ví dụ "BienLai")
       try {
         await updateStatus(req.id, "BienLai");
+        // await sendToValuation(req.id);
+
+        // nạp lại dữ liệu case từ BE
+        const fresh = await getCaseDetail(req.id);
+
+        // cập nhật danh sách hiện tại trong UI
+        setValuationRequests((prev) =>
+          prev.map((r) =>
+            r.id === req.id
+              ? { ...r, status: "receipt_created", progress: 40 }
+              : r
+          )
+        );
       } catch {
         notify("Đổi trạng thái hồ sơ thất bại (biên nhận vẫn đã tạo).");
       }
 
       toast.success(`Đã tạo biên nhận #${created.receiptNo}`);
-
-      // điều hướng tới trang chi tiết biên nhận
-      // navigate(`/dashboard/staff/receipts/${created.id}`);
     } catch (e: any) {
       const prob = e?.response?.data; // ValidationProblemDetails
       const errs = prob?.errors as Record<string, string[]> | undefined;
@@ -437,6 +550,13 @@ const StaffDashboard: React.FC = () => {
     try {
       setWorkingId(caseId);
       await updateStatus(caseId, "valuation_assigned"); // map -> "DinhGia"
+      setValuationRequests((prev) =>
+        prev.map((r) =>
+          r.id === caseId
+            ? { ...r, status: "valuation_in_progress", progress: 65 }
+            : r
+        )
+      );
       await reloadMyTasks();
     } finally {
       setWorkingId(null);
@@ -529,46 +649,199 @@ const StaffDashboard: React.FC = () => {
 
   useEffect(() => {
     let ignore = false;
+
     const load = async () => {
       try {
+        // ----- TAB: Nhiệm vụ của tôi -----
         if (activeTab === "tasks") {
-          const res = await listAssignedToMe({ page: 1, pageSize: 10 });
-          console.log("Task: ", res);
+          if (isValuationStaff) {
+            const res = await listAssignedToMeValuation({ page: 1, pageSize });
+            console.log("ValuationStaff: ", res);
+            if (!ignore) setValuationRequests(res.items);
+            recalcStats(res.items, res.total);
+            return;
+          }
+          const res = await listAssignedToMe({ page: 1, pageSize });
           if (!ignore) setValuationRequests(res.items);
-        } else if (activeTab === "queue") {
-          const res = await listUnassignedCases({ page: 1, pageSize: 10 });
-          console.log("Queue", res);
-          if (!ignore) setValuationRequests(res.items);
+          recalcStats(res.items, res.total);
+          return;
         }
-      } catch {
-        // nếu bạn dùng notify/toast, có thể báo lỗi ở đây
+
+        // ----- TAB: Hàng đợi công việc (Queue) -----
+        if (activeTab === "queue") {
+          if (isConsultingStaff) {
+            // Consultant xem queue các case chưa có AssigneeId
+            const res = await listUnassignedCases({ page: 1, pageSize });
+            if (!ignore) setValuationRequests(res.items);
+            return;
+          }
+          if (isValuationStaff) {
+            // Valuation Staff xem queue các case đã có AssigneeId nhưng chưa có ValuationId
+            const { items, totalPages } = await listUnassignedValuation({
+              page: pendingPage,
+              pageSize,
+            });
+            if (!ignore) {
+              setValuationRequests(items);
+              setPendingValuations(items);
+              setPendingTotalPages(totalPages);
+            }
+            return;
+          }
+        }
+
+        // ----- TAB: Thẩm Định (nếu bạn muốn tách riêng) -----
+        if (activeTab === "valuations" && isValuationStaff) {
+          const { items, totalPages } = await listAssignedToMeValuation({
+            page: pendingPage,
+            pageSize,
+          });
+          if (!ignore) {
+            setPendingValuations(items);
+            setPendingTotalPages(totalPages);
+          }
+        }
+      } catch (e) {
+        console.error(e);
+        // toast lỗi nếu cần
       }
     };
+
     load();
     return () => {
       ignore = true;
     };
-  }, [activeTab]);
+  }, [activeTab, pendingPage]);
 
   // Handler functions for workflow actions
   const handleAssignToMe = async (requestId: string) => {
     try {
-      await claimCase(requestId); // <-- gọi BE
+      if (isValuationStaff) {
+        await claimValuation(requestId);
+      } else {
+        // consultant
+        await claimCase(requestId);
+      }
       notify("Nhận case thành công!");
-      // refresh lại danh sách tab hiện tại
+      // Refresh danh sách theo vai trò + tab hiện tại
       if (activeTab === "queue") {
-        const res = await listUnassignedCases({ page: 1, pageSize: 10 });
-        setValuationRequests(res.items);
+        if (isValuationStaff) {
+          const { items, totalPages } = await listUnassignedValuation({
+            page: 1,
+            pageSize: 10,
+          });
+          setPendingValuations(items);
+          setPendingTotalPages(totalPages);
+          reloadMyTasks();
+        } else {
+          const res = await listUnassignedCases({ page: 1, pageSize: 10 });
+          setValuationRequests(res.items);
+          reloadMyTasks();
+        }
       } else {
         const res = await listAssignedToMe({ page: 1, pageSize: 10 });
         setValuationRequests(res.items);
+        reloadMyTasks;
       }
     } catch (e: any) {
-      if (e?.response?.status === 409) {
+      if (e?.response?.status === 409)
         notify("Case đã có người khác nhận trước.");
-      } else {
-        notify("Nhận case thất bại.");
+      else notify("Nhận case thất bại.");
+    }
+  };
+
+  // Handle Finish Valuation
+  const handleFinishValuation = async (item: any) => {
+    try {
+      // Lấy dữ liệu tối thiểu để tính
+      const carat = Number(item.carat ?? item.spec?.carat ?? 0);
+      const currency = "USD";
+
+      // Thu thập giá: bạn có thể thay bằng modal form
+      const totalStr = window.prompt(
+        "Nhập Total Price (USD):",
+        item.estimatedValue ?? ""
+      );
+      if (!totalStr) return;
+      const totalPrice = Number(totalStr);
+      if (!Number.isFinite(totalPrice) || totalPrice <= 0) {
+        alert("Giá không hợp lệ");
+        return;
       }
+      const pricePerCarat =
+        carat > 0 ? +(totalPrice / carat).toFixed(2) : totalPrice;
+
+      setFinishingId(item.id);
+
+      //Gọi BE: POST /api/results (ValuationResponseService)
+      // { caseId, requestId?, certificateNo?, pricePerCarat, totalPrice, currency, algorithmVersion, valuatedAt, customerName? }
+      const payload = {
+        caseId: item.id,
+        requestId: item.requestId ?? undefined,
+        certificateNo: item.certificateNo ?? undefined,
+        pricePerCarat,
+        totalPrice,
+        currency,
+        algorithmVersion: "1.0.0",
+        valuatedAt: new Date().toISOString(),
+        customerName: item.fullName ?? item.contactName ?? undefined,
+      };
+
+      await api.post("/api/results", payload);
+      try {
+        await updateStatus(item.id, "valuation_completed");
+        await reloadMyTasks();
+      } catch {}
+      setValuationRequests((prev) =>
+        (prev || []).map((r: any) =>
+          r.id === item.id
+            ? {
+                ...r,
+                estimatedValue: totalPrice,
+                status: "valuation_completed", // FE của bạn map ra "Kết Quả"
+                progress: progressByStatus("valuation_completed"), // ép progress = 85
+                _justUpdated: true,
+              }
+            : r
+        )
+      );
+
+      // Toast
+      notify?.("Đã gửi kết quả định giá!");
+    } catch (e: any) {
+      console.error(e);
+      notify?.("Gửi kết quả thất bại.");
+    } finally {
+      setFinishingId(null);
+    }
+  };
+
+  const handleCompleteCase = async (item: any) => {
+    try {
+      // Gọi BE đổi trạng thái
+
+      await api.post(`/api/results/${item.id}/complete`, {
+        totalPrice: item?.estimatedValue ?? 0,
+        currency: "USD",
+        notes: "Test",
+        customerName: item?.contact?.fullName ?? "—",
+        email: item?.contact?.email ?? "—",
+      });
+      await updateStatus(item.id, "complete"); // hoặc api.put(`/api/cases/${item.id}/status`, { status: "Complete" })
+
+      // 2) Cập nhật UI lạc quan
+      setValuationRequests((prev) =>
+        (prev || []).map((r: any) =>
+          r.id === item.id
+            ? { ...r, status: "complete", progress: 100, _justUpdated: true }
+            : r
+        )
+      );
+
+      notify?.("Đã hoàn tất hồ sơ & gửi kết quả cho khách!");
+    } catch (e: any) {
+      console.error(e);
+      notify?.("Hoàn tất hồ sơ thất bại");
     }
   };
 
@@ -604,7 +877,6 @@ const StaffDashboard: React.FC = () => {
     );
     notify("Customer contact status updated!");
   };
-  //   const receiptNumber = `RCP-${new Date().getFullYear()}-${
   //     requestId.split("-")[2]
   //   }`;
   //   setValuationRequests((prev) =>
@@ -708,42 +980,8 @@ const StaffDashboard: React.FC = () => {
     notify("Valuation completed successfully!");
   };
 
-  // Get requests based on user role and current workflow status
-  const getMyRequests = () => {
-    const userRole = user?.roles;
-    const userName = user?.name;
-
-    return valuationRequests.filter((req) => {
-      if (userRole === "consulting_staff") {
-        return (
-          req.assignedConsultant === userName ||
-          [
-            "new_request",
-            "consultant_assigned",
-            "customer_contacted",
-            "receipt_created",
-            "consultant_review",
-            "results_sent",
-          ].includes(req.status)
-        );
-      } else if (userRole === "valuation_staff") {
-        return (
-          req.assignedValuer === userName ||
-          [
-            "valuation_assigned",
-            "valuation_in_progress",
-            "valuation_completed",
-          ].includes(req.status)
-        );
-      } else if (userRole === "manager") {
-        return true; // Managers see all requests
-      }
-      return false;
-    });
-  };
-
   // Workflow action handlers
-  const handleWorkflowAction = (requestId: string, action: string) => {
+  const handleWorkflowAction = async (requestId: string, action: string) => {
     const request = valuationRequests.find((r) => r.id === requestId);
     if (!request) return;
 
@@ -789,6 +1027,7 @@ const StaffDashboard: React.FC = () => {
 
       case "start_valuation":
         if (request.status === "valuation_assigned") {
+          await updateStatus(requestId, "valuation_in_progress");
           newStatus = "valuation_in_progress";
           notificationMessage = "Valuation process started";
         }
@@ -816,6 +1055,17 @@ const StaffDashboard: React.FC = () => {
           setModalType("results");
           setIsModalOpen(true);
           return;
+        }
+        break;
+      case "mark_complete":
+        if (
+          request.status === "valuation_completed" ||
+          request.status === "results_sent" ||
+          request.status === "consultant_review"
+        ) {
+          await updateStatus(requestId, "completed");
+          newStatus = "completed";
+          notificationMessage = "Case closed";
         }
         break;
     }
@@ -927,79 +1177,6 @@ const StaffDashboard: React.FC = () => {
       },
     };
     return statusMap[status] || statusMap["new_request"];
-  };
-
-  // Get next available actions based on current status and user role
-  const getAvailableActions = (request: ValuationRequest) => {
-    const userRole = user?.roles;
-    const actions = [];
-
-    if (userRole === "consulting_staff") {
-      switch (request.status) {
-        case "new_request":
-          actions.push({
-            action: "assign_consultant",
-            label: "Take Request",
-            color: "btn-primary",
-          });
-          break;
-        case "consultant_assigned":
-          actions.push({
-            action: "contact_customer",
-            label: "Contact Customer",
-            color: "btn-primary",
-          });
-          break;
-        case "customer_contacted":
-          // openContactModal(request);
-          actions.push({
-            action: "create_receipt",
-            label: "Create Receipt",
-            color: "btn-gold",
-          });
-          break;
-        case "receipt_created":
-          actions.push({
-            action: "assign_valuation",
-            label: "Assign to Valuer",
-            color: "btn-primary",
-          });
-          break;
-        case "consultant_review":
-          actions.push({
-            action: "send_results",
-            label: "Send Results",
-            color: "btn-primary",
-          });
-          break;
-      }
-    } else if (userRole === "valuation_staff") {
-      switch (request.status) {
-        case "valuation_assigned":
-          actions.push({
-            action: "start_valuation",
-            label: "Start Valuation",
-            color: "btn-primary",
-          });
-          break;
-        case "valuation_in_progress":
-          actions.push({
-            action: "complete_valuation",
-            label: "Complete Valuation",
-            color: "btn-gold",
-          });
-          break;
-      }
-    }
-
-    // Common actions for all roles
-    actions.push({
-      action: "view_timeline",
-      label: "View Timeline",
-      color: "btn-secondary",
-    });
-
-    return actions;
   };
 
   const fadeInUp = {
@@ -1139,9 +1316,7 @@ const StaffDashboard: React.FC = () => {
                     <span className="text-sm text-gray-600">
                       {t("staff.completed")}
                     </span>
-                    <span className="font-bold">
-                      {staffStats.monthlyCompleted}/{staffStats.monthlyTarget}
-                    </span>
+                    <span className="font-bold">{stats.completedToday}</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
@@ -1180,6 +1355,7 @@ const StaffDashboard: React.FC = () => {
               >
                 {/* Task Summary Cards */}
                 <div className="grid md:grid-cols-4 gap-6">
+                  {/* Assigned tasks */}
                   <div className="bg-white rounded-lg shadow-md p-6">
                     <div className="flex items-center justify-between">
                       <div>
@@ -1187,7 +1363,7 @@ const StaffDashboard: React.FC = () => {
                           {t("staff.assignedTasks")}
                         </p>
                         <p className="text-3xl font-bold text-luxury-navy">
-                          {staffStats.assignedTasks}
+                          {stats.assignedTasks ?? 0}
                         </p>
                       </div>
                       <div className="p-3 bg-blue-100 rounded-full">
@@ -1196,6 +1372,7 @@ const StaffDashboard: React.FC = () => {
                     </div>
                   </div>
 
+                  {/* Completed today */}
                   <div className="bg-white rounded-lg shadow-md p-6">
                     <div className="flex items-center justify-between">
                       <div>
@@ -1203,7 +1380,7 @@ const StaffDashboard: React.FC = () => {
                           {t("staff.completedToday")}
                         </p>
                         <p className="text-3xl font-bold text-luxury-navy">
-                          {staffStats.completedToday}
+                          {stats.completedToday ?? 0}
                         </p>
                       </div>
                       <div className="p-3 bg-green-100 rounded-full">
@@ -1212,6 +1389,7 @@ const StaffDashboard: React.FC = () => {
                     </div>
                   </div>
 
+                  {/* Pending review */}
                   <div className="bg-white rounded-lg shadow-md p-6">
                     <div className="flex items-center justify-between">
                       <div>
@@ -1219,7 +1397,7 @@ const StaffDashboard: React.FC = () => {
                           {t("staff.pendingReview")}
                         </p>
                         <p className="text-3xl font-bold text-luxury-navy">
-                          {staffStats.pendingApprovals}
+                          {stats.pendingApprovals ?? 0}
                         </p>
                       </div>
                       <div className="p-3 bg-yellow-100 rounded-full">
@@ -1228,6 +1406,7 @@ const StaffDashboard: React.FC = () => {
                     </div>
                   </div>
 
+                  {/* Total completed */}
                   <div className="bg-white rounded-lg shadow-md p-6">
                     <div className="flex items-center justify-between">
                       <div>
@@ -1235,7 +1414,7 @@ const StaffDashboard: React.FC = () => {
                           {t("staff.totalCompleted")}
                         </p>
                         <p className="text-3xl font-bold text-luxury-navy">
-                          {staffStats.totalCompleted}
+                          {stats.totalCompleted ?? 0}
                         </p>
                       </div>
                       <div className="p-3 bg-purple-100 rounded-full">
@@ -1332,6 +1511,10 @@ const StaffDashboard: React.FC = () => {
                       const canCreateReceipt =
                         statusNorm === "customer_contacted" &&
                         !request?.receiptNumber;
+                      console.log(request);
+                      const queueList = isValuationStaff
+                        ? pendingValuations
+                        : valuationRequests;
 
                       return (
                         <div
@@ -1365,7 +1548,6 @@ const StaffDashboard: React.FC = () => {
                             </div>
 
                             <div className="flex space-x-2">
-                              {/* View detail (drawer/modal) */}
                               <button
                                 onClick={() => openCaseDetail(request.id)}
                                 className="btn bg-luxury-navy text-white text-sm"
@@ -1412,8 +1594,6 @@ const StaffDashboard: React.FC = () => {
                                       "Tạo Phiếu Nhận"}
                                 </button>
                               )}
-
-                              {/* Các action khác giữ nguyên logic cũ */}
                               {(actions || []).map((action: ActionItem) => (
                                 <button
                                   key={action.key}
@@ -1422,11 +1602,21 @@ const StaffDashboard: React.FC = () => {
                                       setSelectedValuation(request);
                                       setModalType("timeline");
                                       setIsModalOpen(true);
+                                    } else if (
+                                      action.key === "send_to_valuation"
+                                    ) {
+                                      handleSendToValuation(request.id);
+                                    } else if (
+                                      action.key === "finish_valuation"
+                                    ) {
+                                      handleFinishValuation(request);
+                                    } else if (action.key === "mark_complete") {
+                                      handleCompleteCase(request);
                                     } else {
                                       handleWorkflowAction(
                                         request.id,
                                         action.key
-                                      ); // <-- dùng key
+                                      );
                                     }
                                   }}
                                   className={`btn ${action.color} text-sm`}
@@ -1858,29 +2048,16 @@ const StaffDashboard: React.FC = () => {
                                     {t("common.viewDetail") ?? "View Details"}
                                   </button>
 
-                                  {isConsultingStaff &&
-                                    statusNorm === "new_request" && (
-                                      <button
-                                        onClick={() =>
-                                          handleAssignToMe(request.id)
-                                        }
-                                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm"
-                                      >
-                                        Assign to Me
-                                      </button>
-                                    )}
-
-                                  {isValuationStaff &&
-                                    statusNorm === "valuation_assigned" && (
-                                      <button
-                                        onClick={() =>
-                                          handleStartValuation(request.id)
-                                        }
-                                        className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors text-sm"
-                                      >
-                                        Start Valuation
-                                      </button>
-                                    )}
+                                  {(isConsultingStaff || isValuationStaff) && (
+                                    <button
+                                      onClick={() =>
+                                        handleAssignToMe(request.id)
+                                      }
+                                      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                                    >
+                                      Nhận case
+                                    </button>
+                                  )}
                                 </div>
                               </div>
                             </div>
@@ -2444,426 +2621,83 @@ const StaffDashboard: React.FC = () => {
                 variants={fadeInUp}
                 className="space-y-6"
               >
-                {/* Professional Tools Section */}
+                {/* PENDING VALUATION LIST */}
                 <div className="bg-white rounded-lg shadow-md p-6">
-                  <h3 className="text-xl font-serif font-bold mb-6">
-                    {t("staff.diamondAppraisalWorkstation")}
-                  </h3>
-
-                  <div className="grid md:grid-cols-5 gap-4 mb-6">
-                    <div className="border rounded-lg p-4 text-center hover:shadow-md transition-shadow cursor-pointer">
-                      <span className="text-3xl block mb-2">💎</span>
-                      <h4 className="font-medium text-sm">
-                        {t("staff.diamondCalculator")}
-                      </h4>
-                      <p className="text-xs text-gray-600 mb-2">4Cs Analysis</p>
-                      <button className="btn btn-secondary text-xs w-full">
-                        {t("staff.openTool")}
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-bold">Cases chờ định giá</h3>
+                    <div className="flex items-center gap-2">
+                      <button
+                        className="px-3 py-1 border rounded"
+                        disabled={pendingPage <= 1}
+                        onClick={() =>
+                          setPendingPage((p) => Math.max(1, p - 1))
+                        }
+                      >
+                        ‹ Prev
                       </button>
-                    </div>
-                    <div className="border rounded-lg p-4 text-center hover:shadow-md transition-shadow cursor-pointer">
-                      <span className="text-3xl block mb-2">📊</span>
-                      <h4 className="font-medium text-sm">
-                        {t("staff.priceDatabase")}
-                      </h4>
-                      <p className="text-xs text-gray-600 mb-2">
-                        Live Market Data
-                      </p>
-                      <button className="btn btn-secondary text-xs w-full">
-                        {t("staff.accessDB")}
-                      </button>
-                    </div>
-                    <div className="border rounded-lg p-4 text-center hover:shadow-md transition-shadow cursor-pointer">
-                      <span className="text-3xl block mb-2">🔬</span>
-                      <h4 className="font-medium text-sm">
-                        Microscope Interface
-                      </h4>
-                      <p className="text-xs text-gray-600 mb-2">
-                        Digital Analysis
-                      </p>
-                      <button className="btn btn-secondary text-xs w-full">
-                        Connect
-                      </button>
-                    </div>
-                    <div className="border rounded-lg p-4 text-center hover:shadow-md transition-shadow cursor-pointer">
-                      <span className="text-3xl block mb-2">📸</span>
-                      <h4 className="font-medium text-sm">Photo Suite</h4>
-                      <p className="text-xs text-gray-600 mb-2">360° Capture</p>
-                      <button className="btn btn-secondary text-xs w-full">
-                        Capture
-                      </button>
-                    </div>
-                    <div className="border rounded-lg p-4 text-center hover:shadow-md transition-shadow cursor-pointer">
-                      <span className="text-3xl block mb-2">📋</span>
-                      <h4 className="font-medium text-sm">Cert Templates</h4>
-                      <p className="text-xs text-gray-600 mb-2">
-                        GIA/AGS Format
-                      </p>
-                      <button className="btn btn-secondary text-xs w-full">
-                        Templates
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Current Appraisal - Enhanced Form */}
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <div className="flex items-center justify-between mb-6">
-                    <h4 className="text-lg font-bold">
-                      {t("staff.currentAppraisal")}: VAL-2024-0125
-                    </h4>
-                    <div className="flex space-x-2">
-                      <span className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm">
-                        In Progress
+                      <span className="text-sm">
+                        Page {pendingPage}/{pendingTotalPages}
                       </span>
-                      <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
-                        High Priority
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="grid lg:grid-cols-3 gap-6">
-                    {/* Diamond Specifications */}
-                    <div className="space-y-4">
-                      <h5 className="font-bold text-luxury-navy border-b pb-2">
-                        {t("staff.diamondSpecifications")}
-                      </h5>
-                      <div className="space-y-3">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Shape
-                          </label>
-                          <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-luxury-gold focus:border-luxury-gold">
-                            <option>Emerald Cut</option>
-                            <option>Round Brilliant</option>
-                            <option>Princess</option>
-                            <option>Oval</option>
-                            <option>Marquise</option>
-                            <option>Pear</option>
-                            <option>Cushion</option>
-                            <option>Asscher</option>
-                            <option>Radiant</option>
-                            <option>Heart</option>
-                          </select>
-                        </div>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Carat Weight
-                            </label>
-                            <input
-                              type="number"
-                              defaultValue="3.2"
-                              step="0.01"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-luxury-gold focus:border-luxury-gold"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Color Grade
-                            </label>
-                            <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-luxury-gold focus:border-luxury-gold">
-                              <option>D</option>
-                              <option>E</option>
-                              <option>F</option>
-                              <option>G</option>
-                              <option selected>H</option>
-                              <option>I</option>
-                              <option>J</option>
-                              <option>K</option>
-                              <option>L</option>
-                              <option>M</option>
-                              <option>N</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Clarity Grade
-                            </label>
-                            <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-luxury-gold focus:border-luxury-gold">
-                              <option>FL</option>
-                              <option>IF</option>
-                              <option>VVS1</option>
-                              <option>VVS2</option>
-                              <option selected>VS1</option>
-                              <option>VS2</option>
-                              <option>SI1</option>
-                              <option>SI2</option>
-                              <option>I1</option>
-                              <option>I2</option>
-                              <option>I3</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Cut Grade
-                            </label>
-                            <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-luxury-gold focus:border-luxury-gold">
-                              <option>Excellent</option>
-                              <option selected>Very Good</option>
-                              <option>Good</option>
-                              <option>Fair</option>
-                              <option>Poor</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-3 gap-2">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Length (mm)
-                            </label>
-                            <input
-                              type="number"
-                              step="0.01"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Width (mm)
-                            </label>
-                            <input
-                              type="number"
-                              step="0.01"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Depth (mm)
-                            </label>
-                            <input
-                              type="number"
-                              step="0.01"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            />
-                          </div>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Fluorescence
-                          </label>
-                          <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-luxury-gold focus:border-luxury-gold">
-                            <option selected>None</option>
-                            <option>Faint</option>
-                            <option>Medium</option>
-                            <option>Strong</option>
-                            <option>Very Strong</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Valuation Assessment */}
-                    <div className="space-y-4">
-                      <h5 className="font-bold text-luxury-navy border-b pb-2">
-                        Professional Assessment
-                      </h5>
-                      <div className="space-y-3">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Market Value ($)
-                          </label>
-                          <div className="relative">
-                            <input
-                              type="number"
-                              placeholder="0"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-luxury-gold focus:border-luxury-gold"
-                            />
-                            <button className="absolute right-2 top-2 text-sm text-blue-600 hover:text-blue-800">
-                              Auto-Calculate
-                            </button>
-                          </div>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Insurance Value ($)
-                          </label>
-                          <input
-                            type="number"
-                            placeholder="0"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-luxury-gold focus:border-luxury-gold"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Retail Value ($)
-                          </label>
-                          <input
-                            type="number"
-                            placeholder="0"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-luxury-gold focus:border-luxury-gold"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Overall Condition
-                          </label>
-                          <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-luxury-gold focus:border-luxury-gold">
-                            <option selected>Excellent</option>
-                            <option>Very Good</option>
-                            <option>Good</option>
-                            <option>Fair</option>
-                            <option>Poor</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Treatment
-                          </label>
-                          <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-luxury-gold focus:border-luxury-gold">
-                            <option selected>None</option>
-                            <option>Laser Drilling</option>
-                            <option>HPHT</option>
-                            <option>CVD</option>
-                            <option>Fracture Filled</option>
-                            <option>Other</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Origin
-                          </label>
-                          <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-luxury-gold focus:border-luxury-gold">
-                            <option>Natural</option>
-                            <option>Synthetic</option>
-                            <option>Unknown</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Documentation & Notes */}
-                    <div className="space-y-4">
-                      <h5 className="font-bold text-luxury-navy border-b pb-2">
-                        Documentation
-                      </h5>
-                      <div className="space-y-3">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Photo Documentation
-                          </label>
-                          <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                            <span className="text-2xl block mb-2">📷</span>
-                            <p className="text-sm text-gray-600 mb-2">
-                              Drag & drop photos or click to upload
-                            </p>
-                            <button className="btn btn-secondary text-xs">
-                              Upload Photos
-                            </button>
-                          </div>
-                          <div className="grid grid-cols-3 gap-2 mt-2">
-                            <div className="bg-gray-100 p-2 rounded text-center">
-                              <span className="text-xs">Face-up</span>
-                            </div>
-                            <div className="bg-gray-100 p-2 rounded text-center">
-                              <span className="text-xs">Side view</span>
-                            </div>
-                            <div className="bg-gray-100 p-2 rounded text-center">
-                              <span className="text-xs">Inclusion</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Certification Reference
-                          </label>
-                          <input
-                            type="text"
-                            placeholder="GIA/AGS Certificate Number"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-luxury-gold focus:border-luxury-gold"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Professional Notes
-                          </label>
-                          <textarea
-                            rows={4}
-                            placeholder="Detailed observations, inclusions, characteristics..."
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-luxury-gold focus:border-luxury-gold"
-                          ></textarea>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Quality Control
-                          </label>
-                          <div className="space-y-2">
-                            <label className="flex items-center">
-                              <input type="checkbox" className="mr-2" />
-                              <span className="text-sm">
-                                Measurements verified
-                              </span>
-                            </label>
-                            <label className="flex items-center">
-                              <input type="checkbox" className="mr-2" />
-                              <span className="text-sm">Photos captured</span>
-                            </label>
-                            <label className="flex items-center">
-                              <input type="checkbox" className="mr-2" />
-                              <span className="text-sm">
-                                Market research completed
-                              </span>
-                            </label>
-                            <label className="flex items-center">
-                              <input type="checkbox" className="mr-2" />
-                              <span className="text-sm">Report reviewed</span>
-                            </label>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-6 pt-6 border-t flex justify-between items-center">
-                    <div className="flex space-x-3">
-                      <button className="btn btn-secondary">
-                        {t("staff.saveProgress")}
-                      </button>
-                      <button className="btn btn-primary">
-                        Generate Preview
-                      </button>
-                      <button className="btn btn-gold">
-                        {t("staff.completeAppraisal")}
+                      <button
+                        className="px-3 py-1 border rounded"
+                        disabled={pendingPage >= pendingTotalPages}
+                        onClick={() =>
+                          setPendingPage((p) =>
+                            Math.min(pendingTotalPages, p + 1)
+                          )
+                        }
+                      >
+                        Next ›
                       </button>
                     </div>
-                    <div className="text-sm text-gray-600">
-                      Auto-saved 2 minutes ago
-                    </div>
                   </div>
-                </div>
 
-                {/* Quick Tools Panel */}
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <h4 className="font-bold mb-4">Quick Access Tools</h4>
-                  <div className="grid md:grid-cols-6 gap-3">
-                    <button className="p-3 border rounded-lg hover:bg-gray-50 text-center">
-                      <span className="text-lg block mb-1">🔍</span>
-                      <span className="text-xs">Inclusion Map</span>
-                    </button>
-                    <button className="p-3 border rounded-lg hover:bg-gray-50 text-center">
-                      <span className="text-lg block mb-1">📏</span>
-                      <span className="text-xs">Proportion Tool</span>
-                    </button>
-                    <button className="p-3 border rounded-lg hover:bg-gray-50 text-center">
-                      <span className="text-lg block mb-1">🎨</span>
-                      <span className="text-xs">Color Compare</span>
-                    </button>
-                    <button className="p-3 border rounded-lg hover:bg-gray-50 text-center">
-                      <span className="text-lg block mb-1">⚖️</span>
-                      <span className="text-xs">Weight Check</span>
-                    </button>
-                    <button className="p-3 border rounded-lg hover:bg-gray-50 text-center">
-                      <span className="text-lg block mb-1">🌈</span>
-                      <span className="text-xs">Spectroscopy</span>
-                    </button>
-                    <button className="p-3 border rounded-lg hover:bg-gray-50 text-center">
-                      <span className="text-lg block mb-1">📊</span>
-                      <span className="text-xs">Market Analysis</span>
-                    </button>
-                  </div>
+                  {pendingValuations.length === 0 ? (
+                    <p className="text-gray-500">Không có case nào.</p>
+                  ) : (
+                    <ul className="divide-y">
+                      {pendingValuations.map((item) => (
+                        <li
+                          key={item.id}
+                          className="py-4 flex items-center justify-between"
+                        >
+                          <div className="min-w-0">
+                            <div className="font-medium">
+                              {item.contact?.fullName ?? "—"}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {item.diamond?.shape ?? "—"} •{" "}
+                              {item.diamond?.carat ?? "—"} ct •{" "}
+                              {item.diamond?.color ?? "—"} /{" "}
+                              {item.diamond?.clarity ?? "—"}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {new Date(item.createdAt).toLocaleString()}
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <Link
+                              to={`/staff/cases/${item.id}`}
+                              className="px-3 py-1 border rounded text-sm"
+                            >
+                              Xem
+                            </Link>
+
+                            {/* Nhận case để định giá */}
+                            {isValuationStaff && (
+                              <button
+                                className="px-3 py-1 bg-black text-white rounded text-sm"
+                                onClick={() => handleAssignToMe(item.id)}
+                              >
+                                Nhận case
+                              </button>
+                            )}
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               </motion.div>
             )}

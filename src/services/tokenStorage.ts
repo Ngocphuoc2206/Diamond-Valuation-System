@@ -14,7 +14,6 @@ function getStore(remember: boolean) {
 export function saveTokens(tokens: StoredTokens, remember: boolean) {
   const store = getStore(remember);
   store.setItem(remember ? LS_KEY : SS_KEY, JSON.stringify(tokens));
-  // Xoá kho còn lại để tránh đụng nhau
   (remember ? sessionStorage : localStorage).removeItem(
     remember ? SS_KEY : LS_KEY
   );

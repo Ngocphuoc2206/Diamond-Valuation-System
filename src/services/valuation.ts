@@ -10,6 +10,89 @@ const VI_STATUS = [
   "Complete",
 ] as const;
 
+export type ValuationWorkflowStatus =
+  | "new_request"
+  | "customer_contacted"
+  | "receipt_created"
+  | "valuation_assigned"
+  | "valuation_in_progress"
+  | "consultant_review"
+  | "result_prepared"
+  | "completed";
+
+export function beToFeStatus(be: string): ValuationWorkflowStatus {
+  const s = (be ?? "").trim().toLowerCase();
+  if (s === "yeucau") return "new_request";
+  if (s === "lienhe") return "customer_contacted";
+  if (s === "bienlai") return "receipt_created";
+  if (s === "dinhgia") return "valuation_in_progress";
+  if (s === "ketqua") return "result_prepared";
+  if (s === "complete" || s === "completed") return "completed";
+  return "new_request";
+}
+
+export function filterValuationList(
+  items: CaseListItem[],
+  opt: {
+    status?: ValuationWorkflowStatus | "overdue";
+    assignee?: string;
+    q?: string;
+    dateFrom?: string; // lọc theo createdAt
+    dateTo?: string; // lọc theo createdAt
+  }
+) {
+  const { status, assignee, q, dateFrom, dateTo } = opt;
+  const df = dateFrom ? new Date(dateFrom) : null;
+  const dt = dateTo ? new Date(dateTo) : null;
+
+  return items.filter((v) => {
+    if (status === "overdue") {
+      if (!isCaseOverdue(v)) return false;
+    } else if (status) {
+      if (beToFeStatus(v.status) !== status) return false;
+    }
+
+    if (assignee) {
+      const who = (v.consultantName ?? "").toLowerCase();
+      if (!who.includes(assignee.toLowerCase())) return false;
+    }
+
+    if (q) {
+      const hay = `${v.id} ${v.valuationName ?? ""} ${
+        v.contact?.fullName ?? ""
+      } ${v.diamond?.shape ?? ""}`.toLowerCase();
+      if (!hay.includes(q.toLowerCase())) return false;
+    }
+
+    // lọc theo createdAt
+    if (df || dt) {
+      if (!v.createdAt) return false;
+      const created = new Date(v.createdAt);
+      if (df && created < df) return false;
+      if (dt && created > dt) return false;
+    }
+
+    return true;
+  });
+}
+
+export function getValuationCounters(items: CaseListItem[]) {
+  let unresolved = 0,
+    inprogress = 0,
+    completed = 0,
+    overdue = 0;
+
+  for (const v of items) {
+    const st = beToFeStatus(v.status);
+    if (st === "new_request") unresolved++;
+    else if (st === "completed") completed++;
+    else inprogress++;
+
+    if (isCaseOverdue(v)) overdue++;
+  }
+  return { unresolved, inprogress, completed, overdue };
+}
+
 const EN_STATUS = ["Pending", "InProgress", "Completed"] as const;
 
 type AnyStatus =
@@ -61,8 +144,11 @@ export function mapFeStatusToBe(fe: string): string {
       return "BienLai";
     case "valuation":
     case "inprogress":
+    case "valuation_assigned":
+    case "valuation_in_progress":
       return "DinhGia";
     case "result_prepared":
+    case "consultant_review":
     case "sent":
       return "KetQua";
     case "completed":
@@ -328,16 +414,40 @@ export type CaseListItem = {
   status: string; // normalized
   progress: number; // %
   consultantName?: string | null;
+  valuationName?: string | null;
   createdAt: string;
   estimatedValue?: number | null;
   contact?: ContactSummary | null;
   diamond?: DiamondSummary | null;
   // Nếu BE có trả summary:
   resultSummary?: { marketValue: number; retailValue: number } | null;
+  dueDate?: string | null;
 };
 
+export function isCaseOverdue(
+  v: CaseListItem,
+  mode: "now" | "createdAt" = "now"
+): boolean {
+  if (!v?.dueDate) return false;
+  const st = beToFeStatus(v.status);
+  if (st === "completed") return false;
+
+  const due = new Date(v.dueDate);
+  let compareDate = new Date();
+
+  if (mode === "createdAt" && v.createdAt) {
+    compareDate = new Date(v.createdAt);
+  }
+
+  // Chuẩn hoá theo ngày
+  due.setHours(0, 0, 0, 0);
+  compareDate.setHours(0, 0, 0, 0);
+
+  return due.getTime() < compareDate.getTime();
+}
+
 function mapListItem(x: any): CaseListItem {
-  const st = normalize_Status(x?.status);
+  const st = beToFeStatus(x?.status);
 
   // --- contact summary (giữ logic cũ) ---
   const contact: ContactSummary | null = x?.contact
@@ -385,11 +495,21 @@ function mapListItem(x: any): CaseListItem {
     status: st,
     progress: x.progress ?? progressOf(st),
     consultantName: x.assigneeName ?? x.consultantName ?? null,
+    valuationName: x.valuationName ?? null,
     createdAt: x.createdAt,
     estimatedValue: x.estimatedValue ?? null,
     contact,
     diamond,
     resultSummary: x.resultSummary ?? null,
+    dueDate:
+      x.dueDate ??
+      x.deadline ??
+      x.expectedCompletionAt ??
+      (x.createdAt
+        ? new Date(
+            new Date(x.createdAt).getTime() + 7 * 24 * 60 * 60 * 1000
+          ).toISOString()
+        : null),
   };
 }
 
@@ -476,6 +596,18 @@ export async function listUnassignedCases(params?: {
   return { ...(data as any), items, totalPages };
 }
 
+export async function listUnassignedValuation(params?: {
+  page?: number;
+  pageSize?: number;
+  status?: string;
+}) {
+  const { data } = await api.get("/api/cases/unassigned/valuation", { params });
+  const items = (data.items || []).map(mapListItem);
+  const totalPages =
+    (data as any).totalPages ?? Math.ceil(data.total / data.pageSize);
+  return { ...(data as any), items, totalPages };
+}
+
 export async function listAssignedToMe(params?: {
   page?: number;
   pageSize?: number;
@@ -486,6 +618,59 @@ export async function listAssignedToMe(params?: {
   const totalPages =
     (data as any).totalPages ?? Math.ceil(data.total / data.pageSize);
   return { ...(data as any), items, totalPages };
+}
+
+export async function listAssignedToMeValuation(params?: {
+  page?: number;
+  pageSize?: number;
+  status?: string;
+}) {
+  const { data } = await api.get("/api/cases/assigned-to-me/valuation", {
+    params,
+  });
+  const items = (data.items || []).map(mapListItem);
+  const totalPages =
+    (data as any).totalPages ?? Math.ceil(data.total / data.pageSize);
+  return { ...(data as any), items, totalPages };
+}
+
+export async function listValuationQueue() {
+  const [mine, unassigned] = await Promise.all([
+    listAssignedToMe({ status: "DinhGia", page: 1, pageSize: 50 }).catch(
+      () => ({ items: [] } as any)
+    ),
+    listUnassignedCases({ status: "DinhGia", page: 1, pageSize: 50 }).catch(
+      () => ({ items: [] } as any)
+    ),
+  ]);
+  return [...(mine.items || []), ...(unassigned.items || [])];
+}
+
+export async function listPendingValuationCases(params?: {
+  page?: number;
+  pageSize?: number;
+  status?: string;
+}) {
+  const { data } = await api.get("/api/cases/pending-valuation", { params });
+  const items = (data.items || []).map(mapListItem);
+  const totalPages =
+    (data as any).totalPages ?? Math.ceil(data.total / data.pageSize);
+  return { ...(data as any), items, totalPages };
+}
+
+// =================== Assign Valuation ===============
+export async function assignValuation(
+  caseId: string,
+  payload: {
+    valuationId: number;
+    valuationName?: string;
+  }
+) {
+  await api.put(`/api/cases/${caseId}/assign/valuation`, payload);
+}
+
+export async function claimValuation(caseId: string): Promise<void> {
+  await api.post(`/api/cases/${caseId}/claim/valuation`);
 }
 
 export async function claimCase(caseId: string): Promise<void> {

@@ -3,13 +3,13 @@ import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // Tabs
 import OverviewTab from "./AdminTabs/OverviewTab";
 import UserTab from "./AdminTabs/UsersTab";
 import ValuationTab from "./AdminTabs/ValuationsTab";
-import OrderTab from "./AdminTabs/OrdersTab"; // <- component tự fetch, không nhận props
+import OrderTab from "./AdminTabs/OrdersTab";
 import ProductTab from "./AdminTabs/ProductsTab";
 import StaffTab from "./AdminTabs/StaffTab";
 import AnalyticsTab from "./AdminTabs/AnalyticsTab";
@@ -17,13 +17,18 @@ import SettingsTab from "./AdminTabs/SettingsTab";
 
 // Services
 import { UserAPI, AuthAPI, type UserDto } from "../services/user";
-import { api } from "../services/apiClient";
 import { normalizeRole, pickUserRole, toBackendRole } from "../utils/role";
 
-// ===== Mock/Stats mẫu cho các tab khác (giữ nguyên) =====
+// ★ NEW: lấy dữ liệu định giá từ services/valuation
+import {
+  listCases,
+  getValuationCounters,
+  type CaseListItem,
+} from "../services/valuation";
+
 const dashboardStats = {
   totalUsers: 50,
-  totalValuations: 2,
+  totalValuations: 2, // sẽ bị override bằng valuationsTotal
   pendingValuations: 34,
   totalRevenue: 2456789,
   monthlyRevenue: 234567,
@@ -32,27 +37,6 @@ const dashboardStats = {
   customerRating: 4.8,
   avgTurnaroundTime: 4.2,
 };
-
-const mockValuations = [
-  {
-    id: "VAL-2024-0123",
-    customer: "John Doe",
-    type: "Insurance Appraisal",
-    status: "in_progress",
-    assignedTo: "Dr. Emma Wilson",
-    dueDate: "2024-01-20",
-    priority: "normal",
-  },
-  {
-    id: "VAL-2024-0124",
-    customer: "Lisa Chen",
-    type: "Market Valuation",
-    status: "pending",
-    assignedTo: "James Rodriguez",
-    dueDate: "2024-01-22",
-    priority: "high",
-  },
-];
 
 const mockStaff = [
   {
@@ -131,7 +115,7 @@ function mapUserFromDto(u: UserDto) {
     id: String(u.id),
     name: u.fullName || u.userName || u.email,
     email: u.email,
-    role, // "consultingstaff" | "valuationstaff" | ...
+    role,
     avatar: u.avatarUrl,
     status: u.status || "active",
   };
@@ -140,6 +124,8 @@ function mapUserFromDto(u: UserDto) {
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
   const { t } = useLanguage();
+  const navigate = useNavigate();
+
   const [activeTab, setActiveTab] = useState<
     | "overview"
     | "users"
@@ -151,19 +137,29 @@ const AdminDashboard: React.FC = () => {
     | "settings"
   >("overview");
 
-  // ===== State =====
+  // ===== State (Users) =====
   const [users, setUsers] = useState<any[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [userPage, setUserPage] = useState(1);
   const [userPageSize] = useState(20);
   const [userTotalPages, setUserTotalPages] = useState(1);
 
-  const [valuations, setValuations] = useState(mockValuations);
+  // ===== State (Valuations từ DB) =====
+  const [valuations, setValuations] = useState<CaseListItem[]>([]);
+  const [valuationsTotal, setValuationsTotal] = useState(0); // ★ NEW
+  const [valuationCounters, setValuationCounters] = useState({
+    unresolved: 0,
+    inprogress: 0,
+    completed: 0,
+    overdue: 0,
+  });
+  const [loadingValuations, setLoadingValuations] = useState(false);
+
   const [staff, setStaff] = useState(mockStaff);
 
   // UI state cho Users
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-  const [userFilter, setUserFilter] = useState("all"); // all | customer | staff | admin
+  const [userFilter, setUserFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -197,7 +193,6 @@ const AdminDashboard: React.FC = () => {
   ) => {
     try {
       setLoadingUsers(true);
-      // UserAPI.list đã unwrap và trả PagedResult<UserDto>
       const pageData = await UserAPI.list(page, size, q || undefined, role);
       const items: UserDto[] = pageData?.items ?? [];
       setUsers(items.map(mapUserFromDto));
@@ -215,6 +210,31 @@ const AdminDashboard: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userPage, userPageSize, userFilter, searchQuery]);
 
+  // ===== Load valuations from BE (DB) =====
+  const reloadValuations = async () => {
+    try {
+      setLoadingValuations(true);
+      const res = await listCases({ page: 1, pageSize: 50 }); // tăng pageSize nếu cần
+      const { items, total } = res;
+      setValuations(items);
+      setValuationsTotal(items.length);
+      setValuationCounters(getValuationCounters(items));
+    } catch (e: any) {
+      console.error(e);
+      showErrorToast(e?.message || "Load valuations failed");
+      // fallback: vẫn cập nhật tổng theo items hiện có
+      setValuationsTotal((prev) =>
+        valuations.length ? valuations.length : prev
+      );
+    } finally {
+      setLoadingValuations(false);
+    }
+  };
+
+  useEffect(() => {
+    void reloadValuations();
+  }, []);
+
   // ===== Handlers (Users) =====
   const handleUserAction = async (action: string, userId?: string) => {
     try {
@@ -225,7 +245,6 @@ const AdminDashboard: React.FC = () => {
           setModalType("user");
           setIsModalOpen(true);
           break;
-
         case "edit": {
           const userToEdit = users.find((u: any) => u.id === userId);
           if (userToEdit) {
@@ -233,14 +252,13 @@ const AdminDashboard: React.FC = () => {
             setFormData({
               name: userToEdit.name,
               email: userToEdit.email,
-              role: userToEdit.role, // string
+              role: userToEdit.role,
             });
             setModalType("user");
             setIsModalOpen(true);
           }
           break;
         }
-
         case "suspend": {
           const id = Number(userId);
           if (!Number.isFinite(id)) break;
@@ -251,7 +269,6 @@ const AdminDashboard: React.FC = () => {
           }
           break;
         }
-
         case "activate": {
           const id = Number(userId);
           if (!Number.isFinite(id)) break;
@@ -260,7 +277,6 @@ const AdminDashboard: React.FC = () => {
           showNotification("User activated");
           break;
         }
-
         case "delete": {
           const id = Number(userId);
           if (!Number.isFinite(id)) break;
@@ -275,7 +291,6 @@ const AdminDashboard: React.FC = () => {
           }
           break;
         }
-
         case "bulk_action": {
           if (selectedUsers.length === 0) break;
           const act = prompt("Enter action (suspend/activate/delete):") as
@@ -303,57 +318,10 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  // ===== Handlers cho các tab khác (mock giữ nguyên) =====
-  const handleValuationAction = (action: string, valuationId?: string) => {
-    switch (action) {
-      case "add":
-        setSelectedItem(null);
-        setFormData({
-          customer: "",
-          type: "Insurance Appraisal",
-          assignedTo: "",
-          priority: "normal",
-          dueDate: "",
-        });
-        setModalType("valuation");
-        setIsModalOpen(true);
-        break;
-      case "reassign": {
-        const valuationToReassign = valuations.find(
-          (v) => v.id === valuationId
-        );
-        if (valuationToReassign) {
-          setSelectedItem(valuationToReassign);
-          setFormData({
-            assignedTo: valuationToReassign.assignedTo,
-            priority: valuationToReassign.priority,
-            notes: "",
-          });
-          setModalType("valuation");
-          setIsModalOpen(true);
-        }
-        break;
-      }
-      case "complete":
-        if (confirm("Mark this valuation as completed?")) {
-          setValuations((prev: any) =>
-            prev.map((v: any) =>
-              v.id === valuationId ? { ...v, status: "completed" } : v
-            )
-          );
-          showNotification("Valuation marked as completed");
-        }
-        break;
-      case "cancel":
-        if (confirm("Are you sure you want to cancel this valuation?")) {
-          setValuations((prev) =>
-            prev.map((v) =>
-              v.id === valuationId ? { ...v, status: "cancelled" } : v
-            )
-          );
-          showNotification("Valuation cancelled");
-        }
-        break;
+  // ===== Handlers (Valuations) — CHỈ VIEW =====
+  const handleValuationAction = (action: "view", valuationId?: string) => {
+    if (action === "view" && valuationId) {
+      navigate(`/admin/cases/${valuationId}`);
     }
   };
 
@@ -372,7 +340,6 @@ const AdminDashboard: React.FC = () => {
           showNotification("User updated");
           await reloadUsers();
         } else {
-          // Dùng AuthAPI.register để đồng bộ APIEnvelope
           await AuthAPI.register({
             userName: formData.email,
             email: formData.email,
@@ -380,7 +347,6 @@ const AdminDashboard: React.FC = () => {
             fullName: formData.name || formData.email,
           });
 
-          // Nếu tạo staff/role khác customer -> gán role
           if (formData.role && formData.role !== "customer") {
             const findRes = await UserAPI.list(1, 1, formData.email);
             const created = findRes.items?.[0] as UserDto | undefined;
@@ -396,29 +362,6 @@ const AdminDashboard: React.FC = () => {
 
           showNotification("User created successfully");
           await reloadUsers();
-        }
-      } else if (modalType === "valuation") {
-        if (selectedItem) {
-          setValuations((prev) =>
-            prev.map((v) =>
-              v.id === selectedItem.id
-                ? {
-                    ...v,
-                    assignedTo: formData.assignedTo,
-                    priority: formData.priority,
-                  }
-                : v
-            )
-          );
-          showNotification("Valuation reassigned successfully");
-        } else {
-          const newValuation = {
-            ...formData,
-            id: `VAL-2024-${String(Date.now()).slice(-4)}`,
-            status: "pending",
-          };
-          setValuations((prev) => [...prev, newValuation]);
-          showNotification("Valuation request created");
         }
       } else if (modalType === "staff") {
         if (selectedItem) {
@@ -489,7 +432,7 @@ const AdminDashboard: React.FC = () => {
     });
   }, [users, userFilter, searchQuery]);
 
-  // ===== Access control (roles có thể là string hoặc mảng) =====
+  // ===== Access control =====
   const rawRoles = Array.isArray((user as any)?.roles)
     ? (user as any).roles
     : (user as any)?.roles
@@ -630,7 +573,7 @@ const AdminDashboard: React.FC = () => {
                 t={t}
                 dashboardStats={{
                   totalUsers: dashboardStats.totalUsers,
-                  totalValuations: dashboardStats.totalValuations,
+                  totalValuations: valuationsTotal,
                   monthlyRevenue: dashboardStats.monthlyRevenue,
                   customerRating: dashboardStats.customerRating,
                 }}
@@ -698,28 +641,23 @@ const AdminDashboard: React.FC = () => {
             )}
 
             {activeTab === "valuations" && (
-              <ValuationTab
-                t={t}
-                valuations={valuations as any}
-                valuationStats={{
-                  pending: valuations.filter((v) => v.status === "pending")
-                    .length,
-                  inProgress: valuations.filter(
-                    (v) => v.status === "in_progress"
-                  ).length,
-                  completed: valuations.filter((v) => v.status === "completed")
-                    .length,
-                  overdue: valuations.filter((v) => v.status === "overdue")
-                    .length,
-                }}
-                handleValuationAction={handleValuationAction}
-              />
+              <>
+                {loadingValuations ? (
+                  <div className="bg-white rounded-lg shadow-md p-6">
+                    Loading valuations…
+                  </div>
+                ) : (
+                  <ValuationTab
+                    t={t}
+                    valuations={valuations}
+                    valuationStats={valuationCounters}
+                    handleValuationAction={handleValuationAction}
+                  />
+                )}
+              </>
             )}
 
-            {activeTab === "orders" && (
-              // ✅ Không truyền props, OrdersTab tự fetch + hiển thị customerName
-              <OrderTab />
-            )}
+            {activeTab === "orders" && <OrderTab />}
 
             {activeTab === "products" && <ProductTab />}
 
@@ -740,7 +678,7 @@ const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Modal chung */}
+      {/* Modal chung (chỉ còn dùng cho user/staff) */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white w-full max-w-lg rounded-lg shadow-lg p-6">
@@ -785,35 +723,6 @@ const AdminDashboard: React.FC = () => {
                     <option value="valuationstaff">Valuation Staff</option>
                     <option value="manager">Manager</option>
                     <option value="admin">Admin</option>
-                  </select>
-                </>
-              )}
-
-              {modalType === "valuation" && (
-                <>
-                  <input
-                    name="customer"
-                    placeholder="Customer"
-                    className="w-full border rounded px-3 py-2"
-                    value={formData.customer || ""}
-                    onChange={handleInputChange}
-                  />
-                  <input
-                    name="assignedTo"
-                    placeholder="Assigned To"
-                    className="w-full border rounded px-3 py-2"
-                    value={formData.assignedTo || ""}
-                    onChange={handleInputChange}
-                  />
-                  <select
-                    name="priority"
-                    className="w-full border rounded px-3 py-2"
-                    value={formData.priority || "normal"}
-                    onChange={handleInputChange}
-                  >
-                    <option value="low">low</option>
-                    <option value="normal">normal</option>
-                    <option value="high">high</option>
                   </select>
                 </>
               )}

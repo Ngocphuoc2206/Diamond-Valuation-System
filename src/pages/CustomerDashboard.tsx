@@ -105,6 +105,103 @@ const CustomerDashboard: React.FC = () => {
     },
   ]);
 
+  // --- Helpers: status mapping (ĐỒNG BỘ VỚI STAFF) ---
+
+  // 1) Chuẩn hoá status BE -> FE
+  const normalizeStatus = (status?: string): ValuationStatus => {
+    const s = (status || "").toLowerCase();
+    switch (s) {
+      case "yeucau":
+      case "submitted":
+        return "submitted";
+
+      case "lienhe":
+      case "customer_contacted":
+        return "customer_contacted";
+
+      case "bienlai":
+      case "receipt_created":
+        return "receipt_created";
+
+      // Trong BE không có "valuation_assigned" riêng, nhưng nếu có vẫn map hợp lý
+      case "dinhgia":
+      case "valuation_assigned":
+      case "valuation_in_progress":
+        return "valuation_in_progress";
+
+      case "ketqua":
+      case "valuation_completed":
+      case "results_sent": // nếu BE/FE có bước trung gian này, vẫn xem là đã có kết quả
+      case "result_prepared":
+        return "valuation_completed";
+
+      case "complete":
+      case "completed":
+      case "customer_received":
+        return "completed";
+
+      case "consultant_assigned":
+        return "consultant_assigned";
+
+      case "consultant_review":
+        return "consultant_review";
+
+      default:
+        return "submitted";
+    }
+  };
+
+  // 2) Bảng màu, nhãn, % tiến độ: dùng FE status DUY NHẤT
+  const STATUS_COLOR: Record<ValuationStatus, string> = {
+    submitted: "bg-blue-100 text-blue-800",
+    consultant_assigned: "bg-purple-100 text-purple-800",
+    customer_contacted: "bg-indigo-100 text-indigo-800",
+    receipt_created: "bg-green-100 text-green-800",
+    valuation_assigned: "bg-yellow-100 text-yellow-800",
+    valuation_in_progress: "bg-orange-100 text-orange-800",
+    valuation_completed: "bg-emerald-100 text-emerald-800",
+    consultant_review: "bg-teal-100 text-teal-800",
+    results_sent: "bg-teal-100 text-teal-800",
+    customer_received: "bg-teal-100 text-teal-800",
+    completed: "bg-gray-100 text-gray-800",
+  };
+
+  const STATUS_TEXT: Record<ValuationStatus, string> = {
+    submitted: "Request Submitted",
+    consultant_assigned: "Consultant Assigned",
+    customer_contacted: "Consultant Contacted",
+    receipt_created: "Diamond Received",
+    valuation_assigned: "Valuation Assigned",
+    valuation_in_progress: "Valuation in Progress",
+    valuation_completed: "Results Ready",
+    consultant_review: "Consultant Review",
+    results_sent: "Results Available",
+    customer_received: "Customer Received",
+    completed: "Process Complete",
+  };
+
+  const STATUS_PROGRESS: Record<ValuationStatus, number> = {
+    submitted: 10,
+    consultant_assigned: 20,
+    customer_contacted: 30,
+    receipt_created: 40,
+    valuation_assigned: 50,
+    valuation_in_progress: 65, // giống Staff
+    valuation_completed: 85,
+    consultant_review: 90,
+    results_sent: 95,
+    customer_received: 98,
+    completed: 100,
+  };
+
+  // 3) Wrapper hàm public: NHỚ luôn normalize trước khi lấy màu/nhãn/%
+  const getStatusColor = (status: string) =>
+    STATUS_COLOR[normalizeStatus(status)];
+  const getStatusText = (status: string) =>
+    STATUS_TEXT[normalizeStatus(status)];
+  const getProgressPercentage = (status: string) =>
+    STATUS_PROGRESS[normalizeStatus(status)];
+
   // Load Dashboard summary (me + recent orders)
   useEffect(() => {
     let mounted = true;
@@ -141,6 +238,7 @@ const CustomerDashboard: React.FC = () => {
         setCasesLoading(true);
         setCasesError(null);
         const data = await getMyCases(casePage, casePageSize, caseStatus);
+        console.log(data);
         if (!mounted) return;
         setCasesPage(data);
       } catch (e: any) {
@@ -186,108 +284,6 @@ const CustomerDashboard: React.FC = () => {
   const fadeInUp = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-  };
-
-  // Helpers: status mapping
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "YeuCau":
-        return "bg-blue-100 text-blue-800";
-      case "LienHe":
-        return "bg-indigo-100 text-indigo-800";
-      case "BienLai":
-        return "bg-green-100 text-green-800";
-      case "DinhGia":
-        return "bg-yellow-100 text-yellow-800";
-      case "KetQua":
-        return "bg-emerald-100 text-emerald-800";
-      case "Complete":
-        return "bg-gray-100 text-gray-800";
-      // fallback enum cũ
-      case "submitted":
-        return "bg-blue-100 text-blue-800";
-      case "consultant_assigned":
-        return "bg-purple-100 text-purple-800";
-      case "customer_contacted":
-        return "bg-indigo-100 text-indigo-800";
-      case "receipt_created":
-        return "bg-green-100 text-green-800";
-      case "valuation_assigned":
-        return "bg-yellow-100 text-yellow-800";
-      case "valuation_in_progress":
-        return "bg-orange-100 text-orange-800";
-      case "valuation_completed":
-        return "bg-emerald-100 text-emerald-800";
-      case "results_sent":
-        return "bg-teal-100 text-teal-800";
-      case "completed":
-        return "bg-gray-100 text-gray-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case "YeuCau":
-        return "Request Submitted";
-      case "LienHe":
-        return "Contacted";
-      case "BienLai":
-        return "Receipt Created";
-      case "DinhGia":
-        return "Valuation In Progress";
-      case "KetQua":
-        return "Results Ready";
-      case "Complete":
-        return "Process Complete";
-      // fallback
-      case "submitted":
-        return "Request Submitted";
-      case "consultant_assigned":
-        return "Consultant Assigned";
-      case "customer_contacted":
-        return "Consultant Contacted";
-      case "receipt_created":
-        return "Diamond Received";
-      case "valuation_assigned":
-        return "Valuation Assigned";
-      case "valuation_in_progress":
-        return "Valuation in Progress";
-      case "valuation_completed":
-        return "Valuation Complete";
-      case "results_sent":
-        return "Results Available";
-      case "completed":
-        return "Process Complete";
-      default:
-        return "Unknown Status";
-    }
-  };
-
-  const getProgressPercentage = (status: string) => {
-    const mapNew = {
-      YeuCau: 10,
-      LienHe: 25,
-      BienLai: 40,
-      DinhGia: 65,
-      KetQua: 85,
-      Complete: 100,
-    } as const;
-
-    const mapOld = {
-      submitted: 10,
-      consultant_assigned: 20,
-      customer_contacted: 30,
-      receipt_created: 40,
-      valuation_assigned: 50,
-      valuation_in_progress: 70,
-      valuation_completed: 85,
-      results_sent: 95,
-      completed: 100,
-    } as const;
-
-    return (mapNew as any)[status] ?? (mapOld as any)[status] ?? 0;
   };
 
   const getPriorityColor = (priority: string) => {
@@ -1072,8 +1068,8 @@ const CustomerDashboard: React.FC = () => {
                   <div className="bg-green-50 p-4 rounded-lg grid md:grid-cols-3 gap-4 text-sm">
                     <p>
                       <strong>Estimated Value:</strong>{" "}
-                      {caseDetail.estimatedValue != null
-                        ? caseDetail.estimatedValue.toLocaleString()
+                      {caseDetail.retailValue != null
+                        ? caseDetail.retailValue.toLocaleString()
                         : "TBD"}
                     </p>
                     <p>
@@ -1092,7 +1088,7 @@ const CustomerDashboard: React.FC = () => {
                 </div>
 
                 <div className="flex justify-end gap-3">
-                  {caseDetail.status === "KetQua" && (
+                  {caseDetail.status === "completed" && (
                     <>
                       <button
                         onClick={() => {
