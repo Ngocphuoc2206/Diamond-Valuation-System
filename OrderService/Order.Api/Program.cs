@@ -80,10 +80,19 @@ builder.Services.AddSwaggerGen(options =>
     options.AddSecurityDefinition("Bearer", scheme);
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
-        { scheme, Array.Empty<string>() }
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
     });
 
-    // Tạo SwaggerDoc theo version (cần provider tạm thời)
     using var sp = builder.Services.BuildServiceProvider();
     var apiProvider = sp.GetRequiredService<IApiVersionDescriptionProvider>();
     foreach (var desc in apiProvider.ApiVersionDescriptions)

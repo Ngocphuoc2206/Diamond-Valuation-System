@@ -38,11 +38,19 @@ builder.Services.AddSwaggerGen(c =>
         Description = "Nhập: Bearer {your JWT token}"
     };
     c.AddSecurityDefinition("Bearer", scheme);
-
-    // Áp dụng scheme cho tất cả operation → Swagger UI tự gửi header
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
-        { scheme, Array.Empty<string>() }
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
     });
 });
 

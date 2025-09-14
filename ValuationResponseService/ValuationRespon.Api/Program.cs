@@ -50,10 +50,7 @@ builder.Services.AddHttpClient<ICaseStatusClient, CaseStatusClient>((sp, c) =>
 builder.Services.AddControllers()
     .AddJsonOptions(o =>
     {
-        // Tránh lỗi vòng tham chiếu khi trả entity có navigation (Case -> Result/Timelines)
         o.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-        // Nếu muốn giữ nguyên tên property theo C#:
-        // o.JsonSerializerOptions.PropertyNamingPolicy = null;
     });
 
 // ====== Swagger ======

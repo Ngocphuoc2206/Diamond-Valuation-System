@@ -99,7 +99,7 @@ public class OrdersController : ControllerBase
         [FromServices] IConfiguration config)
     {
         // Verify HMAC
-        var secret = config["Integrations:Payment:Secret"]; // cấu hình trong appsettings hoặc env
+        var secret = config["Integrations:Payment:Secret"];
         if (string.IsNullOrWhiteSpace(secret) || string.IsNullOrWhiteSpace(signature) || string.IsNullOrWhiteSpace(timestamp))
             return Unauthorized("Missing signature");
 
@@ -109,7 +109,7 @@ public class OrdersController : ControllerBase
         if (!hash.Equals(signature, StringComparison.OrdinalIgnoreCase))
             return Unauthorized("Bad signature");
 
-        // 2) Map status payment -> order
+        //
         OrderStatus newStatus = dto.Status.ToLower() switch
         {
             "succeeded" => OrderStatus.Paid,
