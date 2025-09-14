@@ -525,6 +525,7 @@ const StaffDashboard: React.FC = () => {
 
       notify(`Đã tạo biên nhận #${created.receiptNo}`);
       reloadMyTasks();
+      window.location.reload();
     } catch (e: any) {
       const prob = e?.response?.data; // ValidationProblemDetails
       const errs = prob?.errors as Record<string, string[]> | undefined;
@@ -558,6 +559,7 @@ const StaffDashboard: React.FC = () => {
       await reloadMyTasks();
     } finally {
       setWorkingId(null);
+      window.location.reload();
     }
   }
 
@@ -741,6 +743,7 @@ const StaffDashboard: React.FC = () => {
         reloadMyTasks;
       }
       notify("Nhận case thành công!");
+      window.location.reload();
     } catch (e: any) {
       if (e?.response?.status === 409)
         notify("Case đã có người khác nhận trước.");
@@ -810,6 +813,7 @@ const StaffDashboard: React.FC = () => {
       notify?.("Gửi kết quả thất bại.");
     } finally {
       setFinishingId(null);
+      window.location.reload();
     }
   };
 
@@ -875,8 +879,8 @@ const StaffDashboard: React.FC = () => {
     );
     notify("Customer contact status updated!");
     reloadMyTasks();
+    window.location.reload();
   };
-  //   }`;
   //   setValuationRequests((prev) =>
   //     prev.map((request) =>
   //       request.id === requestId
@@ -943,6 +947,7 @@ const StaffDashboard: React.FC = () => {
       )
     );
     notify("Valuation process started!");
+    window.location.reload();
   };
 
   const handleCompleteValuation = (requestId: string) => {
@@ -977,6 +982,7 @@ const StaffDashboard: React.FC = () => {
     );
     notify("Valuation completed successfully!");
     reloadMyTasks();
+    window.location.reload();
   };
 
   // Workflow action handlers

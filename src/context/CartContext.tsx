@@ -70,7 +70,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   const { user, isAuthenticated } = useAuth();
   const [cart, setCart] = useState<Cart | undefined>(undefined);
 
-  // ✅ Customer hoặc Guest đều dùng session cartKey
   const isCustomerLike = useMemo(() => {
     const roles = Array.isArray(user?.roles)
       ? user?.roles
@@ -83,7 +82,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     return isCustomer || !isAuthenticated; // guest => true
   }, [user?.roles, isAuthenticated]);
 
-  // Lấy cartKey cho Customer/Guest (session). Role nội bộ -> undefined
+  // Lấy cartKey cho Customer/Guest (session).
   const cartKey = useMemo(() => {
     if (!isCustomerLike) return undefined;
     try {

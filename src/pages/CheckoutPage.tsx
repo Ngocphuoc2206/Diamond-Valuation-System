@@ -43,8 +43,8 @@ const CheckoutPage: React.FC = () => {
     try {
       // 1) Tạo đơn hàng ở OrderService
       // - Nếu là khách (customer với giỏ local) → truyền CartKey
-      // - Nếu là nhân sự (non-customer) → truyền CustomerId (BE tự lấy từ token nếu bạn sửa controller)
-      const cartKey = getCartKeyForCustomer(); // hoặc lấy từ context bạn đang dùng
+      // - Nếu là nhân sự (non-customer) → truyền CustomerId
+      const cartKey = getCartKeyForCustomer();
       const order = await checkout({
         cartKey,
         shippingFee: 0,
@@ -52,13 +52,13 @@ const CheckoutPage: React.FC = () => {
         note: addr.note,
       });
 
-      // 2a) COD: điều hướng trang success
+      //COD: điều hướng trang success
       if (method === "COD") {
         navigate(`/order/success?code=${encodeURIComponent(order.orderNo)}`);
         return;
       }
 
-      // 2b) FAKE: tạo Payment rồi redirect sang cổng giả
+      // FAKE: tạo Payment rồi redirect sang cổng giả
       const retUrl = `${window.location.origin}/payment/return`;
       const res = await createPayment({
         method: "FAKE",

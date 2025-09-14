@@ -1,10 +1,18 @@
 // src/pages/OrderSuccessPage.tsx
 import React from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams, Link, useNavigate } from "react-router-dom";
 
 const OrderSuccessPage: React.FC = () => {
   const [params] = useSearchParams();
   const code = params.get("code") || "N/A";
+  const navigate = useNavigate();
+
+  const handleContinueShopping = () => {
+    navigate("/shop");
+    setTimeout(() => {
+      window.location.reload();
+    }, 0);
+  };
 
   return (
     <div className="container-custom py-10">
@@ -20,12 +28,12 @@ const OrderSuccessPage: React.FC = () => {
           >
             Về trang chủ
           </Link>
-          <Link
-            to="/shop"
+          <button
+            onClick={handleContinueShopping}
             className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
           >
             Tiếp tục mua sắm
-          </Link>
+          </button>
         </div>
       </div>
     </div>

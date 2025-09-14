@@ -335,6 +335,8 @@ const enTranslations: Record<string, string> = {
   "admin.allCategories": "Tất cả danh mục",
   "admin.allStatuses": "Tất cả trạng thái",
   "admin.sortNewest": "Mới nhất",
+  "customer.welcomeBack": "Welcome Back",
+  "customer.requestValuation": "Request Valuation",
 
   "admin.product": "Sản phẩm",
   "admin.category": "Danh mục",
