@@ -3,20 +3,12 @@
   "WorkspaceRootPath": "D:\\Diamond-Valuation-Service\\UserService\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{DF34D81C-7A4E-C00C-9417-419794CE0023}|UserService.Application\\UserService.Application.csproj|d:\\diamond-valuation-service\\userservice\\userservice.application\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{DF34D81C-7A4E-C00C-9417-419794CE0023}|UserService.Application\\UserService.Application.csproj|solutionrelative:userservice.application\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{04E13BBA-FC1E-7394-4AB5-E46BD1A6170D}|UserService.Api\\UserService.Api.csproj|d:\\diamond-valuation-service\\userservice\\userservice.api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{04E13BBA-FC1E-7394-4AB5-E46BD1A6170D}|UserService.Api\\UserService.Api.csproj|solutionrelative:userservice.api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{04E13BBA-FC1E-7394-4AB5-E46BD1A6170D}|UserService.Api\\UserService.Api.csproj|d:\\diamond-valuation-service\\userservice\\userservice.api\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{04E13BBA-FC1E-7394-4AB5-E46BD1A6170D}|UserService.Api\\UserService.Api.csproj|solutionrelative:userservice.api\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{04E13BBA-FC1E-7394-4AB5-E46BD1A6170D}|UserService.Api\\UserService.Api.csproj|d:\\diamond-valuation-service\\userservice\\userservice.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{04E13BBA-FC1E-7394-4AB5-E46BD1A6170D}|UserService.Api\\UserService.Api.csproj|solutionrelative:userservice.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{04E13BBA-FC1E-7394-4AB5-E46BD1A6170D}|UserService.Api\\UserService.Api.csproj|d:\\diamond-valuation-service\\userservice\\userservice.api\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{04E13BBA-FC1E-7394-4AB5-E46BD1A6170D}|UserService.Api\\UserService.Api.csproj|solutionrelative:userservice.api\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{DF34D81C-7A4E-C00C-9417-419794CE0023}|UserService.Application\\UserService.Application.csproj|d:\\diamond-valuation-service\\userservice\\userservice.application\\services\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -34,7 +26,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Bookmark",
@@ -46,46 +38,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "AuthService.cs",
-              "DocumentMoniker": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Application\\Services\\AuthService.cs",
-              "RelativeDocumentMoniker": "UserService.Application\\Services\\AuthService.cs",
-              "ToolTip": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Application\\Services\\AuthService.cs",
-              "RelativeToolTip": "UserService.Application\\Services\\AuthService.cs",
-              "ViewState": "AgIAAGoAAAAAAAAAAAAWwFQAAAApAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-13T02:40:42.237Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "AuthController.cs",
-              "DocumentMoniker": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Api\\Controllers\\AuthController.cs",
-              "RelativeDocumentMoniker": "UserService.Api\\Controllers\\AuthController.cs",
-              "ToolTip": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Api\\Controllers\\AuthController.cs",
-              "RelativeToolTip": "UserService.Api\\Controllers\\AuthController.cs",
-              "ViewState": "AgIAABAAAAAAAAAAAAA8wAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-13T02:40:27.337Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
               "Title": "Program.cs",
               "DocumentMoniker": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Api\\Program.cs",
               "RelativeDocumentMoniker": "UserService.Api\\Program.cs",
               "ToolTip": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Api\\Program.cs",
               "RelativeToolTip": "UserService.Api\\Program.cs",
-              "ViewState": "AgIAAF0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAEQAAAAAAAAAAAAqwBQAAAA5AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-09-04T09:24:16.197Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 3,
               "Title": "IUserService.cs",
               "DocumentMoniker": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Application\\Interfaces\\IUserService.cs",
               "RelativeDocumentMoniker": "UserService.Application\\Interfaces\\IUserService.cs",
@@ -97,7 +63,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 2,
               "Title": "UserService.cs",
               "DocumentMoniker": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Application\\Services\\UserService.cs",
               "RelativeDocumentMoniker": "UserService.Application\\Services\\UserService.cs",
@@ -109,15 +75,16 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 0,
               "Title": "UserController.cs",
               "DocumentMoniker": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Api\\Controllers\\UserController.cs",
               "RelativeDocumentMoniker": "UserService.Api\\Controllers\\UserController.cs",
               "ToolTip": "D:\\Diamond-Valuation-Service\\UserService\\UserService.Api\\Controllers\\UserController.cs",
               "RelativeToolTip": "UserService.Api\\Controllers\\UserController.cs",
-              "ViewState": "AgIAADAAAAAAAAAAAAAAAD0AAAAgAAAAAAAAAA==",
+              "ViewState": "AgIAADMAAAAAAAAAAAAAADkAAAA0AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-02T04:04:51.704Z"
+              "WhenOpened": "2025-09-02T04:04:51.704Z",
+              "EditorCaption": ""
             }
           ]
         }
