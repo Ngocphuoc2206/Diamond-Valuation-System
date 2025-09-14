@@ -27,7 +27,19 @@ services:
       dockerfile: Dockerfile
     container_name: api-gateway
     environment:
+      - Integrations__User__BaseUrl=http://user-api:8080
+      - Integrations__Order__BaseUrl=http://order-api:8080
+      - Integrations__Valuation__BaseUrl=http://valuation-request-api:8080
+      - Integrations__Product__BaseUrl=http://product-api:8080
+      - Integrations__Payment__BaseUrl=http://payment-api:8080
+      - Integrations__ValuationRequest__BaseUrl=http://valuation-request-api:8080
+      - Integrations__ValuationResponse__BaseUrl=http://valuation-response-api:8080
+      - Jwt__Issuer=diamond.local
+      - Jwt__Audience=diamond.clients
+      - Jwt__SecretKey=SuperSecretKeyChangeMe_AtLeast32Chars
       - ASPNETCORE_URLS=http://+:8080
+     
+
     ports:
       - "9000:8080"
     depends_on:
@@ -37,6 +49,9 @@ services:
       - payment-api
       - pricing-api
       - user-api
+      - valuation-request-api
+      - valuation-response-api
+      - invoice-api
     networks:
       - diamond-net
 
@@ -100,6 +115,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
       - ConnectionStrings__OrderCartConnection=Server=sqlserver,1433;Database=DiamondOrderCartDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True
+      - Integrations__Payment__Secret=SuperStrongSharedSecret_ChangeMe
       # - RabbitMQ__HostName=rabbitmq
       # - RabbitMQ__UserName=guest
       # - RabbitMQ__Password=guest
@@ -135,13 +151,66 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
+      - Integrations__Order__BaseUrl=http://order-api:8080
+      - Integrations__Order__Secret=SuperStrongSharedSecret_ChangeMe
       - ConnectionStrings__PaymentConnection=Server=sqlserver,1433;Database=DiamondPaymentDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True
-      # - RabbitMQ__HostName=rabbitmq
-      # - RabbitMQ__UserName=guest
-      # - RabbitMQ__Password=guest
-      # - RabbitMQ__Port=5672
+      - PUBLIC_API_URL=http://localhost:7006
     depends_on: [sqlserver]
     ports: ["7006:8080"]
+    networks:
+      - diamond-net
+
+  valuation-request-api:
+    build:
+      context: ./ValuationRequestService
+      dockerfile: Diamond.ValuationService.Api/Dockerfile
+    container_name: valuation-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__ValuationConnection=Server=sqlserver,1433;Database=DiamondValuationDb;User Id=sa;Password=YourStrong!Passw0rd;Encrypt=True;TrustServerCertificate=True
+    depends_on: [sqlserver]
+    ports: ["7007:8080"]
+    networks:
+      - diamond-net
+
+  valuation-response-api:
+    build:
+      context: ./ValuationResponseService
+      dockerfile: ValuationRespon.Api/Dockerfile
+    container_name: valuation-response-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+
+      - Smtp__Host=smtp.gmail.com
+      - Smtp__Port=587
+      - Smtp__User=tranngocphuoc.2000vta@gmail.com
+      - Smtp__Password=xigtkfanxinzmwjv
+      - Smtp__From=Diamond Valuations <no-reply@diamond.local>
+      - Smtp__UseSsl=false
+      - Endpoints__ValuationRequest=http://valuation-request-api:8080
+      - Endpoints__ValuationRequest=http://valuation-request-api:8080
+      - ConnectionStrings__ValuationResponseConnection=Server=sqlserver,1433;Database=DiamondValuationResponseDb;User Id=sa;Password=YourStrong!Passw0rd;Encrypt=True;TrustServerCertificate=True
+    depends_on:
+      - sqlserver
+    ports: ["7008:8080"]
+    networks:
+      - diamond-net
+
+  invoice-api:
+    build:
+      context: ./InvoiceService       
+      dockerfile: InvoiceService.Api/Dockerfile
+    container_name: invoice-api          
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__Default=Server=sqlserver,1433;Database=InvoiceDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=true
+    depends_on:
+      - sqlserver
+    ports:
+      - "7009:8080"
     networks:
       - diamond-net
 
