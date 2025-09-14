@@ -1,0 +1,6 @@
+ECHO is on.
+.git 
+.vs 
+.bin/ 
+**bin/ 
+.vs/ 
