@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: diamond-sql
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourPassword123!
+    ports:
+      - "1433:1433"
+    restart: unless-stopped
+    volumes:
+      - sql_data:/var/opt/mssql
+
+  valuation-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: diamond-api
+    depends_on:
+      - sqlserver
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ConnectionStrings__SqlServer=Server=sqlserver,1433;Database=DiamondDb;User Id=sa;Password=YourPassword123!;TrustServerCertificate=True
+    volumes:
+      - ./Diamond-Valuation-Service/https:/https:ro
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+volumes:
+  sql_data:

@@ -1,0 +1,48 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Diamond.ValuationService.Api", "Diamond.ValuationService.Api\Diamond.ValuationService.Api.csproj", "{A5ADC281-FE01-00CC-E9E0-1B659B8EBA69}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Diamond.ValuationService.Application", "Diamond.ValuationService.Application\Diamond.ValuationService.Application.csproj", "{80108212-C7BC-2BF4-D059-8128EC5A3F3E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Diamond.ValuationService.Domain", "Diamond.ValuationService.Domain\Diamond.ValuationService.Domain.csproj", "{B08E6A63-29A5-C2D5-D5F5-961603F060E7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Diamond.ValuationService.Infrastructure", "Diamond.ValuationService.Infrastructure\Diamond.ValuationService.Infrastructure.csproj", "{3DDD826A-9700-1C7E-3BD4-90E5AEF76DF6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedLibrary", "SharedLibrary\SharedLibrary.csproj", "{2BB83C70-A316-4E30-DA94-F03E02E54AFB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A5ADC281-FE01-00CC-E9E0-1B659B8EBA69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5ADC281-FE01-00CC-E9E0-1B659B8EBA69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5ADC281-FE01-00CC-E9E0-1B659B8EBA69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5ADC281-FE01-00CC-E9E0-1B659B8EBA69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80108212-C7BC-2BF4-D059-8128EC5A3F3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80108212-C7BC-2BF4-D059-8128EC5A3F3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80108212-C7BC-2BF4-D059-8128EC5A3F3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80108212-C7BC-2BF4-D059-8128EC5A3F3E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B08E6A63-29A5-C2D5-D5F5-961603F060E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B08E6A63-29A5-C2D5-D5F5-961603F060E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B08E6A63-29A5-C2D5-D5F5-961603F060E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B08E6A63-29A5-C2D5-D5F5-961603F060E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3DDD826A-9700-1C7E-3BD4-90E5AEF76DF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DDD826A-9700-1C7E-3BD4-90E5AEF76DF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3DDD826A-9700-1C7E-3BD4-90E5AEF76DF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3DDD826A-9700-1C7E-3BD4-90E5AEF76DF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BB83C70-A316-4E30-DA94-F03E02E54AFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BB83C70-A316-4E30-DA94-F03E02E54AFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BB83C70-A316-4E30-DA94-F03E02E54AFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BB83C70-A316-4E30-DA94-F03E02E54AFB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7584074C-7996-4979-A59E-1786022AC656}
+	EndGlobalSection
+EndGlobal
