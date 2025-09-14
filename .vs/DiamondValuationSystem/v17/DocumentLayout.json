@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "D:\\Diamond-Valuation-Service\\InvoiceService\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{1F6396A9-CFAA-4C42-96EF-C88F1A9EB810}|InvoiceService.Application\\InvoiceService.Application.csproj|d:\\diamond-valuation-service\\invoiceservice\\invoiceservice.application\\validation\\createreceiptrequestvalidator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1F6396A9-CFAA-4C42-96EF-C88F1A9EB810}|InvoiceService.Application\\InvoiceService.Application.csproj|solutionrelative:invoiceservice.application\\validation\\createreceiptrequestvalidator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{8DC156A8-25C5-4A7E-8A8D-013D2FC46D41}|InvoiceService.Api\\InvoiceService.Api.csproj|d:\\diamond-valuation-service\\invoiceservice\\invoiceservice.api\\controllers\\receiptscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{8DC156A8-25C5-4A7E-8A8D-013D2FC46D41}|InvoiceService.Api\\InvoiceService.Api.csproj|solutionrelative:invoiceservice.api\\controllers\\receiptscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -18,7 +22,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Bookmark",
@@ -30,7 +34,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
+              "Title": "CreateReceiptRequestValidator.cs",
+              "DocumentMoniker": "D:\\Diamond-Valuation-Service\\InvoiceService\\InvoiceService.Application\\Validation\\CreateReceiptRequestValidator.cs",
+              "RelativeDocumentMoniker": "InvoiceService.Application\\Validation\\CreateReceiptRequestValidator.cs",
+              "ToolTip": "D:\\Diamond-Valuation-Service\\InvoiceService\\InvoiceService.Application\\Validation\\CreateReceiptRequestValidator.cs",
+              "RelativeToolTip": "InvoiceService.Application\\Validation\\CreateReceiptRequestValidator.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAABAAAABbAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-12T11:39:23.785Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "ReceiptService.cs",
               "DocumentMoniker": "D:\\Diamond-Valuation-Service\\InvoiceService\\InvoiceService.Application\\Services\\ReceiptService.cs",
               "RelativeDocumentMoniker": "InvoiceService.Application\\Services\\ReceiptService.cs",
@@ -38,12 +55,11 @@
               "RelativeToolTip": "InvoiceService.Application\\Services\\ReceiptService.cs",
               "ViewState": "AgIAAGwAAAAAAAAAAAAiwHoAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-12T03:14:16.187Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-12T03:14:16.187Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "ReceiptsController.cs",
               "DocumentMoniker": "D:\\Diamond-Valuation-Service\\InvoiceService\\InvoiceService.Api\\Controllers\\ReceiptsController.cs",
               "RelativeDocumentMoniker": "InvoiceService.Api\\Controllers\\ReceiptsController.cs",

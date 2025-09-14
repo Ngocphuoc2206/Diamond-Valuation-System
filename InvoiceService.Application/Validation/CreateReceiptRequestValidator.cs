@@ -14,7 +14,7 @@ public class CreateReceiptRequestValidator : AbstractValidator<CreateReceiptRequ
         new[] { "FL", "IF", "VVS1", "VVS2", "VS1", "VS2", "SI1", "SI2", "I1", "I2", "I3" };
 
     private static readonly string[] CutGrades =
-        new[] { "EXCELLENT", "VERY GOOD", "GOOD", "FAIR", "POOR" };
+        new[] { "EXCELLENT", "VERY GOOD", "GOOD", "FAIR", "POOR", "VERYGOOD", "VeryGood" };
 
     public CreateReceiptRequestValidator()
     {
