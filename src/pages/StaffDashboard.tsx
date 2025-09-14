@@ -421,7 +421,7 @@ const StaffDashboard: React.FC = () => {
     } catch (err) {
       console.error("reloadMyTasks failed:", err);
       // TODO: nếu bạn có toast, bật ở đây
-      // toast.error(t("common.loadFailed") ?? "Tải danh sách nhiệm vụ thất bại");
+      notify(t("common.loadFailed") ?? "Tải danh sách nhiệm vụ thất bại");
     } finally {
       setTasksLoading(false);
     }
@@ -475,7 +475,7 @@ const StaffDashboard: React.FC = () => {
         0
       );
       if (caratWeight <= 0) {
-        toast.error("Carat phải > 0.");
+        notify("Carat phải > 0.");
         return;
       }
 
@@ -504,9 +504,6 @@ const StaffDashboard: React.FC = () => {
       };
 
       const created = await createReceipt(payload);
-
-      // đổi status case sang bước tiếp theo (ví dụ "BienLai")
-      // đổi status case sang bước tiếp theo (ví dụ "BienLai")
       try {
         await updateStatus(req.id, "BienLai");
         // await sendToValuation(req.id);
@@ -526,7 +523,8 @@ const StaffDashboard: React.FC = () => {
         notify("Đổi trạng thái hồ sơ thất bại (biên nhận vẫn đã tạo).");
       }
 
-      toast.success(`Đã tạo biên nhận #${created.receiptNo}`);
+      notify(`Đã tạo biên nhận #${created.receiptNo}`);
+      reloadMyTasks();
     } catch (e: any) {
       const prob = e?.response?.data; // ValidationProblemDetails
       const errs = prob?.errors as Record<string, string[]> | undefined;
@@ -536,10 +534,10 @@ const StaffDashboard: React.FC = () => {
           ([k, v]) => `${k}: ${v.join("; ")}`
         );
         console.error("Validation errors:\n" + lines.join("\n"));
-        toast.error(lines.join(" | "));
+        notify(lines.join(" | "));
       } else {
         console.error(prob);
-        toast.error(prob?.title || "Bad Request (400)");
+        notify(prob?.title || "Bad Request (400)");
       }
     } finally {
       setLoading(false);
@@ -722,7 +720,6 @@ const StaffDashboard: React.FC = () => {
         // consultant
         await claimCase(requestId);
       }
-      notify("Nhận case thành công!");
       // Refresh danh sách theo vai trò + tab hiện tại
       if (activeTab === "queue") {
         if (isValuationStaff) {
@@ -743,6 +740,7 @@ const StaffDashboard: React.FC = () => {
         setValuationRequests(res.items);
         reloadMyTasks;
       }
+      notify("Nhận case thành công!");
     } catch (e: any) {
       if (e?.response?.status === 409)
         notify("Case đã có người khác nhận trước.");
@@ -790,7 +788,6 @@ const StaffDashboard: React.FC = () => {
       await api.post("/api/results", payload);
       try {
         await updateStatus(item.id, "valuation_completed");
-        await reloadMyTasks();
       } catch {}
       setValuationRequests((prev) =>
         (prev || []).map((r: any) =>
@@ -839,6 +836,7 @@ const StaffDashboard: React.FC = () => {
       );
 
       notify?.("Đã hoàn tất hồ sơ & gửi kết quả cho khách!");
+      window.location.reload();
     } catch (e: any) {
       console.error(e);
       notify?.("Hoàn tất hồ sơ thất bại");
@@ -876,8 +874,8 @@ const StaffDashboard: React.FC = () => {
       )
     );
     notify("Customer contact status updated!");
+    reloadMyTasks();
   };
-  //     requestId.split("-")[2]
   //   }`;
   //   setValuationRequests((prev) =>
   //     prev.map((request) =>
@@ -978,6 +976,7 @@ const StaffDashboard: React.FC = () => {
       )
     );
     notify("Valuation completed successfully!");
+    reloadMyTasks();
   };
 
   // Workflow action handlers
